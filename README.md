@@ -124,6 +124,10 @@ and the end-to-end suite in a real Chrome. The badge at the top of this file is 
 it passes. The end-to-end suite also audits the website with the extension itself, so the site is
 held to the scores it advertises.
 
+Pushing a tag such as `v0.1.0` runs the **Release** workflow: it checks that the tag matches the
+version in `package.json`, runs the typecheck and the tests, builds the store zip, verifies its
+manifest, and attaches the zip to a GitHub release.
+
 ### Website
 
 `website/` is plain HTML, CSS and JavaScript with no build step. The **Pages** workflow publishes it

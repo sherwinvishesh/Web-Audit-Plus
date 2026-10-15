@@ -42,6 +42,15 @@ npm run test:e2e    # builds, then drives the built extension in a real Chrome
 - **Fix prompts, manifest, docs**: the prompt templates (including that everything quoted from the
   site stays inside code spans), the permissions the manifest asks for, and that `docs/CHECKS.md`
   lists exactly the checks the code implements.
+- **Parity with `opengeo test`** (`tests/parity-checks.test.ts`): the edge cases where a port
+  could drift from the original: `Vary` values, HTML served at `robots.txt` or `llms.txt`, sitemap
+  indexes and their child cap, trailing-slash redirects against `.md` redirects, `Link` targets on
+  another origin, robots longest-match with `*` and `$`, header name case and duplicates, HTTP to
+  HTTPS upgrades for A8, and B14 without a source hash. `tests/parity-isolation.test.ts` fails if
+  anything under `src/agentic` ever references `chrome`, WXT or the extension and engine layers.
+- **Hostile input** (`tests/security-*.test.ts`): site strings carrying HTML, scripts,
+  `javascript:` URLs, backtick runs, bidi overrides or prompt-injection text render as text in the
+  report and the HTML export and stay inside one code span in every fix prompt.
 
 ## End-to-end
 
