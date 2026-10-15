@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docs · Web Audit+</title>
+<meta name="description" content="Install Web Audit+, run an audit, work the report, copy fix prompts, export, and understand the 22 Agentic checks, the permissions and how to develop the extension.">
+<link rel="canonical" href="https://sherwinvishesh.github.io/Web-Audit-Plus/docs/">
+<meta name="theme-color" content="#0b0d10">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="../assets/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
+<link rel="preload" href="../assets/fonts/geist-latin-wght-normal.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="../assets/site.css">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Web Audit+">
+<meta property="og:title" content="Web Audit+ documentation">
+<meta property="og:description" content="Install, run, work the report, export, the 22 Agentic checks, permissions and development.">
+<meta property="og:url" content="https://sherwinvishesh.github.io/Web-Audit-Plus/docs/">
+<meta property="og:image" content="https://sherwinvishesh.github.io/Web-Audit-Plus/assets/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Web Audit+: five score rings and the words Audit the page. Ship the fix.">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "TechArticle",
+  "headline": "Web Audit+ documentation",
+  "description": "Install Web Audit+, run an audit, work the report, copy fix prompts, export, and understand the 22 Agentic checks, the permissions and how to develop the extension.",
+  "url": "https://sherwinvishesh.github.io/Web-Audit-Plus/docs/",
+  "dateModified": "2026-10-15",
+  "isPartOf": { "@type": "WebSite", "name": "Web Audit+", "url": "https://sherwinvishesh.github.io/Web-Audit-Plus/" },
+  "about": { "@type": "SoftwareApplication", "name": "Web Audit+", "applicationCategory": "DeveloperApplication", "operatingSystem": "Chrome 125 or later" }
+}
+</script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="nav">
+  <div class="wrap">
+    <a class="brand" href="../">
+      <svg width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="19" height="19" rx="5" fill="#181c22" stroke="#2f3540"/><path d="M5.6 13.4a6 6 0 118.8 0" stroke="#3d8bff" stroke-width="1.75" stroke-linecap="round"/><circle cx="10" cy="10" r="1.6" fill="#e6e9ee"/></svg>
+      Web Audit+
+    </a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" aria-label="Menu">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M3 6h14M3 10h14M3 14h14"/></svg>
+    </button>
+    <nav aria-label="Site">
+      <ul class="nav-links" id="site-nav">
+        <li><a href="../#features">Features</a></li>
+        <li><a href="../#agentic">Agentic</a></li>
+        <li><a href="../#how">How it works</a></li>
+        <li><a href="./" aria-current="page">Docs</a></li>
+        <li><a href="../privacy/">Privacy</a></li>
+        <li><a href="https://github.com/sherwinvishesh/Web-Audit-Plus">GitHub</a></li>
+        <li><a class="btn btn-primary" href="#install">Get the extension</a></li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="page">
+  <div class="wrap">
+    <div class="page-head">
+      <p class="eyebrow">Documentation</p>
+      <h1>Everything Web Audit+ does, and how.</h1>
+      <p class="lede">From installing the extension to the weight of every Agentic check. If a question is not answered here, open an issue on GitHub.</p>
+      <p class="meta">Version 0.1.0 · Chrome 125 or later · Updated October 15, 2026</p>
+    </div>
+
+    <div class="docs-layout">
+      <aside class="toc" aria-label="On this page">
+        <h2>On this page</h2>
+        <ol>
+          <li><a href="#install">Install</a></li>
+          <li><a href="#run">Run an audit</a></li>
+          <li><a href="#report">The report</a></li>
+          <li><a href="#prompts">Fix prompts</a></li>
+          <li><a href="#exports">Exports</a></li>
+          <li><a href="#keyboard">Keyboard</a></li>
+          <li><a href="#agentic">Agentic checks</a></li>
+          <li><a href="#permissions">Permissions</a></li>
+          <li><a href="#troubleshooting">Troubleshooting</a></li>
+          <li><a href="#develop">Develop</a></li>
+          <li><a href="#license">License</a></li>
+        </ol>
+      </aside>
+
+      <div class="prose">
+        <h2 id="install"><a class="anchor" href="#install">Install</a></h2>
+        <p>Web Audit+ needs Google Chrome 125 or later. Until it is listed on the Chrome Web Store, it is loaded unpacked from a local build.</p>
+        <ol>
+          <li>Clone the repository and build it:
+<pre><code>git clone https://github.com/sherwinvishesh/Web-Audit-Plus.git
+cd Web-Audit-Plus
+npm install
+npm run build</code></pre></li>
+          <li>Open <code>chrome://extensions</code> and turn on <strong>Developer mode</strong> (top right).</li>
+          <li>Click <strong>Load unpacked</strong> and select the <code>output/chrome-mv3</code> folder.</li>
+          <li>Pin Web Audit+ to the toolbar from the puzzle-piece menu.</li>
+        </ol>
+        <p class="callout">The build is a complete, self-contained extension. It makes no requests except to the site you audit, so you can load it on a machine that is otherwise offline.</p>
+
+        <h2 id="run"><a class="anchor" href="#run">Run an audit</a></h2>
+        <ol>
+          <li>Open the page you want to audit and click the Web Audit+ icon. The side panel opens.</li>
+          <li>Pick <strong>Desktop</strong> or <strong>Mobile</strong> and the categories to run, then press <strong>Run audit</strong>.</li>
+          <li>Watch the progress. The Agentic score arrives in seconds, while the audit engine reloads the page with its own emulation and throttling and records a trace.</li>
+          <li>Press <strong>Open full report</strong>.</li>
+        </ol>
+        <p>While the engine runs, Chrome shows a bar saying that Web Audit+ <em>started debugging this browser</em>. That is how Chrome tells you an extension is using the debugger, which the audit engine needs. It goes away when the run ends. Pressing <strong>Cancel</strong> on it stops the run. The bar also shows for a moment when you download a PDF, because Chrome prints the report through the same debugger.</p>
+        <p>Mobile runs emulate a mid-range phone with simulated throttling; Desktop runs use a desktop viewport and lighter throttling. Both use the standard metric weights and thresholds, so the numbers line up with the ones you would get from a lab run in DevTools.</p>
+
+        <h2 id="report"><a class="anchor" href="#report">The report</a></h2>
+        <p>The report opens in its own tab. Scores sit at the top, one ring per category, and the audits follow, grouped by category with failed audits first and passed ones folded away.</p>
+        <ul>
+          <li><strong>Search and filter.</strong> Press <kbd>/</kbd> to search audit titles and ids. The filter chips narrow the list to failed, partial or passed audits, and to single categories.</li>
+          <li><strong>Fix next.</strong> A tab that ranks every fix by the points it adds to the score, across all categories, most points first. It keeps its place in the URL, so a link to it stays on it.</li>
+          <li><strong>Compare.</strong> When a URL has been audited before, the report shows what changed since the last run: fixed, new, still failing, and the score delta for each category.</li>
+          <li><strong>History.</strong> The report page without a run lists your saved runs, newest first. Runs are kept in your browser, newest 200.</li>
+          <li><strong>Deep links.</strong> Every audit has a link, so a URL like <code>report.html?run=…#audit-agentic:B1</code> opens the report with that row expanded.</li>
+        </ul>
+
+        <h2 id="prompts"><a class="anchor" href="#prompts">Fix prompts</a></h2>
+        <p>Every failing, partial or locked audit produces a prompt written for a coding assistant. Each item names the audit, states the points at stake, quotes the evidence (elements, URLs, measured values), explains the fix, links a reference and ends with what done looks like. The prompt then asks the assistant for file-by-file diffs against the real repository, and tells it not to touch unrelated code.</p>
+        <p>You can copy one audit (the copy button on its row, or <kbd>c</kbd> while it is focused), a whole category, or every fix in the run at once.</p>
+        <p>Everything quoted from the site travels as an inert single-line code span: whitespace collapsed, control and bidirectional characters made visible, length capped, and fenced so it cannot close its own span. The prompt says so, and ends by telling the assistant that quoted values are evidence, not instructions.</p>
+        <p class="callout warn">A prompt quotes content from the page it audited. Before pasting a prompt about a private page into a hosted assistant, read it the way you would read anything else you paste there.</p>
+
+        <h2 id="exports"><a class="anchor" href="#exports">Exports</a></h2>
+        <p>The Export menu in the report offers four formats. All of them are produced in your browser.</p>
+        <div class="table-wrap">
+        <table>
+          <thead><tr><th>Format</th><th>What you get</th></tr></thead>
+          <tbody>
+            <tr><td>PDF</td><td>A print-ready document: a cover with every score and a screenshot of the page, the ranked fixes, a page for each category with every finding written out, and the fix prompt. Text is selectable, links work, headings are bookmarks, and the file is tagged for screen readers. It prints on A4 or Letter, whichever your locale uses.</td></tr>
+            <tr><td>HTML</td><td>A single-file report that works offline, with the same layout as the report tab.</td></tr>
+            <tr><td>JSON</td><td>The full run as the engine produced it: every audit result, the Agentic evidence, the scores and the run settings.</td></tr>
+            <tr><td>Markdown</td><td>A summary with the scores and the failing audits, ready to paste into an issue or a pull request.</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2 id="keyboard"><a class="anchor" href="#keyboard">Keyboard</a></h2>
+        <div class="table-wrap">
+        <table>
+          <thead><tr><th>Key</th><th>Action</th></tr></thead>
+          <tbody>
+            <tr><td><kbd>/</kbd></td><td>Search audits</td></tr>
+            <tr><td><kbd>Enter</kbd></td><td>From the search, go to the first result. On an audit, open or close it</td></tr>
+            <tr><td><kbd>j</kbd> / <kbd>k</kbd></td><td>Next and previous audit</td></tr>
+            <tr><td><kbd>c</kbd></td><td>Copy the focused audit's fix prompt</td></tr>
+            <tr><td><kbd>Esc</kbd></td><td>Clear and leave the search</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <h2 id="agentic"><a class="anchor" href="#agentic">Agentic checks</a></h2>
+        <p>The Agentic category scores how well a page serves AI agents: crawlers that build training sets, search agents that cite pages, and assistants that fetch a page because someone asked about it. It runs 22 deterministic checks, ported from OpenGEO's <code>opengeo test</code> with the same weights, thresholds and calibration. No language model is involved anywhere: the same responses always produce the same score.</p>
+
+        <h3>What is fetched</h3>
+        <p>Every request goes to the audited origin, with cookies omitted and the cache bypassed. The requests are sent by the extension's background worker rather than by the page, so the page's Content-Security-Policy cannot block them and the site sees an anonymous visitor, the way it sees an agent. Timings are measured from your browser.</p>
+        <div class="table-wrap">
+        <table>
+          <thead><tr><th>Probe</th><th>Request</th><th>Used by</th></tr></thead>
+          <tbody>
+            <tr><td>html</td><td>the page, as a browser (Chrome User-Agent, HTML Accept)</td><td>A4, A5, A6, A7, A8, B7, B8, B13, B14</td></tr>
+            <tr><td>robots</td><td><code>/robots.txt</code></td><td>A1</td></tr>
+            <tr><td>llms</td><td><code>/llms.txt</code></td><td>A2</td></tr>
+            <tr><td>sitemap</td><td><code>/sitemap.xml</code>, plus up to 10 children of a sitemap index</td><td>A3</td></tr>
+            <tr><td>twin</td><td>the markdown twin: the page's <code>Link rel="alternate"</code> target if it is on the same origin, otherwise the page path plus <code>.md</code> (<code>/</code> becomes <code>/index.md</code>)</td><td>B1 to B7, B12, B14</td></tr>
+            <tr><td>acceptMarkdown</td><td>the page, <code>Accept: text/markdown</code>, Web Audit+'s own User-Agent</td><td>B9</td></tr>
+            <tr><td>botUa</td><td>the page, GPTBot's User-Agent, <code>Accept: */*</code></td><td>B10</td></tr>
+            <tr><td>notAcceptable</td><td>the page, <code>Accept: application/pdf</code></td><td>B11</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p>A status code is never trusted on its own. A catch-all route that answers <code>/robots.txt</code> or <code>/resume.md</code> with its HTML shell and a 200 is detected by sniffing the body, and is scored as the missing file it is.</p>
+
+        <h3>How the score is computed</h3>
+        <p>Every check carries a weight. Required checks carry more than recommended ones. Weights total 122 and the score is out of 100, so a weight is not a score point: every "+N" the report shows has been converted into score points for this run.</p>
+<pre><code>score = round(100 × earned / applicable)</code></pre>
+        <p><code>applicable</code> is the sum of the weights of the checks that returned pass, partial or fail. Rounding happens once, at the end.</p>
+        <div class="table-wrap">
+        <table>
+          <thead><tr><th>Verdict</th><th>In the denominator</th><th>Earns</th></tr></thead>
+          <tbody>
+            <tr><td>pass</td><td>yes</td><td>the full weight</td></tr>
+            <tr><td>partial</td><td>yes</td><td>part of the weight, named in the row</td></tr>
+            <tr><td>fail</td><td>yes</td><td>nothing</td></tr>
+            <tr><td>locked</td><td>no</td><td>nothing until the check it is waiting on passes</td></tr>
+            <tr><td>n/a</td><td>no</td><td>nothing, and there is nothing to fix</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p>When the markdown twin does not exist, the twelve category B checks that read it have nothing to inspect. They become <strong>locked</strong> behind B1 and leave the denominator, so the whole verdict on the markdown layer is carried by B1, the heaviest check in the table. The report shows them as one line, with what unlocking them is worth, rather than as twelve separate failures. A twin that exists but is served wrong is still scored in full detail.</p>
+        <p>Two calibration points are pinned by tests: a site that does everything right except the AI conventions (no llms.txt, no JSON-LD, no twin) scores 80, and the same site serving a correct twin scores 100.</p>
+
+        <h3>The checks</h3>
+        <div class="table-wrap">
+        <table class="checks-table">
+          <thead><tr><th>Id</th><th>Weight</th><th>Required</th><th>Check</th></tr></thead>
+          <tbody>
+            <tr><td>A1</td><td>9</td><td>yes</td><td>robots.txt exists and does not disallow known AI bots. Read the way a crawler reads it: each of 28 known AI agents obeys its own group if there is one and <code>*</code> otherwise. Blocking an assistant or search agent fails; blocking only bulk training crawlers reads as a deliberate opt-out and earns 6 of 9.</td></tr>
+            <tr><td>A2</td><td>3</td><td>no</td><td>llms.txt is present and valid: served as a file, with a <code># Title</code> first line and at least one link.</td></tr>
+            <tr><td>A3</td><td>9</td><td>yes</td><td>sitemap.xml is present and valid, and lists this page. A valid sitemap that omits the page earns 6; a sitemap index is followed into its first 10 children.</td></tr>
+            <tr><td>A4</td><td>2</td><td>no</td><td>Schema.org JSON-LD is present and parses, with an <code>@type</code>.</td></tr>
+            <tr><td>A5</td><td>9</td><td>yes</td><td>Real content is in the raw HTML, not only after JS runs. 60 words or more in the main content passes; 15 or fewer fails; in between is ramped.</td></tr>
+            <tr><td>A6</td><td>8</td><td>yes</td><td>Time to first byte is fast enough for agent fetches: 400 ms or less passes, 1500 ms or more fails, ramped in between.</td></tr>
+            <tr><td>A7</td><td>8</td><td>yes</td><td>No <code>noai</code> or <code>noimageai</code> directive in <code>X-Robots-Tag</code> or a robots meta tag is silently blocking AI.</td></tr>
+            <tr><td>A8</td><td>9</td><td>yes</td><td>Served over HTTPS with HSTS. HTTPS without <code>Strict-Transport-Security</code> earns 6. Not applicable on local hosts.</td></tr>
+            <tr><td>B1</td><td>10</td><td>yes</td><td>Markdown twin URL is reachable and returns 2xx with something other than an HTML page.</td></tr>
+            <tr><td>B2</td><td>5</td><td>yes</td><td>Content-Type is exactly <code>text/markdown; charset=utf-8</code>. Without the charset earns 3; <code>text/plain</code> earns 2.</td></tr>
+            <tr><td>B3</td><td>5</td><td>yes</td><td>Markdown response body is non-empty and at least half the live page's word count.</td></tr>
+            <tr><td>B4</td><td>3</td><td>no</td><td><code>X-Markdown-Tokens</code> is present and a positive integer.</td></tr>
+            <tr><td>B5</td><td>3</td><td>no</td><td><code>X-Content-Type-Options: nosniff</code> is present on the twin.</td></tr>
+            <tr><td>B6</td><td>3</td><td>yes</td><td><code>X-Robots-Tag</code> on the twin includes <code>noindex</code>.</td></tr>
+            <tr><td>B7</td><td>4</td><td>yes</td><td><code>Vary</code> includes <code>Accept</code> on both responses, so CDNs cache the two formats separately. One side right earns 2.</td></tr>
+            <tr><td>B8</td><td>3</td><td>no</td><td>The HTML response advertises the twin via a <code>Link</code> header with <code>rel="alternate"</code> and <code>type="text/markdown"</code>.</td></tr>
+            <tr><td>B9</td><td>6</td><td>yes</td><td><code>Accept: text/markdown</code> on the page URL receives markdown at the same URL, not HTML and not a redirect.</td></tr>
+            <tr><td>B10</td><td>6</td><td>yes</td><td>A known AI bot User-Agent receives markdown at the same URL without an Accept header.</td></tr>
+            <tr><td>B11</td><td>2</td><td>no</td><td>An Accept header excluding HTML and markdown (<code>application/pdf</code>) returns 406.</td></tr>
+            <tr><td>B12</td><td>2</td><td>no</td><td><code>X-AEO-Version</code> on the markdown response advertises the spec version implemented.</td></tr>
+            <tr><td>B13</td><td>9</td><td>yes</td><td>The original HTML URL is still reachable and unaffected: 2xx, an HTML Content-Type, a non-empty body, and no redirect to the twin.</td></tr>
+            <tr><td>B14</td><td>4</td><td>yes</td><td>The served markdown still matches the live page. With a source hash, the live content is hashed and compared; without one, the numbers, dates and prices on the live page are compared with the twin one by one. One discrepancy earns 2.</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p>Checks B4 to B12 read response headers that only the server can set. A static host that cannot send custom headers, such as GitHub Pages, can pass everything else and leaves those on the table; a CDN or edge layer in front of it can add them.</p>
+
+        <h2 id="permissions"><a class="anchor" href="#permissions">Permissions</a></h2>
+        <p>Chrome asks for these when the extension is installed. Each one is there for a reason you can check in the source.</p>
+        <div class="table-wrap">
+        <table>
+          <thead><tr><th>Permission</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td><code>debugger</code></td><td>The audit engine drives the tab over the Chrome DevTools Protocol. It loads the page with emulation and throttling, records a trace, and collects network, DOM and accessibility data. The Agentic probe that sends a crawler's User-Agent uses it too, on the extension's own worker, and the PDF export prints the report page through it.</td></tr>
+            <tr><td><code>&lt;all_urls&gt;</code> host access</td><td>The Agentic checks fetch <code>robots.txt</code>, <code>llms.txt</code>, the sitemap and the markdown twin from whatever site you audit, from the extension rather than the page, so the page's Content-Security-Policy cannot block them.</td></tr>
+            <tr><td><code>activeTab</code></td><td>Gives access to the tab you clicked the icon on, even if you set the extension's site access to "On click".</td></tr>
+            <tr><td><code>tabs</code></td><td>Reads the URL of the tab the side panel is showing, follows it as you switch tabs, and opens the report.</td></tr>
+            <tr><td><code>sidePanel</code></td><td>The audit controls live in Chrome's side panel.</td></tr>
+            <tr><td><code>storage</code></td><td>Remembers your device and category choices. Runs themselves are in IndexedDB.</td></tr>
+          </tbody>
+        </table>
+        </div>
+        <p>Web Audit+ makes no requests except to the site you audit. The <a href="../privacy/">privacy policy</a> spells out what that means.</p>
+
+        <h2 id="troubleshooting"><a class="anchor" href="#troubleshooting">Troubleshooting</a></h2>
+        <dl>
+          <dt>"This is a browser page"</dt>
+          <dd>Chrome does not let extensions audit its own pages (<code>chrome://</code>, the Web Store, other extensions). Open a normal website and try again.</dd>
+          <dt>The run stopped</dt>
+          <dd>Pressing Cancel on the debugging bar, closing the tab, or another extension attaching the debugger to the same tab ends the run. Start it again from the side panel.</dd>
+          <dt>Two audits show an error</dt>
+          <dd>Chrome keeps JavaScript coverage from extensions, so the two audits built on it, unused JavaScript and the script treemap, cannot run. Everything else does.</dd>
+          <dt>Agentic says HTTPS is not applicable</dt>
+          <dd>That is expected on <code>localhost</code>, <code>127.0.0.1</code> and <code>*.local</code> hosts. The check leaves the denominator instead of failing.</dd>
+          <dt>Performance scores differ between runs</dt>
+          <dd>Lab runs vary with what else your machine is doing. Close heavy tabs, run again, and compare the two runs in the report.</dd>
+        </dl>
+
+        <h2 id="develop"><a class="anchor" href="#develop">Develop</a></h2>
+<pre><code>npm run dev         # Chrome with the extension loaded, reloading as you edit
+npm run typecheck   # strict TypeScript
+npm run test        # unit and integration tests
+npm run test:e2e    # builds, then drives the extension in a real Chrome
+npm run zip         # packages the build for the Chrome Web Store</code></pre>
+<pre><code>src/
+  agentic/      the Agentic engine: evidence gathering, the 22 checks, scoring
+  engine/       the audit engine inside the extension: CDP adapter, shims, normalization
+  shared/       run records, storage, report model, fix prompts, compare, filters
+  extension/    entrypoints: background worker, side panel, report page
+  ui/           React components: side panel, report, HTML and PDF exports
+packages/
+  engine/       the audit engine: gatherers, audits and scoring
+scripts/        build plugin that bundles the audit engine for a service worker
+tests/          Vitest suites, fixture sites, end-to-end harness
+docs/           engine notes, the Agentic check catalog, testing
+website/        this site</code></pre>
+        <p>Built with WXT, React 18, TypeScript and Tailwind CSS 4. The typeface is Geist, bundled with the extension. Pull requests run the same checks as the CI badge on the repository: typecheck, unit tests, build and the end-to-end suite in a real Chrome.</p>
+
+        <h2 id="license"><a class="anchor" href="#license">License</a></h2>
+        <p>The audit engine in <code>packages/engine</code> is derived from Apache-2.0 code by Google LLC and keeps that license, with its LICENSE and NOTICE files. Geist is used under the SIL Open Font License. The source is on <a href="https://github.com/sherwinvishesh/Web-Audit-Plus">GitHub</a>.</p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <div>
+      <a class="brand" href="../">
+        <svg width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="0.5" y="0.5" width="19" height="19" rx="5" fill="#181c22" stroke="#2f3540"/><path d="M5.6 13.4a6 6 0 118.8 0" stroke="#3d8bff" stroke-width="1.75" stroke-linecap="round"/><circle cx="10" cy="10" r="1.6" fill="#e6e9ee"/></svg>
+        Web Audit+
+      </a>
+      <p class="tag">Five scores for any page, a fix prompt for every failing audit, and nothing leaves your browser.</p>
+    </div>
+    <div>
+      <h3>Product</h3>
+      <ul>
+        <li><a href="../#features">Features</a></li>
+        <li><a href="../#agentic">Agentic checks</a></li>
+        <li><a href="../#how">How it works</a></li>
+        <li><a href="../#faq">FAQ</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Docs</h3>
+      <ul>
+        <li><a href="#install">Install</a></li>
+        <li><a href="#report">The report</a></li>
+        <li><a href="#permissions">Permissions</a></li>
+        <li><a href="#develop">Develop</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Project</h3>
+      <ul>
+        <li><a href="https://github.com/sherwinvishesh/Web-Audit-Plus">GitHub</a></li>
+        <li><a href="https://github.com/sherwinvishesh/Web-Audit-Plus/issues">Report an issue</a></li>
+        <li><a href="../privacy/">Privacy policy</a></li>
+        <li><a href="../llms.txt">llms.txt</a></li>
+      </ul>
+    </div>
+    <p class="fine">Open source. The bundled audit engine is derived from Apache-2.0 code by Google LLC. Geist is used under the SIL Open Font License.</p>
+  </div>
+</footer>
+
+<script src="../assets/site.js" defer></script>
+</body>
+</html>

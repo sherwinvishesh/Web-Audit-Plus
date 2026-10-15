@@ -6,3 +6,4 @@ dist/
 .DS_Store
 coverage/
 web-ext.config.ts
+CHROME_WEB_STORE.md

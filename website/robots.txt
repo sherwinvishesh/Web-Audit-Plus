@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://sherwinvishesh.github.io/Web-Audit-Plus/sitemap.xml

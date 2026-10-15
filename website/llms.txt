@@ -1,0 +1,21 @@
+# Web Audit+
+
+> A free, open-source Chrome extension that scores the page you are on for Performance, Accessibility, Best Practices, SEO and Agentic (how well the page serves AI agents), and writes a fix prompt for every failing audit. Nothing leaves your browser.
+
+Web Audit+ runs the bundled audit engine on your own tab with simulated throttling and device emulation, plus 22 deterministic Agentic checks for robots.txt, llms.txt, sitemaps, structured data, raw-HTML content and markdown twins served through content negotiation. Runs are saved in the browser (newest 200), there is no account, no server and no telemetry.
+
+## Pages
+
+- [Home](https://sherwinvishesh.github.io/Web-Audit-Plus/): what the extension does, the five scores, the 22 Agentic checks, how it works, FAQ
+- [Docs](https://sherwinvishesh.github.io/Web-Audit-Plus/docs/): install, run an audit, the report, fix prompts, exports, keyboard, the Agentic checks and their weights, permissions, troubleshooting, development
+- [Privacy policy](https://sherwinvishesh.github.io/Web-Audit-Plus/privacy/): what the extension stores on your device, what it sends to the audited site, what it never does
+
+## Markdown versions
+
+- [Home](https://sherwinvishesh.github.io/Web-Audit-Plus/index.md)
+- [Docs](https://sherwinvishesh.github.io/Web-Audit-Plus/docs.md)
+- [Privacy policy](https://sherwinvishesh.github.io/Web-Audit-Plus/privacy.md)
+
+## Source
+
+- [GitHub repository](https://github.com/sherwinvishesh/Web-Audit-Plus): source code, issues, releases

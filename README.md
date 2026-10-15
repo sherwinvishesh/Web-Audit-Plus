@@ -1,8 +1,18 @@
 # Web Audit+
 
+[![CI](https://github.com/sherwinvishesh/Web-Audit-Plus/actions/workflows/ci.yml/badge.svg)](https://github.com/sherwinvishesh/Web-Audit-Plus/actions/workflows/ci.yml)
+[![Pages](https://github.com/sherwinvishesh/Web-Audit-Plus/actions/workflows/pages.yml/badge.svg)](https://github.com/sherwinvishesh/Web-Audit-Plus/actions/workflows/pages.yml)
+
+**Audit the page. Ship the fix.**
+
 A Chrome extension that audits the page you are on: **Performance, Accessibility, Best Practices
-and SEO**, scored by the bundled audit engine, plus **Agentic**, a fifth category for how well the page serves
-AI agents. Every failing audit comes with a fix prompt you can paste into a coding assistant.
+and SEO**, scored by the bundled audit engine, plus **Agentic**, a fifth category for how well the
+page serves AI agents. Every failing audit comes with a fix prompt you can paste into a coding
+assistant. Nothing leaves your browser.
+
+**[Website](https://sherwinvishesh.github.io/Web-Audit-Plus/)** ·
+**[Documentation](https://sherwinvishesh.github.io/Web-Audit-Plus/docs/)** ·
+**[Privacy policy](https://sherwinvishesh.github.io/Web-Audit-Plus/privacy/)**
 
 - **Lab-standard scores.** The audit engine (`packages/engine`) runs inside the extension, on your
   tab, with simulated throttling, device emulation and the standard metric weights and thresholds.
@@ -27,7 +37,7 @@ AI agents. Every failing audit comes with a fix prompt you can paste into a codi
 
 ## Install
 
-Web Audit+ is loaded unpacked. It needs Chrome 125 or later.
+Web Audit+ needs Chrome 125 or later. Until it is listed on the Chrome Web Store, load it unpacked:
 
 ```sh
 npm install
@@ -76,7 +86,8 @@ moment when you download a PDF, because Chrome prints the report through the sam
 | `sidePanel` | The audit controls live in Chrome's side panel. |
 | `storage` | Remembers your device and category choices. Runs themselves are in IndexedDB. |
 
-Web Audit+ makes no requests except to the site you audit.
+Web Audit+ makes no requests except to the site you audit. The
+[privacy policy](https://sherwinvishesh.github.io/Web-Audit-Plus/privacy/) spells out what that means.
 
 ## Develop
 
@@ -100,12 +111,28 @@ packages/
 scripts/        build plugin that bundles the audit engine for a service worker
 tests/          Vitest suites, fixture sites, end-to-end harness
 docs/           engine notes, the Agentic check catalog, testing
+website/        the website, published to GitHub Pages
 ```
 
 Built with [WXT](https://wxt.dev), React 18, TypeScript and Tailwind CSS 4. The typeface is
 [Geist](https://vercel.com/font), bundled with the extension.
 
+### Continuous integration
+
+Every push and pull request runs the **CI** workflow: typecheck, unit tests, a production build,
+and the end-to-end suite in a real Chrome. The badge at the top of this file is green when all of
+it passes. The end-to-end suite also audits the website with the extension itself, so the site is
+held to the scores it advertises.
+
+### Website
+
+`website/` is plain HTML, CSS and JavaScript with no build step. The **Pages** workflow publishes it
+to GitHub Pages on every push to `main` that touches it. Each page has a markdown twin
+(`index.md`, `docs.md`, `privacy.md`) that the Agentic checks read, and `tests/website` verifies
+that every twin carries the page's words and facts.
+
 ## License
 
 `packages/engine` is derived from Apache-2.0 code by Google LLC and keeps that license; see its
-[LICENSE](packages/engine/LICENSE) and [NOTICE](packages/engine/NOTICE).
+[LICENSE](packages/engine/LICENSE) and [NOTICE](packages/engine/NOTICE). Geist is used under the
+SIL Open Font License.
