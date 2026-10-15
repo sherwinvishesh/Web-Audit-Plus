@@ -18,6 +18,11 @@ describe('manifest', () => {
     expect(manifest.host_permissions).toEqual(['<all_urls>']);
   });
 
+  it('has a description the Chrome Web Store accepts (132 characters at most)', () => {
+    expect(manifest.description?.length).toBeGreaterThan(0);
+    expect(manifest.description?.length).toBeLessThanOrEqual(132);
+  });
+
   it('requires a Chrome whose debugger API has child sessions', () => {
     expect(manifest.minimum_chrome_version).toBe('125');
   });

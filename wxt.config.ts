@@ -13,7 +13,7 @@ export default defineConfig({
   manifest: {
     name: 'Web Audit+',
     description:
-      'Lighthouse-parity audits (Performance, Accessibility, Best Practices, SEO) plus an Agentic readiness score, with copy-paste fix prompts.',
+      'Lighthouse audits (Performance, Accessibility, Best Practices, SEO) plus an Agentic readiness score, with copy-paste fix prompts.',
     // `action` with no popup: the toolbar click opens the side panel (see background/index.ts).
     action: { default_title: 'Web Audit+' },
     // chrome.debugger child sessions (`DebuggerSession.sessionId`), which Lighthouse needs for iframes.
