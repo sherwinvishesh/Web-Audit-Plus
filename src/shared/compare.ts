@@ -38,6 +38,7 @@ export interface Comparison {
   previousStartedAt: string;
   /** Current minus earlier, for categories scored both times. */
   scores: Partial<Record<CategoryId, number>>;
+  /** Current minus earlier overall, only when both runs scored the same categories. */
   overall?: number;
   /** By audit key. Audits without a change are absent. */
   audits: Record<string, AuditChange>;
@@ -91,7 +92,12 @@ export function compareModels(current: ReportModel, previous: ReportModel): Comp
     }
   }
 
-  if (typeof current.record.overall === 'number' && typeof previous.record.overall === 'number') {
+  // The overall score is a mean of whatever categories ran, so it is only comparable between runs
+  // that scored the same categories.
+  const sameCategories =
+    current.categories.length === previous.categories.length &&
+    current.categories.every((category) => previous.categories.some((candidate) => candidate.id === category.id));
+  if (sameCategories && typeof current.record.overall === 'number' && typeof previous.record.overall === 'number') {
     comparison.overall = current.record.overall - previous.record.overall;
   }
   return comparison;

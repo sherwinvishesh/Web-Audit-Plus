@@ -69,6 +69,15 @@ describe('compareModels', () => {
     expect(same.metrics).toEqual({});
     expect(same.overall).toBe(0);
   });
+
+  it('has no overall delta when the runs scored different categories', () => {
+    // The overall is a mean of the categories that ran, so three scores against five is not a change.
+    const fewer = buildReportModel(flawedRecord({ id: 'run-0' }));
+    fewer.categories = fewer.categories.filter((category) => category.id !== 'performance');
+    expect(compareModels(current, fewer).overall).toBeUndefined();
+    expect(compareModels(fewer, current).overall).toBeUndefined();
+    expect(compareModels(fewer, current).scores.accessibility).toBe(0);
+  });
 });
 
 describe('formatting deltas', () => {

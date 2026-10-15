@@ -38,7 +38,7 @@ export function Filmstrip({ meta }: { meta: EngineMeta | undefined }) {
   if (frames.length === 0) return null;
   return (
     <figure className="overflow-hidden rounded-xl border border-border bg-surface">
-      <div className="flex gap-2 overflow-x-auto p-3">
+      <div className="flex gap-2 overflow-x-auto p-3" tabIndex={0} role="region" aria-label="Filmstrip of the page loading, scrolls sideways">
         {frames.map((frame) => (
           <div key={frame.timing} className="flex shrink-0 flex-col items-center gap-1.5">
             <img src={frame.data} alt="" className="h-28 w-auto rounded-md border border-border bg-bg object-contain" loading="lazy" decoding="async" />

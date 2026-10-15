@@ -18,9 +18,10 @@
   --border-strong: #2f3540;
   --text: #e6e9ee;
   --muted: #8b93a1;
-  --faint: #5a6270;
+  --faint: #7d8694;
   --accent: #3d8bff;
-  --accent-ink: #ffffff;
+  /* Dark ink on the dark theme's bright accent: white on it is 3.3:1, this is 5.9:1. */
+  --accent-ink: #0b0d10;
   --good: #2fbf71;
   --warn: #f2a93b;
   --bad: #f0524d;
@@ -36,12 +37,12 @@
     --border-strong: #cfd4dc;
     --text: #12151a;
     --muted: #5b6472;
-    --faint: #8a93a1;
-    --accent: #1f6feb;
+    --faint: #656d7c;
+    --accent: #1b62d6;
     --accent-ink: #ffffff;
-    --good: #18a058;
-    --warn: #c9820a;
-    --bad: #d93b36;
+    --good: #137a46;
+    --warn: #9a6200;
+    --bad: #c9302b;
   }
 }
 
@@ -55,12 +56,12 @@
   --border-strong: #cfd4dc;
   --text: #12151a;
   --muted: #5b6472;
-  --faint: #8a93a1;
-  --accent: #1f6feb;
+  --faint: #656d7c;
+  --accent: #1b62d6;
   --accent-ink: #ffffff;
-  --good: #18a058;
-  --warn: #c9820a;
-  --bad: #d93b36;
+  --good: #137a46;
+  --warn: #9a6200;
+  --bad: #c9302b;
 }
 
 @theme inline {

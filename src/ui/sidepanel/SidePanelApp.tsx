@@ -89,7 +89,7 @@ function Header() {
     <header className="sticky top-0 z-10 flex h-12 items-center justify-between border-b border-border bg-bg px-4">
       <div className="flex items-center gap-2">
         <Logo />
-        <span className="font-semibold tracking-tight">Web Audit+</span>
+        <h1 className="font-semibold tracking-tight">Web Audit+</h1>
       </div>
       <div className="flex items-center gap-1">
         <IconButton label="Run history" onClick={() => void openReport()}>
