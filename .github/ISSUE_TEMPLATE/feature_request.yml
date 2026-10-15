@@ -1,0 +1,54 @@
+name: Feature request
+description: Something Web Audit+ should do, or do better.
+title: "feat: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        One request per issue, please. If it is a new **Agentic check**, use the "New Agentic check" template instead, which asks for the weight and the rule.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do, and what gets in the way today?
+      placeholder: When I audit a site with 40 failing audits, I cannot tell which ones my team already knows about ...
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: The proposal
+      description: What should happen instead? Mockups, prompt samples and sketches are welcome.
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      multiple: true
+      options:
+        - Side panel
+        - Report page
+        - Fix prompts
+        - Compare mode
+        - Exports (PDF, HTML, JSON, markdown)
+        - Performance, Accessibility, Best Practices or SEO scoring
+        - Agentic scoring
+        - Keyboard and accessibility of the extension itself
+        - Website or documentation
+        - Build, tests or CI
+        - Something else
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives you considered
+      description: Other ways to solve it, including "I do it by hand today like this".
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Fit
+      description: Web Audit+ makes no requests except to the audited site, needs no account and has no telemetry. Those are not up for change.
+      options:
+        - label: This can be built without sending anything outside the browser.
+          required: true

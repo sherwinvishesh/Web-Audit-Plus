@@ -1,0 +1,74 @@
+name: Bug report
+description: Something is broken, wrong, or not what the docs say.
+title: "bug: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the report. A security problem (script running where it should not, data leaving the browser, the debugger staying attached) should go through [private vulnerability reporting](https://github.com/sherwinvishesh/Web-Audit-Plus/security/advisories/new) instead of this form.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: What you did, what you saw, and what you expected instead.
+      placeholder: |
+        1. Opened https://example.com and clicked the Web Audit+ icon
+        2. Picked Desktop, all five categories, pressed Run audit
+        3. The run stopped at "Collecting trace" with ...
+    validations:
+      required: true
+  - type: input
+    id: url
+    attributes:
+      label: Page being audited
+      description: The URL, if it is public. A minimal page that reproduces it is even better.
+      placeholder: https://
+  - type: dropdown
+    id: where
+    attributes:
+      label: Where it shows
+      multiple: true
+      options:
+        - Side panel
+        - Report page
+        - Fix prompt text
+        - Compare mode
+        - PDF export
+        - HTML export
+        - JSON export or markdown summary
+        - A score (Performance, Accessibility, Best Practices, SEO)
+        - An Agentic check (A1 to B14)
+        - Website
+        - Something else
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Web Audit+ version
+      description: From `chrome://extensions`, or the release tag or commit if you built it yourself.
+      placeholder: 0.1.0
+    validations:
+      required: true
+  - type: input
+    id: chrome
+    attributes:
+      label: Chrome version and OS
+      placeholder: Chrome 131.0.6778.86, macOS 15.1
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Screenshots, the JSON export of the run, errors from the extension's service worker console, or a copied fix prompt. Drag files in.
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Before you send
+      options:
+        - label: I searched existing issues and this is not a duplicate.
+          required: true
+        - label: This is not a security problem (those go through private vulnerability reporting).
+          required: true

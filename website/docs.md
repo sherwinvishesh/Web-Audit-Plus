@@ -219,4 +219,4 @@ Built with WXT, React 18, TypeScript and Tailwind CSS 4. The typeface is Geist, 
 
 ## License
 
-The audit engine in `packages/engine` is derived from Apache-2.0 code by Google LLC and keeps that license, with its LICENSE and NOTICE files. Geist is used under the SIL Open Font License. The source is on [GitHub](https://github.com/sherwinvishesh/Web-Audit-Plus).
+Web Audit+ is open source under the Apache License, Version 2.0, with its LICENSE and NOTICE files in the repository. The audit engine in `packages/engine` is derived from Apache-2.0 code by Google LLC and keeps that license, with its own LICENSE and NOTICE files. Geist is used under the SIL Open Font License. The source is on [GitHub](https://github.com/sherwinvishesh/Web-Audit-Plus).

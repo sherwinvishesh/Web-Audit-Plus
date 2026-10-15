@@ -1,0 +1,74 @@
+name: New Agentic check
+description: Propose a new deterministic check for the Agentic category, or a change to an existing one.
+title: "check: "
+labels: ["agentic", "enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        The Agentic checks are deterministic: the same responses always give the same verdict, and no language model is involved. Read [docs/CHECKS.md](https://github.com/sherwinvishesh/Web-Audit-Plus/blob/main/docs/CHECKS.md) first for how weights, partial credit and "not applicable" work. Checks are kept in step with OpenGEO's `opengeo test`, so a change to an existing check should either match upstream or be argued on its own merits here.
+  - type: input
+    id: name
+    attributes:
+      label: Check
+      description: A short title in the style of the catalog, plus the id if you are changing an existing one.
+      placeholder: "A9: a Content-Signal header states what AI use is allowed"
+    validations:
+      required: true
+  - type: dropdown
+    id: group
+    attributes:
+      label: Group
+      options:
+        - A. Discoverability (can agents find and are they allowed to read the page?)
+        - B. Implementation (is the markdown twin served and negotiated correctly?)
+    validations:
+      required: true
+  - type: dropdown
+    id: required
+    attributes:
+      label: Required or recommended
+      description: Required checks carry more weight. Recommended ones are nice to have.
+      options:
+        - Recommended
+        - Required
+    validations:
+      required: true
+  - type: input
+    id: weight
+    attributes:
+      label: Proposed weight
+      description: Existing weights run from 2 to 10. Say which existing check it is comparable to.
+      placeholder: "3, like A2 (llms.txt)"
+    validations:
+      required: true
+  - type: textarea
+    id: rule
+    attributes:
+      label: The rule
+      description: Exactly when it passes, when it is partial (and for how much), when it fails, and when it is not applicable. Name the probe it reads (html, robots, llms, sitemap, twin, acceptMarkdown, botUa, notAcceptable) or the new request it needs.
+      placeholder: |
+        Reads: the html probe's response headers.
+        Pass: ...
+        Partial (half weight): ...
+        Fail: ...
+        Not applicable: ...
+    validations:
+      required: true
+  - type: textarea
+    id: why
+    attributes:
+      label: Why it matters to an agent
+      description: Which agents (crawlers, search agents, assistants) behave differently because of it, and the spec or documentation that says so.
+    validations:
+      required: true
+  - type: textarea
+    id: fix
+    attributes:
+      label: The fix prompt
+      description: What the fix prompt should tell a coding assistant to do, and what "done" looks like.
+  - type: textarea
+    id: examples
+    attributes:
+      label: Examples
+      description: Real sites or responses that would pass and fail today.

@@ -3,6 +3,16 @@
   "version": "0.1.0",
   "private": true,
   "description": "Web Audit+ audits the page you are on for Performance, Accessibility, Best Practices, SEO and Agentic readiness, as a Chrome MV3 extension.",
+  "license": "Apache-2.0",
+  "author": "Sherwin Vishesh Jathanna",
+  "homepage": "https://sherwinvishesh.github.io/Web-Audit-Plus/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sherwinvishesh/Web-Audit-Plus.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sherwinvishesh/Web-Audit-Plus/issues"
+  },
   "type": "module",
   "workspaces": [
     "packages/*"
