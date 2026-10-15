@@ -188,13 +188,27 @@ export function Spinner({ size = 16, className }: { size?: number; className?: s
   );
 }
 
-/** The product mark: an open gauge arc with a dot. */
+/**
+ * The product mark: a gauge ring with a three-quarter accent sweep over a dark rounded square.
+ * Same geometry and colours as the toolbar icon (scripts/gen-icons.mjs) and the website mark,
+ * and fixed colours on purpose so the brand looks identical in both themes and in exports.
+ */
 export function Logo({ size = 20 }: { size?: number }) {
   return (
     <svg width={size} height={size} viewBox="0 0 20 20" fill="none" aria-hidden="true">
-      <rect x="0.5" y="0.5" width="19" height="19" rx="5" fill="var(--surface-2)" stroke="var(--border-strong)" />
-      <path d="M5.6 13.4a6 6 0 118.8 0" stroke="var(--accent)" strokeWidth="1.75" strokeLinecap="round" />
-      <circle cx="10" cy="10" r="1.6" fill="var(--text)" />
+      <rect width="20" height="20" rx="4.4" fill="#0d1117" />
+      <circle cx="10" cy="10" r="6" stroke="#2a313c" strokeWidth="2.2" />
+      <circle
+        cx="10"
+        cy="10"
+        r="6"
+        stroke="#3d8bff"
+        strokeWidth="2.2"
+        pathLength={4}
+        strokeDasharray="3 4"
+        transform="rotate(-90 10 10)"
+      />
+      <circle cx="10" cy="10" r="1.5" fill="#3d8bff" />
     </svg>
   );
 }
