@@ -10,5 +10,5 @@
     "types": ["chrome", "node"],
     "skipLibCheck": true
   },
-  "include": [".wxt/wxt.d.ts", "src", "tests", "scripts", "wxt.config.ts", "vitest.config.ts"]
+  "include": [".wxt/wxt.d.ts", "src", "tests", "scripts", "wxt.config.ts", "vitest.config.ts", "vitest.e2e.config.ts"]
 }

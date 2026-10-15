@@ -1,5 +1,6 @@
 import { MAX_PROBE_BYTES, PROBE_TIMEOUT_MS, toHeaderMap } from '../http';
 import type { ProbeRequest, ProbeResponse, Transport } from '../types';
+import { describeError, readCapped } from './body';
 
 const MAX_REDIRECTS = 20;
 const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
@@ -64,40 +65,9 @@ async function nodeProbe(request: ProbeRequest, defaultUserAgent: string | undef
       redirected: chain.length > 1,
       finalUrl: current,
       redirectChain: chain,
-      error: describeError(error, controller.signal),
+      error: describeError(error, controller.signal.aborted),
     };
   } finally {
     clearTimeout(timer);
   }
-}
-
-async function readCapped(response: Response, maxBytes: number): Promise<{ body: string; truncated: boolean }> {
-  if (!response.body) return { body: '', truncated: false };
-  const reader = response.body.getReader();
-  const decoder = new TextDecoder();
-  let body = '';
-  let received = 0;
-  for (;;) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    const room = maxBytes - received;
-    if (value.byteLength >= room) {
-      body += decoder.decode(value.subarray(0, room));
-      await reader.cancel();
-      return { body, truncated: true };
-    }
-    received += value.byteLength;
-    body += decoder.decode(value, { stream: true });
-  }
-  return { body: body + decoder.decode(), truncated: false };
-}
-
-function describeError(error: unknown, signal: AbortSignal): string {
-  if (signal.aborted) return 'Timed out waiting for a response';
-  if (error instanceof Error) {
-    const cause = (error as Error & { cause?: unknown }).cause;
-    if (cause && typeof cause === 'object' && 'code' in cause && typeof cause.code === 'string') return `${cause.code}: ${error.message}`;
-    return error.message;
-  }
-  return String(error);
 }

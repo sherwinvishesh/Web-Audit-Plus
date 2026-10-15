@@ -1,9 +1,8 @@
-/** Phase 0 placeholder for the full report page. */
+import { HistoryPage } from './HistoryPage';
+import { RunReport } from './RunReport';
+
+/** `report.html?run=<id>` shows one run; without a run it shows the history. */
 export function ReportApp() {
-  return (
-    <main className="mx-auto max-w-5xl p-8">
-      <h1 className="text-lg font-semibold tracking-tight">Web Audit+ report</h1>
-      <p className="mt-2 text-sm text-muted">No run selected.</p>
-    </main>
-  );
+  const runId = new URLSearchParams(location.search).get('run');
+  return runId ? <RunReport runId={runId} /> : <HistoryPage />;
 }

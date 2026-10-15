@@ -2,7 +2,7 @@
  * Types for the Agentic engine. Everything here is plain JSON-serialisable data, because evidence
  * and results cross the extension's message ports and are persisted with each run.
  *
- * The engine has three strictly separated layers (docs/SPEC.md §4.1):
+ * The engine has three strictly separated layers:
  *   evidence = await gatherEvidence(url, transport)  // all network I/O, once
  *   results  = runChecks(evidence)                   // pure
  *   score    = scoreChecks(results)                  // arithmetic only

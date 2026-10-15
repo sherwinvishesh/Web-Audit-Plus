@@ -7,4 +7,5 @@ export { fixSteps, priceFixes, scoreChecks, scoreGain, stripPrice } from './scor
 export { detectFramework } from './framework';
 export { codeSpan, parseInline, stripCodeSpans, type InlinePart } from './quote';
 export { placementFor, REMEDIES, remedyFor } from './remedies';
+export { WHY } from './why';
 export { agenticFixItem, agenticFixItems, needsWork } from './fix-items';

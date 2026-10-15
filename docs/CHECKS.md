@@ -17,8 +17,9 @@ score    = scoreChecks(results)                  // arithmetic only
 ## What is fetched
 
 Every request goes to the audited origin, with cookies omitted and the cache bypassed. In the
-extension the requests are made from the audited tab's own context, so timings are measured from
-your browser.
+extension the requests are sent by the extension's background worker rather than by the page, so
+the page's Content-Security-Policy cannot block them and the site sees an anonymous visitor, the
+way it sees an agent. Timings are measured from your browser.
 
 | Probe | Request | Used by |
 |---|---|---|

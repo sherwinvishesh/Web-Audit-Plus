@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import config from '../wxt.config';
 
-// §2 of the spec: exactly these permissions. Adding one requires asking the user.
+// Exactly these permissions, each justified in the README. A new one needs a reason users will accept.
 const EXPECTED_PERMISSIONS = ['debugger', 'activeTab', 'tabs', 'storage', 'sidePanel', 'scripting'];
 
 describe('manifest', () => {

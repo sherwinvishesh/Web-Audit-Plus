@@ -13,7 +13,7 @@ export default defineConfig({
     name: 'Web Audit+',
     description:
       'Lighthouse-parity audits (Performance, Accessibility, Best Practices, SEO) plus an Agentic readiness score, with copy-paste fix prompts.',
-    // `action` with no popup: the toolbar click opens the side panel (see background.ts).
+    // `action` with no popup: the toolbar click opens the side panel (see background/index.ts).
     action: { default_title: 'Web Audit+' },
     permissions: ['debugger', 'activeTab', 'tabs', 'storage', 'sidePanel', 'scripting'],
     host_permissions: ['<all_urls>'],

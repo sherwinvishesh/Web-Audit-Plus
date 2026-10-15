@@ -32,9 +32,9 @@ const TWIN_HEADERS = {
 /**
  * A site that implements every convention: robots, llms.txt, sitemap, JSON-LD, a twin at
  * /resume.md, Accept and User-Agent negotiation at the page URL, and 406 for an Accept it cannot
- * satisfy. It is served on 127.0.0.1, so A8 is na.
+ * satisfy. It is served on 127.0.0.1, so A8 is na. `csp` is sent with the HTML page.
  */
-export function compliantSite(): Promise<FixtureSite> {
+export function compliantSite(options: { csp?: string } = {}): Promise<FixtureSite> {
   return serve((request, response, origin) => {
     const path = new URL(request.url ?? '/', origin).pathname;
     const accept = request.headers.accept ?? '';
@@ -63,6 +63,7 @@ export function compliantSite(): Promise<FixtureSite> {
             vary: 'Accept',
             link: '</resume.md>; rel="alternate"; type="text/markdown"',
             'x-aeo-version': '1.0',
+            ...(options.csp ? { 'content-security-policy': options.csp } : {}),
           },
           GOOD_HTML,
         );
