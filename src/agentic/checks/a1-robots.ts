@@ -15,7 +15,7 @@ interface Blocked {
  * crawlers is a deliberate opt-out and earns 6 of 9.
  */
 export const a1Robots = defineCheck(
-  { id: 'A1', category: 'A', required: true, weight: 9, title: 'robots.txt exists and does not disallow known AI bots' },
+  { id: 'A1', category: 'A', scored: true, required: true, weight: 9, title: 'robots.txt exists and does not disallow known AI bots' },
   (e, self) => {
     if (!e.robots.ok) {
       return fail(self, `No robots.txt at ${q(e.robots.url)} (${httpStatus(e.robots.status)}). AI crawlers get no explicit signal about what they may read.`, {

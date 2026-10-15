@@ -5,7 +5,7 @@ const LOCAL_HOSTS = new Set(['localhost', '127.0.0.1', '[::1]', '::1']);
 
 /** A8. HTTPS with `Strict-Transport-Security`, judged where the page lands after redirects. */
 export const a8HttpsHsts = defineCheck(
-  { id: 'A8', category: 'A', required: true, weight: 9, title: 'Served over HTTPS with HSTS' },
+  { id: 'A8', category: 'A', scored: true, required: true, weight: 9, title: 'Served over HTTPS with HSTS' },
   (e, self) => {
     const target = new URL(e.target);
     const host = target.hostname;

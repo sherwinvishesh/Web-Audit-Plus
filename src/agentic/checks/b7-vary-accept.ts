@@ -3,7 +3,7 @@ import { defineCheck, fail, partial, pass, q } from './helpers';
 
 /** B7. `Vary: Accept` on both formats, so a CDN never serves one in place of the other. */
 export const b7VaryAccept = defineCheck(
-  { id: 'B7', category: 'B', required: true, weight: 4, title: 'Vary includes Accept, so CDNs cache the two formats separately' },
+  { id: 'B7', category: 'B', scored: false, required: true, weight: 4, title: 'Vary includes Accept, so CDNs cache the two formats separately' },
   (e, self) => {
     const htmlVary = header(e.html, 'vary');
     const twinVary = header(e.twin, 'vary');

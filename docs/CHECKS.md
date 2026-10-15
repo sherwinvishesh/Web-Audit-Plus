@@ -2,9 +2,15 @@
 
 The Agentic category scores how well a page serves AI agents: crawlers that build training sets,
 search agents that cite pages, and assistants that fetch a page because someone asked about it. It
-runs 22 deterministic checks, ported from OpenGEO's `opengeo test` with the same weights, thresholds
-and calibration. No language model is involved anywhere: the same responses always produce the same
-score.
+runs 22 deterministic checks, ported from OpenGEO's `opengeo test` (the author's other project,
+coming soon) with the same weights and thresholds. No language model is involved anywhere: the
+same responses always produce the same score.
+
+Seven of the checks are **scored**: they measure what AI agents need today, and the score is
+computed over them alone. The other fifteen are **suggestions**: the llms.txt, structured-data and
+markdown-twin conventions. They are run, reported and given a fix, but they never move the score,
+because the sites that serve AI agents best (openai.com and anthropic.com among them) have not
+adopted them either. Not having them is not a defect; adopting them is what would set a page apart.
 
 The engine lives in `src/agentic/` and has three layers that never mix:
 
@@ -38,80 +44,93 @@ missing file it is.
 
 ## How the score is computed
 
-Every check carries a weight. Required checks carry more than recommended ones.
+Every check carries a weight, OpenGEO's. The seven scored checks (A1, A3, A5, A6, A7, A8 and B13)
+weigh 61 between them, and the score is computed over those alone. The fifteen suggestions weigh
+another 61; their weight only orders them in the report, heaviest first.
 
-| | Required | Recommended | Total |
+| | Scored | Suggestions | Total |
 |---|---|---|---|
 | A. Discoverability | 52 | 5 | 57 |
-| B. Implementation | 52 | 13 | 65 |
-| Total | 104 | 18 | 122 |
+| B. Implementation | 9 | 56 | 65 |
+| Total | 61 | 61 | 122 |
 
 ```
 score = round(100 x earned / applicable)
 ```
 
-`applicable` is the sum of the weights of the checks that returned pass, partial or fail. Rounding
-happens once, at the end. Weights total 122 and the score is out of 100, so a weight is not a score
-point: every "+N" the report shows has been converted into score points for this run.
+`applicable` is the sum of the weights of the scored checks that returned pass, partial or fail.
+Rounding happens once, at the end. The scored weights total 61 and the score is out of 100, so a
+weight is not a score point: every "+N" the report shows has been converted into score points for
+this run.
 
 | Verdict | In the denominator | Earns |
 |---|---|---|
 | pass | yes | the full weight |
 | partial | yes | part of the weight, named in the row |
 | fail | yes | nothing |
-| locked | no | nothing until the check it is waiting on passes |
+| suggestion | no | nothing; a scored-style fix is still written for it |
+| locked | no | nothing; it waits on the check it reads from |
 | n/a | no | nothing, and there is nothing to fix |
 
-### One missing twin costs one check
+A suggestion the page has adopted is reported as a pass. One it has not adopted is reported as a
+suggestion, with the same evidence, fix and prompt a failure would get, and no points.
+
+### One missing twin costs one suggestion
 
 When the markdown twin does not exist, twelve category B checks have nothing to inspect: there is
-no Content-Type on a document that was never served. Those twelve become **locked** behind B1 and
-leave the denominator, so the whole verdict on the markdown layer is carried by B1, the heaviest
-check in the table. A twin that exists but is served wrong is still scored in full detail.
+no Content-Type on a document that was never served. Those twelve become **locked** behind B1, so
+the whole verdict on the markdown layer is carried by B1, the heaviest check in the table. A twin
+that exists but is served wrong is still checked in full detail and reported, header by header, as
+suggestions.
 
 The locked checks are B2, B3, B4, B5, B6, B12 and B14 (read off the twin response itself) and B7,
 B8, B9, B10 and B11 (probed against the live URL). The second group keeps a pass, because a site can
 negotiate markdown at the page URL without serving a `.md` file at all; anything short of a pass is
-locked. Their weights total 46. The report shows them as one line, with what unlocking them is
-worth, rather than as twelve separate failures.
+locked. Their weights total 46. The report shows them as one line, "12 more suggestions apply once
+a markdown twin is served", rather than as twelve separate items.
 
 ### Calibration
 
 These are pinned by tests (`tests/agentic/score.test.ts`):
 
-- A site that does everything right except the AI conventions (no llms.txt, no JSON-LD, no twin)
-  scores **80**, losing exactly A2, A4 and B1.
-- The same site serving a correct twin scores **100**.
+- A site that does what the leading AI sites do (crawlable, fast, HTTPS, content in the HTML, no
+  llms.txt, no JSON-LD, no twin) scores **100**, with A2, A4 and B1 open as suggestions and the
+  twelve twin checks waiting behind B1. OpenGEO scores the same site 80.
+- The same site serving a correct twin scores **100** with every suggestion adopted.
+- A scored check that fails is the only thing that moves the score below 100.
 - B1 is the only check with a double-digit weight.
 
 ## The checks
 
 <!-- The table below is checked against src/agentic/checks by tests/docs-sync.test.ts. -->
 
-| Id | Weight | Required | Title |
-|---|---|---|---|
-| A1 | 9 | yes | robots.txt exists and does not disallow known AI bots |
-| A2 | 3 | no | llms.txt is present and valid |
-| A3 | 9 | yes | sitemap.xml is present and valid |
-| A4 | 2 | no | Schema.org JSON-LD is present and parses |
-| A5 | 9 | yes | Real content is in the raw HTML, not only after JS runs |
-| A6 | 8 | yes | Time to first byte is fast enough for agent fetches |
-| A7 | 8 | yes | No noai / noimageai tag is silently blocking AI |
-| A8 | 9 | yes | Served over HTTPS with HSTS |
-| B1 | 10 | yes | Markdown twin URL is reachable and returns 2xx |
-| B2 | 5 | yes | Content-Type is exactly text/markdown; charset=utf-8 |
-| B3 | 5 | yes | Markdown response body is non-empty and carries the page |
-| B4 | 3 | no | X-Markdown-Tokens is present and a positive integer |
-| B5 | 3 | no | X-Content-Type-Options: nosniff is present |
-| B6 | 3 | yes | X-Robots-Tag on the twin includes noindex |
-| B7 | 4 | yes | Vary includes Accept, so CDNs cache the two formats separately |
-| B8 | 3 | no | HTML response advertises the twin via Link rel="alternate" |
-| B9 | 6 | yes | Accept: text/markdown receives markdown, not HTML |
-| B10 | 6 | yes | A known AI bot User-Agent receives markdown without an Accept header |
-| B11 | 2 | no | An Accept header excluding HTML and markdown returns 406 |
-| B12 | 2 | no | X-AEO-Version advertises the spec version implemented |
-| B13 | 9 | yes | The original HTML URL is still reachable and unaffected |
-| B14 | 4 | yes | The served markdown still matches the live page (no drift or staleness) |
+| Id | Weight | Scored | Required | Title |
+|---|---|---|---|---|
+| A1 | 9 | scored | yes | robots.txt exists and does not disallow known AI bots |
+| A2 | 3 | suggestion | no | llms.txt is present and valid |
+| A3 | 9 | scored | yes | sitemap.xml is present and valid |
+| A4 | 2 | suggestion | no | Schema.org JSON-LD is present and parses |
+| A5 | 9 | scored | yes | Real content is in the raw HTML, not only after JS runs |
+| A6 | 8 | scored | yes | Time to first byte is fast enough for agent fetches |
+| A7 | 8 | scored | yes | No noai / noimageai tag is silently blocking AI |
+| A8 | 9 | scored | yes | Served over HTTPS with HSTS |
+| B1 | 10 | suggestion | yes | Markdown twin URL is reachable and returns 2xx |
+| B2 | 5 | suggestion | yes | Content-Type is exactly text/markdown; charset=utf-8 |
+| B3 | 5 | suggestion | yes | Markdown response body is non-empty and carries the page |
+| B4 | 3 | suggestion | no | X-Markdown-Tokens is present and a positive integer |
+| B5 | 3 | suggestion | no | X-Content-Type-Options: nosniff is present |
+| B6 | 3 | suggestion | yes | X-Robots-Tag on the twin includes noindex |
+| B7 | 4 | suggestion | yes | Vary includes Accept, so CDNs cache the two formats separately |
+| B8 | 3 | suggestion | no | HTML response advertises the twin via Link rel="alternate" |
+| B9 | 6 | suggestion | yes | Accept: text/markdown receives markdown, not HTML |
+| B10 | 6 | suggestion | yes | A known AI bot User-Agent receives markdown without an Accept header |
+| B11 | 2 | suggestion | no | An Accept header excluding HTML and markdown returns 406 |
+| B12 | 2 | suggestion | no | X-AEO-Version advertises the spec version implemented |
+| B13 | 9 | scored | yes | The original HTML URL is still reachable and unaffected |
+| B14 | 4 | suggestion | yes | The served markdown still matches the live page (no drift or staleness) |
+
+"Required" is OpenGEO's label for the checks it treats as essential in its own grading; Web Audit+
+keeps it for reference, and scores only the column before it.
 
 ### A. Discoverability
 

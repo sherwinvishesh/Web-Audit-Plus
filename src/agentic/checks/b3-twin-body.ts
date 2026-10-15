@@ -12,7 +12,7 @@ export const TWIN_FLOOR_RATIO = 0.08;
 
 /** B3. The twin has a body, and that body carries the page rather than its title. */
 export const b3TwinBody = defineCheck(
-  { id: 'B3', category: 'B', required: true, weight: 5, title: 'Markdown response body is non-empty and carries the page' },
+  { id: 'B3', category: 'B', scored: false, required: true, weight: 5, title: 'Markdown response body is non-empty and carries the page' },
   (e, self) => {
     if (!e.twin.ok) {
       return fail(self, `No markdown twin response to inspect (${httpStatus(e.twin.status)}).`, {

@@ -8,7 +8,7 @@ const SERVE_FIX = 'Generate a markdown copy of the page and serve it from your s
  * the twin-dependent checks are locked behind it rather than failed one by one.
  */
 export const b1TwinReachable = defineCheck(
-  { id: 'B1', category: 'B', required: true, weight: 10, title: 'Markdown twin URL is reachable and returns 2xx' },
+  { id: 'B1', category: 'B', scored: false, required: true, weight: 10, title: 'Markdown twin URL is reachable and returns 2xx' },
   (e, self) => {
     if (e.twin.error) {
       return fail(self, `Could not reach the markdown twin at ${q(e.twinUrl)}: ${q(e.twin.error)}.`, {

@@ -3,7 +3,7 @@ import { defineCheck, fail, httpStatus, pass } from './helpers';
 
 /** B11. An Accept header that rules out both HTML and markdown is refused with 406. */
 export const b11NotAcceptable = defineCheck(
-  { id: 'B11', category: 'B', required: false, weight: 2, title: 'An Accept header excluding HTML and markdown returns 406' },
+  { id: 'B11', category: 'B', scored: false, required: false, weight: 2, title: 'An Accept header excluding HTML and markdown returns 406' },
   (e, self) => {
     if (e.notAcceptable.status === 406) {
       return pass(self, 'An Accept header excluding both HTML and markdown correctly returned 406 Not Acceptable.');

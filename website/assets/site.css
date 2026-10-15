@@ -616,6 +616,13 @@ section + section {
 .mock-row .ic.warn {
   background: color-mix(in srgb, var(--warn) 18%, transparent);
 }
+.mock-row .ic.sug {
+  background: color-mix(in srgb, var(--accent) 18%, transparent);
+}
+.mock-row .gain.sug {
+  color: var(--accent);
+  font-weight: 500;
+}
 .mock-prompt {
   margin: 0 18px 18px;
   border: 1px solid var(--border);
@@ -1020,6 +1027,9 @@ section + section {
   font-size: 12px;
   color: var(--muted);
   white-space: nowrap;
+}
+.check .w.sug {
+  color: var(--accent);
 }
 .formula {
   position: relative;
@@ -1524,8 +1534,9 @@ section + section {
   color: var(--faint);
 }
 
-/* The check catalogue has four columns. On a phone each row becomes a small card: id, weight and
-   required on one line, the check text below. The header row stays in the DOM for screen readers. */
+/* The check catalogue has five columns. On a phone each row becomes a small card: id, weight,
+   scored and required on one line, the check text below. The header row stays in the DOM for
+   screen readers. */
 @media (max-width: 640px) {
   .checks-table thead {
     position: absolute;
@@ -1537,7 +1548,7 @@ section + section {
   }
   .checks-table tr {
     display: grid;
-    grid-template-columns: max-content max-content 1fr;
+    grid-template-columns: max-content max-content max-content 1fr;
     gap: 6px 14px;
     padding: 12px 0;
     border-bottom: 1px solid var(--border);
@@ -1553,7 +1564,8 @@ section + section {
     color: var(--accent);
   }
   .checks-table td:nth-child(2),
-  .checks-table td:nth-child(3) {
+  .checks-table td:nth-child(3),
+  .checks-table td:nth-child(4) {
     font-size: 13px;
     color: var(--muted);
   }
@@ -1561,9 +1573,12 @@ section + section {
     content: 'weight ';
   }
   .checks-table td:nth-child(3)::before {
+    content: 'scored: ';
+  }
+  .checks-table td:nth-child(4)::before {
     content: 'required: ';
   }
-  .checks-table td:nth-child(4) {
+  .checks-table td:nth-child(5) {
     grid-column: 1 / -1;
   }
 }

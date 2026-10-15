@@ -35,6 +35,8 @@ describe('filterAudits', () => {
     const failing = keys({ status: 'needs-work', category: 'seo' });
     expect(failing.sort()).toEqual(['seo:image-alt', 'seo:link-text', 'seo:meta-description']);
     expect(keys({ status: 'pass', category: 'agentic' }).every((key) => key.startsWith('agentic:'))).toBe(true);
+    expect(keys({ status: 'suggestion' })).toEqual(['agentic:A2', 'agentic:A4', 'agentic:B1']);
+    expect(keys({ status: 'needs-work', category: 'agentic' })).toEqual([]);
     expect(keys({ status: 'other', category: 'agentic' }).length).toBeGreaterThan(0);
   });
 

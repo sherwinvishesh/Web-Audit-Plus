@@ -3,7 +3,7 @@ import { defineCheck, fail, partial, pass, q } from './helpers';
 
 /** B8. The HTML advertises its twin with `Link: <...>; rel="alternate"; type="text/markdown"`. */
 export const b8LinkAlternate = defineCheck(
-  { id: 'B8', category: 'B', required: false, weight: 3, title: 'HTML response advertises the twin via Link rel="alternate"' },
+  { id: 'B8', category: 'B', scored: false, required: false, weight: 3, title: 'HTML response advertises the twin via Link rel="alternate"' },
   (e, self) => {
     const linkValue = q(`<${new URL(e.twinUrl).pathname}>; rel="alternate"; type="text/markdown"`);
     if (e.advertisedTwinUrl) {

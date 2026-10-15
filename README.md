@@ -35,7 +35,7 @@ Nothing leaves your browser.
 
 <br>
 
-| | |
+| | At a glance |
 | ---: | --- |
 | **5** | scores on every run, from the same bundled engine that powers lab audits, plus one that nobody else gives you |
 | **22** | deterministic Agentic checks, from `robots.txt` to a markdown twin served through content negotiation |
@@ -137,7 +137,7 @@ Every fix across all five categories, ranked by the points it adds to the score.
 The side panel shows the top three the moment a run finishes.
 
 <div align="center">
-<img src="docs/screenshots/fix-next-dark.png" width="900" alt="The Fix next tab: 18 fixes ranked by score gain, each with its category and the points it is worth, and a Copy all fixes button">
+<img src="docs/screenshots/fix-next-dark.png" width="900" alt="The Fix next tab: 15 fixes ranked by score gain, each with its category and the points it is worth, and a Copy all fixes button">
 </div>
 
 ### Compare runs
@@ -202,9 +202,17 @@ Every score is out of 100 and is coloured the way lab tools colour them: green f
 ## The Agentic score, in depth
 
 The Agentic category scores how well a page serves AI agents. It runs **22 deterministic checks**,
-ported from OpenGEO's `opengeo test` with the same ids, weights, thresholds and calibration, and
-pinned to it by parity tests. No language model is involved anywhere: the same responses always
-produce the same score.
+ported from OpenGEO's `opengeo test` with the same ids, weights and thresholds, and pinned to it by
+parity tests. OpenGEO is the author's other project, a command-line toolkit for serving AI agents,
+coming soon. No language model is involved anywhere: the same responses always produce the same
+score.
+
+Seven of the checks are **scored**: they measure what AI agents need today, and the score is
+computed over them alone. The other fifteen are **suggestions**: `llms.txt`, structured data and
+the markdown-twin conventions. They are run, reported and given a fix prompt like any other audit,
+but they never move the score, because the sites that serve AI agents best (openai.com and
+anthropic.com among them) have not adopted them either. A page that does what those sites do
+scores 100; the suggestions are what would set it apart.
 
 The engine lives in `src/agentic/` and has three layers that never mix:
 
@@ -246,49 +254,55 @@ missing file it is.
 score = round(100 × earned / applicable)
 ```
 
-Every check carries a weight. Required checks carry more than recommended ones. `applicable` is the
-sum of the weights of the checks that returned pass, partial or fail; a check that cannot apply,
-such as HTTPS on `localhost`, leaves the denominator instead of dragging the score down. Rounding
-happens once, at the end.
+Every check carries a weight, OpenGEO's. `applicable` is the sum of the weights of the scored
+checks that returned pass, partial or fail; a check that cannot apply, such as HTTPS on
+`localhost`, leaves the denominator instead of dragging the score down. Rounding happens once, at
+the end. The scored weights total 61 and the score is out of 100, so a weight is not a score point:
+every "+N" the report shows has been converted into score points for this run. A suggestion's weight
+only orders it in the report, heaviest first.
 
-| | Required | Recommended | Total |
+| | Scored | Suggestions | Total |
 | --- | ---: | ---: | ---: |
 | A. Discoverability | 52 | 5 | 57 |
-| B. Implementation | 52 | 13 | 65 |
-| **Total** | **104** | **18** | **122** |
+| B. Implementation | 9 | 56 | 65 |
+| **Total** | **61** | **61** | **122** |
 
 When the markdown twin is missing, the twelve checks that read it are locked behind B1 and reported
-as one line with what unlocking them is worth. One missing file costs one check, not twelve.
+as one line: "12 more suggestions apply once a markdown twin is served". One missing file costs one
+suggestion, not twelve. A twin that exists but is served wrong is checked header by header, and
+each shortfall is reported as its own suggestion.
 
 ### The 22 checks
 
-| Id | Weight | Required | Check |
-| --- | ---: | :---: | --- |
-| **A1** | 9 | yes | `robots.txt` exists and does not disallow known AI bots |
-| **A2** | 3 | | `llms.txt` is present and valid |
-| **A3** | 9 | yes | `sitemap.xml` is present and valid |
-| **A4** | 2 | | Schema.org JSON-LD is present and parses |
-| **A5** | 9 | yes | Real content is in the raw HTML, not only after JS runs |
-| **A6** | 8 | yes | Time to first byte is fast enough for agent fetches |
-| **A7** | 8 | yes | No `noai` / `noimageai` tag is silently blocking AI |
-| **A8** | 9 | yes | Served over HTTPS with HSTS |
-| **B1** | 10 | yes | Markdown twin URL is reachable and returns 2xx |
-| **B2** | 5 | yes | `Content-Type` is exactly `text/markdown; charset=utf-8` |
-| **B3** | 5 | yes | Markdown response body is non-empty and carries the page |
-| **B4** | 3 | | `X-Markdown-Tokens` is present and a positive integer |
-| **B5** | 3 | | `X-Content-Type-Options: nosniff` is present |
-| **B6** | 3 | yes | `X-Robots-Tag` on the twin includes `noindex` |
-| **B7** | 4 | yes | `Vary` includes `Accept`, so CDNs cache the two formats separately |
-| **B8** | 3 | | HTML response advertises the twin via `Link rel="alternate"` |
-| **B9** | 6 | yes | `Accept: text/markdown` receives markdown, not HTML |
-| **B10** | 6 | yes | A known AI bot User-Agent receives markdown without an Accept header |
-| **B11** | 2 | | An Accept header excluding HTML and markdown returns 406 |
-| **B12** | 2 | | `X-AEO-Version` advertises the spec version implemented |
-| **B13** | 9 | yes | The original HTML URL is still reachable and unaffected |
-| **B14** | 4 | yes | The served markdown still matches the live page (no drift or staleness) |
+| Id | Weight | Scored | Required | Check |
+| --- | ---: | :---: | :---: | --- |
+| **A1** | 9 | yes | yes | `robots.txt` exists and does not disallow known AI bots |
+| **A2** | 3 | suggestion |  | `llms.txt` is present and valid |
+| **A3** | 9 | yes | yes | `sitemap.xml` is present and valid |
+| **A4** | 2 | suggestion |  | Schema.org JSON-LD is present and parses |
+| **A5** | 9 | yes | yes | Real content is in the raw HTML, not only after JS runs |
+| **A6** | 8 | yes | yes | Time to first byte is fast enough for agent fetches |
+| **A7** | 8 | yes | yes | No `noai` / `noimageai` tag is silently blocking AI |
+| **A8** | 9 | yes | yes | Served over HTTPS with HSTS |
+| **B1** | 10 | suggestion | yes | Markdown twin URL is reachable and returns 2xx |
+| **B2** | 5 | suggestion | yes | `Content-Type` is exactly `text/markdown; charset=utf-8` |
+| **B3** | 5 | suggestion | yes | Markdown response body is non-empty and carries the page |
+| **B4** | 3 | suggestion |  | `X-Markdown-Tokens` is present and a positive integer |
+| **B5** | 3 | suggestion |  | `X-Content-Type-Options: nosniff` is present |
+| **B6** | 3 | suggestion | yes | `X-Robots-Tag` on the twin includes `noindex` |
+| **B7** | 4 | suggestion | yes | `Vary` includes `Accept`, so CDNs cache the two formats separately |
+| **B8** | 3 | suggestion |  | HTML response advertises the twin via `Link rel="alternate"` |
+| **B9** | 6 | suggestion | yes | `Accept: text/markdown` receives markdown, not HTML |
+| **B10** | 6 | suggestion | yes | A known AI bot User-Agent receives markdown without an Accept header |
+| **B11** | 2 | suggestion |  | An Accept header excluding HTML and markdown returns 406 |
+| **B12** | 2 | suggestion |  | `X-AEO-Version` advertises the spec version implemented |
+| **B13** | 9 | yes | yes | The original HTML URL is still reachable and unaffected |
+| **B14** | 4 | suggestion | yes | The served markdown still matches the live page (no drift or staleness) |
 
-[docs/CHECKS.md](docs/CHECKS.md) explains every verdict, every partial-credit rule and every fix
-prompt, and `tests/docs-sync.test.ts` makes sure that page never drifts from the registry.
+"Required" is OpenGEO's own label for the checks it treats as essential; Web Audit+ keeps it for
+reference and scores the column before it. [docs/CHECKS.md](docs/CHECKS.md) explains every verdict,
+every partial-credit rule and every fix prompt, and `tests/docs-sync.test.ts` makes sure that page
+never drifts from the registry.
 
 ## How it works under the hood
 
@@ -524,8 +538,7 @@ Yes. It is open source under Apache-2.0, there is no account, no plan and no usa
 
 **Why does Chrome say that Web Audit+ started debugging this browser?**
 That bar is how Chrome tells you an extension is using the debugger. The audit engine needs it to
-load the page with emulation and throttling and to record a trace, the same way the engine works
-inside DevTools. The bar goes away when the run ends, and pressing Cancel on it stops the run.
+load the page with emulation and throttling and to record a trace, the same way a lab audit does. The bar goes away when the run ends, and pressing Cancel on it stops the run.
 
 **Does Web Audit+ send my pages anywhere?**
 No. The only requests it makes go to the site you are auditing. Runs are saved in your browser;
@@ -538,10 +551,12 @@ and report a clean error instead; they carry no weight. Everything else that dif
 [docs/ENGINE.md](docs/ENGINE.md).
 
 **What does the Agentic score measure?**
-How well a page serves AI agents: whether crawlers are allowed in, whether `llms.txt`, a sitemap and
-structured data exist, whether the content is in the raw HTML, and whether a markdown twin is served
-and negotiated correctly. It is 22 deterministic checks with fixed weights. No language model is
-involved.
+How well a page serves AI agents: whether crawlers are allowed in, whether a sitemap exists,
+whether the content is in the raw HTML, whether the page is fast and served over HTTPS. Those seven
+checks make the score. Another fifteen, `llms.txt`, structured data and a markdown twin served and
+negotiated correctly, are reported as suggestions with a fix each, outside the score: the sites that
+serve agents best have not adopted them either. It is 22 deterministic checks with fixed weights.
+No language model is involved.
 
 **Can I audit localhost or a staging site?**
 Yes. Everything runs from your browser, so anything your browser can open can be audited. The HTTPS
@@ -570,8 +585,9 @@ Chrome does not let extensions attach a debugger to them. The panel says so and 
 
 - The audit engine in `packages/engine` is derived from Apache-2.0 code by **Google LLC**. Its
   LICENSE and NOTICE are kept with it, and the original copyright headers stay on every file.
-- The Agentic checks are a port of the `test` command of **OpenGEO**, with the same ids, weights,
-  thresholds and calibration.
+- The Agentic checks are a port of the `test` command of **OpenGEO**, the author's other project,
+  coming soon, with the same ids, weights and thresholds. OpenGEO scores all 22; Web Audit+ scores
+  seven and reports the rest as suggestions.
 - Accessibility rules come from **axe-core** by Deque Systems.
 - The extension is built with **WXT**, **React**, **Tailwind CSS**, **TypeScript** and **Vitest**,
   and tested in Chrome through **puppeteer-core**.

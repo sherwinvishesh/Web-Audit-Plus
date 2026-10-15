@@ -49,8 +49,8 @@ Every fix ranked by the points it adds to the score, across all five categories.
 
 | | | |
 |---|---|---|
-| 1 | color-contrast | +7 |
-| 2 | B1 markdown twin | +8 |
+| 1 | A5 raw-HTML content | +9 |
+| 2 | color-contrast | +7 |
 | 3 | meta-description | +6 |
 
 #### Compare runs
@@ -121,32 +121,32 @@ Crawlers that build training sets, search agents that cite pages, and assistants
 score = round(100 × earned / applicable)
 ```
 
-Every check carries a weight. Required checks carry more than recommended ones. A check that cannot apply, such as HTTPS on localhost, leaves the denominator instead of dragging the score down. When the markdown twin is missing, the twelve checks that read it are locked behind B1 and reported as one line with what unlocking them is worth.
+Seven checks make the score: what AI agents need today. The other fifteen are suggestions, llms.txt, structured data and the markdown twin, reported with a fix each but outside the score, because the sites that serve agents best have not adopted them either. A check that cannot apply, such as HTTPS on localhost, leaves the denominator instead of dragging the score down. When the markdown twin is missing, the twelve checks that read it wait behind B1 and are reported as one line.
 
-| Id | Check | Weight |
+| Id | Check | Scored |
 |---|---|---|
 | A1 | robots.txt exists and does not disallow known AI bots | weight 9 |
-| A2 | llms.txt is present and valid | weight 3 |
+| A2 | llms.txt is present and valid | suggestion |
 | A3 | sitemap.xml is present and valid | weight 9 |
-| A4 | Schema.org JSON-LD is present and parses | weight 2 |
+| A4 | Schema.org JSON-LD is present and parses | suggestion |
 | A5 | Real content is in the raw HTML, not only after JS runs | weight 9 |
 | A6 | Time to first byte is fast enough for agent fetches | weight 8 |
 | A7 | No noai or noimageai tag is silently blocking AI | weight 8 |
 | A8 | Served over HTTPS with HSTS | weight 9 |
-| B1 | Markdown twin URL is reachable and returns 2xx | weight 10 |
-| B2 | Content-Type is exactly text/markdown; charset=utf-8 | weight 5 |
-| B3 | Markdown response body is non-empty and carries the page | weight 5 |
-| B4 | X-Markdown-Tokens is present and a positive integer | weight 3 |
-| B5 | X-Content-Type-Options: nosniff is present | weight 3 |
-| B6 | X-Robots-Tag on the twin includes noindex | weight 3 |
-| B7 | Vary includes Accept, so CDNs cache the two formats separately | weight 4 |
-| B8 | HTML response advertises the twin via Link rel="alternate" | weight 3 |
-| B9 | Accept: text/markdown receives markdown, not HTML | weight 6 |
-| B10 | A known AI bot User-Agent receives markdown without an Accept header | weight 6 |
-| B11 | An Accept header excluding HTML and markdown returns 406 | weight 2 |
-| B12 | X-AEO-Version advertises the spec version implemented | weight 2 |
+| B1 | Markdown twin URL is reachable and returns 2xx | suggestion |
+| B2 | Content-Type is exactly text/markdown; charset=utf-8 | suggestion |
+| B3 | Markdown response body is non-empty and carries the page | suggestion |
+| B4 | X-Markdown-Tokens is present and a positive integer | suggestion |
+| B5 | X-Content-Type-Options: nosniff is present | suggestion |
+| B6 | X-Robots-Tag on the twin includes noindex | suggestion |
+| B7 | Vary includes Accept, so CDNs cache the two formats separately | suggestion |
+| B8 | HTML response advertises the twin via Link rel="alternate" | suggestion |
+| B9 | Accept: text/markdown receives markdown, not HTML | suggestion |
+| B10 | A known AI bot User-Agent receives markdown without an Accept header | suggestion |
+| B11 | An Accept header excluding HTML and markdown returns 406 | suggestion |
+| B12 | X-AEO-Version advertises the spec version implemented | suggestion |
 | B13 | The original HTML URL is still reachable and unaffected | weight 9 |
-| B14 | The served markdown still matches the live page | weight 4 |
+| B14 | The served markdown still matches the live page | suggestion |
 
 Status codes are never trusted on their own. A catch-all route that answers robots.txt with its HTML shell and a 200 is detected by reading the body, and scored as the missing file it is. [How each check is scored](https://sherwinvishesh.github.io/Web-Audit-Plus/docs/#agentic).
 
@@ -192,7 +192,7 @@ Yes. It is open source, there is no account, no plan and no usage limit. Install
 
 **Why does Chrome say that Web Audit+ started debugging this browser?**
 
-That bar is how Chrome tells you an extension is using the debugger. The audit engine needs it to load the page with emulation and throttling and to record a trace, the same way the engine works inside DevTools. The bar goes away when the run ends, and pressing Cancel on it stops the run.
+That bar is how Chrome tells you an extension is using the debugger. The audit engine needs it to load the page with emulation and throttling and to record a trace, the same way a lab audit does. The bar goes away when the run ends, and pressing Cancel on it stops the run.
 
 **Does Web Audit+ send my pages anywhere?**
 
@@ -200,7 +200,7 @@ No. The only requests it makes go to the site you are auditing. Runs are saved i
 
 **What does the Agentic score measure?**
 
-How well a page serves AI agents: whether crawlers are allowed in, whether llms.txt, a sitemap and structured data exist, whether the content is in the raw HTML, and whether a markdown twin is served and negotiated correctly. It is 22 deterministic checks with fixed weights. No language model is involved.
+How well a page serves AI agents: whether crawlers are allowed in, whether a sitemap exists, whether the content is in the raw HTML, whether the page is fast and served over HTTPS. Those seven checks make the score. Another fifteen, llms.txt, structured data and a markdown twin served and negotiated correctly, are reported as suggestions with a fix each, outside the score: the sites that serve agents best have not adopted them either. It is 22 deterministic checks with fixed weights. No language model is involved.
 
 **Can I audit localhost or a staging site?**
 

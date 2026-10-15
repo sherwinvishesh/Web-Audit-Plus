@@ -3,7 +3,7 @@ import { defineCheck, fail, httpStatus, partial, pass, plural, q } from './helpe
 
 /** A2. /llms.txt: markdown with an `# H1` and at least one link. */
 export const a2LlmsTxt = defineCheck(
-  { id: 'A2', category: 'A', required: false, weight: 3, title: 'llms.txt is present and valid' },
+  { id: 'A2', category: 'A', scored: false, required: false, weight: 3, title: 'llms.txt is present and valid' },
   (e, self) => {
     if (!e.llms.ok) {
       return fail(self, `No llms.txt at ${q(e.llms.url)} (${httpStatus(e.llms.status)}).`, {

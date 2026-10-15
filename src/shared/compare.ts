@@ -52,7 +52,8 @@ const SCORE_THRESHOLD = 0.05;
 const POINTS_THRESHOLD = 1;
 const METRIC_THRESHOLD: Readonly<Record<'ms' | 'unitless', number>> = { ms: 10, unitless: 0.001 };
 
-const NEEDS_WORK: ReadonlySet<AuditStatus> = new Set(['fail', 'partial']);
+/** Open: scored failures and partials, and suggestions not yet adopted. */
+const NEEDS_WORK: ReadonlySet<AuditStatus> = new Set(['fail', 'partial', 'suggestion']);
 const RESOLVED: ReadonlySet<AuditStatus> = new Set(['pass', 'na']);
 
 export function compareModels(current: ReportModel, previous: ReportModel): Comparison {
@@ -104,6 +105,8 @@ export function compareModels(current: ReportModel, previous: ReportModel): Comp
 }
 
 function changeOf(now: AuditItem, then: AuditItem): ChangeKind | undefined {
+  // A suggestion adopted since is "fixed", one dropped since is "new": it moved the same way a
+  // scored audit does, just without moving the score.
   if (NEEDS_WORK.has(now.status)) {
     if (RESOLVED.has(then.status) || then.status === 'info' || then.status === 'manual') return 'new';
     if (!NEEDS_WORK.has(then.status)) return undefined;

@@ -49,6 +49,9 @@ describe('reportHtml', () => {
     expect(html).toContain('Prompt for every fix');
     expect(html).toContain('id="category-agentic"');
     expect(html).toContain('id="audit-seo:link-text"');
+    // The suggestions get their own section; each row's id lives on the category's copy, once.
+    expect(html).toContain('id="suggestions"');
+    expect(html.match(/id="audit-agentic:B1"/g)).toHaveLength(1);
   });
 
   it('shows the comparison when there is one', () => {

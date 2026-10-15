@@ -58,10 +58,17 @@ export function AuditBody({ audit, change, actions }: { audit: AuditItem; change
           </div>
         </Block>
       )}
+      {audit.status === 'suggestion' && (
+        <Block label="Not scored">
+          <span className="text-muted">
+            A convention for AI agents that the page has not adopted. It is outside the score, because the best-served sites have not adopted it either; adopting it is what sets a page apart.
+          </span>
+        </Block>
+      )}
       {audit.status === 'locked' && audit.lockedBy && (
         <Block label="Locked">
           <span className="text-muted">
-            Nothing could be measured until <span className="font-mono text-text">{audit.lockedBy}</span> passes.
+            A suggestion that cannot be measured until <span className="font-mono text-text">{audit.lockedBy}</span> passes.
           </span>
         </Block>
       )}
@@ -76,7 +83,7 @@ export function AuditBody({ audit, change, actions }: { audit: AuditItem; change
         <span className="ml-auto flex flex-wrap items-center gap-2 text-[11.5px] text-faint">
           {audit.group && <span>{audit.group}</span>}
           {audit.category === 'agentic' && audit.weight !== undefined && audit.earned !== undefined && (
-            <span className="num">{audit.status === 'locked' || audit.status === 'na' ? `weight ${audit.weight}` : `${audit.earned} of ${audit.weight}`}</span>
+            <span className="num">{audit.status === 'locked' || audit.status === 'na' || audit.status === 'suggestion' ? `weight ${audit.weight}` : `${audit.earned} of ${audit.weight}`}</span>
           )}
           <span className="font-mono">{audit.id}</span>
         </span>
@@ -94,7 +101,7 @@ function Block({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-/** What fixing an audit is worth, as the row shows it: "+30", or "≈+7.5" for an estimate. */
+/** What fixing an audit is worth, as the row shows it: "+30", or "≈+7.5" for an estimate. A suggestion is worth no points and shows none. */
 export function PointsLabel({ audit }: { audit: AuditItem }) {
   if (audit.status !== 'fail' && audit.status !== 'partial') return null;
   if (audit.points > 0) {

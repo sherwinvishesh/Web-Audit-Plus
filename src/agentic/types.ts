@@ -107,9 +107,17 @@ export interface Evidence {
 export interface CheckDefinition {
   id: string;
   category: CheckCategory;
-  /** A label only; weight carries importance. */
+  /**
+   * Whether the check counts toward the score. The scored checks are what AI agents need from a
+   * page today: a crawlable, fast, HTTPS page with its content in the HTML and nothing blocking the
+   * bots. The rest are suggestions: conventions for agents (llms.txt, structured data, a markdown
+   * twin) that even the best-served sites have not adopted yet. They are reported with a fix, and
+   * never enter the denominator, so a page that does what the leaders do scores 100.
+   */
+  scored: boolean;
+  /** OpenGEO's label; weight carries importance and `scored` says whether it counts. */
   required: boolean;
-  /** Maximum points. */
+  /** Maximum points. Among suggestions, the weight only orders them. */
   weight: number;
   /** What the check verifies, in plain language. */
   title: string;
@@ -137,25 +145,28 @@ export interface CheckResult extends CheckDefinition {
   /** One specific sentence naming the exact header, rule, bot or value found. */
   reason: string;
   detail?: string;
-  /** The next step, for anything short of a pass. Carries its price as "(+N)" in score points once scored. */
+  /** The next step, for anything short of a pass. Carries its price as "(+N)" in score points once scored; a suggestion's has no price. */
   fix?: string;
-  /** Score points (of 100) this check would add if it passed. Set on fail/partial by `priceFixes`. */
+  /** Score points (of 100) this check would add if it passed. Set on a scored fail/partial by `priceFixes`. */
   price?: number;
   /** For `locked`: the check that has to pass first. */
   lockedBy?: string;
 }
 
 export interface Score {
-  /** 0..100, rounded once. */
+  /** 0..100, rounded once, over the scored checks only. */
   value: number;
   earned: number;
-  /** Σ weight over pass | partial | fail. */
+  /** Σ weight over the scored checks that returned pass | partial | fail. */
   possible: number;
+  /** Every check's verdict, scored or not. */
   counts: Record<Status, number>;
-  /** Weight lost per check (weight − earned), for fail and partial. */
+  /** Weight lost per scored check (weight − earned), for fail and partial. */
   lost: Array<{ id: string; points: number }>;
-  /** What is waiting behind a failed prerequisite. */
-  locked: { count: number; points: number; gain: number; unlockedBy: string[] };
+  /** The suggestions, by where the page stands on them. `count` leaves out the ones that cannot apply. */
+  suggestions: { count: number; adopted: number; open: number; locked: number };
+  /** What is waiting behind a failed prerequisite: suggestions that cannot be measured until it passes. */
+  locked: { count: number; unlockedBy: string[] };
 }
 
 export interface Framework {
@@ -183,14 +194,17 @@ export type FrameworkId =
   | 'vite'
   | 'plain';
 
-/** One ranked entry in the "do this next" list, in score points. */
+/** One ranked entry in the "do this next" list: the scored fixes by points, then the suggestions by weight. */
 export interface FixStep {
   id: string;
+  /** Score points recovered. 0 for a suggestion. */
   points: number;
   /** The check's fix line, price stripped. */
   text: string;
   /** Number of checks this step also unlocks. */
   unlocks: number;
+  /** Outside the score: a convention the page has not adopted. */
+  suggestion?: boolean;
 }
 
 export interface AgenticReport {
@@ -200,7 +214,7 @@ export interface AgenticReport {
   framework?: Framework;
   score: Score;
   checks: CheckResult[];
-  /** Ranked, most points first. */
+  /** Ranked: the scored fixes, most points first, then the suggestions. */
   fixes: FixStep[];
   /** Summary of the probes, without bodies. */
   probes: ProbeSummary[];

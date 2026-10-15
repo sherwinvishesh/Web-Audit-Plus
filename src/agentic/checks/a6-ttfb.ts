@@ -7,7 +7,7 @@ export const TTFB_SLOW_MS = 1500;
 
 /** A6. Time to first byte of the HTML, ramped between 400 ms and 1500 ms. */
 export const a6Ttfb = defineCheck(
-  { id: 'A6', category: 'A', required: true, weight: 8, title: 'Time to first byte is fast enough for agent fetches' },
+  { id: 'A6', category: 'A', scored: true, required: true, weight: 8, title: 'Time to first byte is fast enough for agent fetches' },
   (e, self) => {
     if (!e.html.ok) return na(self, 'The page did not respond, so there is no time to first byte to measure.');
     const ms = Math.round(e.html.ttfbMs);

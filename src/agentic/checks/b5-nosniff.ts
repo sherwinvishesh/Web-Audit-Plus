@@ -3,7 +3,7 @@ import { defineCheck, fail, pass, q } from './helpers';
 
 /** B5. `X-Content-Type-Options: nosniff` on the twin, so no browser renders it as HTML. */
 export const b5Nosniff = defineCheck(
-  { id: 'B5', category: 'B', required: false, weight: 3, title: 'X-Content-Type-Options: nosniff is present' },
+  { id: 'B5', category: 'B', scored: false, required: false, weight: 3, title: 'X-Content-Type-Options: nosniff is present' },
   (e, self) => {
     const value = header(e.twin, 'x-content-type-options');
     // Read as a browser does (Fetch's "determine nosniff"): the first token decides, so a header a

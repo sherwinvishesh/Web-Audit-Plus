@@ -3,7 +3,7 @@ import { defineCheck, fail, partial, pass, q } from './helpers';
 
 /** B6. `X-Robots-Tag: noindex` on the twin, so it never competes with the page in search. */
 export const b6TwinNoindex = defineCheck(
-  { id: 'B6', category: 'B', required: true, weight: 3, title: 'X-Robots-Tag on the twin includes noindex' },
+  { id: 'B6', category: 'B', scored: false, required: true, weight: 3, title: 'X-Robots-Tag on the twin includes noindex' },
   (e, self) => {
     const value = header(e.twin, 'x-robots-tag');
     if (!value) {

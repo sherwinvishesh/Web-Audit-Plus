@@ -74,19 +74,45 @@ describe('fix prompt injection safety', () => {
 });
 
 describe('fix prompt structure', () => {
-  it('orders failed by points, then partials, then the locked block, then the ask', () => {
+  it('orders failed by points, then partials, then the suggestions by weight, then the locked block, then the ask', () => {
     const prompt = buildFixPrompt(context, [
-      item({ id: 'A2', points: 2 }),
+      item({ id: 'A5', points: 2 }),
       item({ id: 'A3', status: 'partial', points: 1, earned: 6, weight: 9 }),
-      item({ id: 'B1', points: 9 }),
+      item({ id: 'A1', points: 9 }),
+      item({ id: 'A4', status: 'suggestion', points: 0, weight: 2 }),
+      item({ id: 'B1', status: 'suggestion', points: 0, weight: 10 }),
       item({ id: 'B2', status: 'locked', points: 0, lockedBy: 'B1', weight: 5, remedy: 'Send it.' }),
     ]);
-    const order = ['## Context', '### B1', '### A2', '## Partly working (1)', '### A3', '## Blocked behind B1 (1)', '- B2 (weight 5)', '## What I need from you'];
+    const order = [
+      '# Fix 3 audits on',
+      '## Context',
+      '### A1',
+      '### A5',
+      '## Partly working (1)',
+      '### A3',
+      '## Suggestions (not scored) (2)',
+      '### B1',
+      '### A4',
+      '## Blocked behind B1 (1)',
+      '- B2 (weight 5)',
+      '## What I need from you',
+    ];
     const positions = order.map((marker) => prompt.indexOf(marker));
     expect(positions.every((position) => position >= 0)).toBe(true);
     expect(positions).toEqual([...positions].sort((a, b) => a - b));
     expect(prompt).toContain('- Earned so far: 6 of 9');
+    expect(prompt).toContain('- Not scored: a convention the page could adopt; the Agentic score does not change');
     expect(prompt).toContain('- Done when: re-run Web Audit+; B1 should pass.');
+    expect(prompt).not.toContain('Points at stake: +0');
+  });
+
+  it('asks to adopt, not fix, when only suggestions are left', () => {
+    const only = [item({ id: 'A2', status: 'suggestion', points: 0, weight: 3 }), item({ id: 'A4', status: 'suggestion', points: 0, weight: 2 })];
+    expect(allFixesPrompt(context, only)).toMatch(/^# Adopt 2 suggestions on ` example\.com `/);
+    expect(allFixesPrompt(context, only)).toContain('passed every scored audit');
+    expect(categoryFixPrompt(context, 'agentic', only)).toMatch(/^# Adopt 2 Agentic suggestions on /);
+    expect(singleFixPrompt(context, only[0]!)).toMatch(/^# Adopt A2 \(/);
+    expect(allFixesPrompt(context, [item({ id: 'A1', points: 5 }), ...only])).toMatch(/^# Fix 1 audit on /);
   });
 
   it('prints the context the agent needs', () => {
@@ -130,14 +156,32 @@ describe('agenticFixItems', () => {
     const report = buildAgenticReport(unadoptedEvidence());
     const items = agenticFixItems(report);
     expect(items.map((entry) => entry.id)).toEqual(report.checks.filter((check) => check.status !== 'pass' && check.status !== 'na').map((check) => check.id));
+    // The three the leading sites also lack are suggestions: no price, a remedy all the same.
     const b1 = items.find((entry) => entry.id === 'B1');
-    expect(b1?.points).toBe(report.checks.find((check) => check.id === 'B1')?.price);
+    expect(b1).toMatchObject({ status: 'suggestion', points: 0, weight: 10 });
     expect(b1?.remedy).toMatch(/\/resume\.md/);
     const b2 = items.find((entry) => entry.id === 'B2');
     expect(b2).toMatchObject({ status: 'locked', points: 0, lockedBy: 'B1' });
     const prompt = allFixesPrompt(context, items);
+    expect(prompt).toMatch(/^# Adopt 3 suggestions on /);
+    expect(prompt).toContain('## Suggestions (not scored) (3)');
     expect(prompt).toContain('## Blocked behind B1 (12)');
     expect(prompt).toContain('### B1: Markdown twin URL is reachable and returns 2xx (Agentic)');
+    expect(prompt).not.toContain('Points at stake');
+  });
+
+  it('prices a scored failure and leaves the suggestions unpriced beside it', () => {
+    const e = unadoptedEvidence();
+    const report = buildAgenticReport({ ...e, html: { ...e.html, ttfbMs: 5_000 } });
+    const items = agenticFixItems(report);
+    const a6 = items.find((entry) => entry.id === 'A6');
+    expect(a6?.status).toBe('fail');
+    expect(a6?.points).toBeGreaterThan(0);
+    expect(a6?.points).toBe(report.checks.find((check) => check.id === 'A6')?.price);
+    const prompt = allFixesPrompt(context, items);
+    expect(prompt).toMatch(/^# Fix 1 audit on /);
+    expect(prompt).toContain('## Failed (1)');
+    expect(prompt).toContain('## Suggestions (not scored) (3)');
   });
 
   it('is empty for a perfect run', () => {

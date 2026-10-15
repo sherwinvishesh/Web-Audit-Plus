@@ -4,7 +4,7 @@ import type { AuditItem, AuditStatus } from './report-model';
 
 /** The report's search box and its two filters. */
 
-export type StatusFilter = 'all' | 'needs-work' | 'fail' | 'partial' | 'pass' | 'na' | 'other' | 'changed';
+export type StatusFilter = 'all' | 'needs-work' | 'fail' | 'partial' | 'suggestion' | 'pass' | 'na' | 'other' | 'changed';
 
 export interface AuditFilter {
   query: string;
@@ -22,6 +22,7 @@ const STATUS_SETS: Readonly<Record<Exclude<StatusFilter, 'all' | 'changed'>, Rea
   'needs-work': new Set(['fail', 'partial']),
   fail: new Set(['fail']),
   partial: new Set(['partial']),
+  suggestion: new Set(['suggestion']),
   pass: new Set(['pass']),
   na: new Set(['na']),
   other: new Set(['locked', 'info', 'manual', 'error']),
@@ -58,6 +59,7 @@ export const STATUS_FILTER_LABEL: Readonly<Record<StatusFilter, string>> = {
   'needs-work': 'Needs work',
   fail: 'Failed',
   partial: 'Partial or warning',
+  suggestion: 'Suggestions',
   pass: 'Passed',
   na: 'Not applicable',
   other: 'Locked or manual',

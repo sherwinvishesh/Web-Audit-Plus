@@ -59,7 +59,10 @@ describe('an SPA whose catch-all answers every path with its shell', () => {
     expect(byId.get('A5')?.status).toBe('fail');
     expect(report.score.locked.count).toBeGreaterThan(0);
     expect(report.checks.filter((check) => check.status === 'locked').every((check) => check.lockedBy === 'B1')).toBe(true);
-    expect(report.fixes[0]?.id).toBe('B1');
+    // The scored failures lead the list; the twin follows as the first suggestion.
+    expect(report.fixes[0]?.suggestion).toBeUndefined();
+    expect(report.fixes[0]?.points).toBeGreaterThan(0);
+    expect(report.fixes.find((fix) => fix.id === 'B1')).toMatchObject({ suggestion: true, points: 0, unlocks: report.score.locked.count });
   });
 });
 

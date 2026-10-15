@@ -1,15 +1,38 @@
-import { memo, type ReactNode } from 'react';
-import type { Comparison } from '../../shared/compare';
-import { groupByStatus, statusLabel, type AuditItem, type AuditStatus, type CategoryView, type ReportModel } from '../../shared/report-model';
-import { ScoreDelta } from '../components/Change';
-import { InlineText } from '../components/InlineText';
-import { Filmstrip, MetricTiles } from '../components/Metrics';
-import { ScoreRing } from '../components/ScoreRing';
-import { AlertIcon, CheckIcon, ChevronIcon, CopyIcon, LockIcon } from '../components/icons';
-import { AuditRow } from './AuditRow';
+import { memo, type ReactNode } from "react";
+import type { Comparison } from "../../shared/compare";
+import {
+  groupByStatus,
+  statusLabel,
+  type AuditItem,
+  type AuditStatus,
+  type CategoryView,
+  type ReportModel,
+} from "../../shared/report-model";
+import { ScoreDelta } from "../components/Change";
+import { InlineText } from "../components/InlineText";
+import { Filmstrip, MetricTiles } from "../components/Metrics";
+import { ScoreRing } from "../components/ScoreRing";
+import {
+  AlertIcon,
+  CheckIcon,
+  ChevronIcon,
+  CopyIcon,
+  LockIcon,
+} from "../components/icons";
+import { AuditRow } from "./AuditRow";
 
 /** Groups that start closed: nothing to do in them. */
-const QUIET: ReadonlySet<AuditStatus> = new Set(['pass', 'na', 'info', 'manual', 'locked']);
+const QUIET: ReadonlySet<AuditStatus> = new Set([
+  "pass",
+  "na",
+  "info",
+  "manual",
+  "locked",
+]);
+
+/** What the Suggestions group is, in one line. The score does not depend on it. */
+export const SUGGESTIONS_INTRO =
+  "Conventions for AI agents the page has not adopted. They are outside the score: the best-served sites have not adopted them either, so these are what would set the page apart.";
 
 export function groupKey(category: string, status: AuditStatus): string {
   return `${category}:${status}`;
@@ -31,10 +54,27 @@ interface CategorySectionProps {
   onCopyCategory(category: CategoryView): void;
 }
 
-export const CategorySection = memo(function CategorySection(props: CategorySectionProps) {
-  const { model, category, audits, filtering, comparison, open, expanded, copied, onToggle, onToggleGroup, onCopy, onCopyCategory } = props;
+export const CategorySection = memo(function CategorySection(
+  props: CategorySectionProps,
+) {
+  const {
+    model,
+    category,
+    audits,
+    filtering,
+    comparison,
+    open,
+    expanded,
+    copied,
+    onToggle,
+    onToggleGroup,
+    onCopy,
+    onCopyCategory,
+  } = props;
   const groups = groupByStatus(audits);
-  const actionable = category.audits.some((audit) => audit.fixItem && audit.status !== 'locked');
+  const actionable = category.audits.some(
+    (audit) => audit.fixItem && audit.status !== "locked",
+  );
   const copyKey = `category:${category.id}`;
 
   const rows = (list: readonly AuditItem[]): ReactNode => (
@@ -54,15 +94,29 @@ export const CategorySection = memo(function CategorySection(props: CategorySect
   );
 
   return (
-    <section id={`category-${category.id}`} aria-labelledby={`category-title-${category.id}`} className="mt-14 scroll-mt-20">
+    <section
+      id={`category-${category.id}`}
+      aria-labelledby={`category-title-${category.id}`}
+      className="mt-14 scroll-mt-20"
+    >
       <header className="flex flex-wrap items-center gap-x-4 gap-y-3 border-b border-border pb-4">
-        <ScoreRing score={category.score} size={48} animate={false} label={category.title} />
+        <ScoreRing
+          score={category.score}
+          size={48}
+          animate={false}
+          label={category.title}
+        />
         <div className="min-w-0 flex-1">
-          <h2 id={`category-title-${category.id}`} className="flex items-center gap-2.5 text-lg font-semibold tracking-tight">
+          <h2
+            id={`category-title-${category.id}`}
+            className="flex items-center gap-2.5 text-lg font-semibold tracking-tight"
+          >
             {category.title}
             <ScoreDelta delta={comparison?.scores[category.id]} />
           </h2>
-          <p className="mt-0.5 text-[12.5px] text-muted">{countLine(category)}</p>
+          <p className="mt-0.5 text-[12.5px] text-muted">
+            {countLine(category)}
+          </p>
         </div>
         {actionable && (
           <button
@@ -70,8 +124,12 @@ export const CategorySection = memo(function CategorySection(props: CategorySect
             onClick={() => onCopyCategory(category)}
             className="flex h-8 items-center gap-1.5 rounded-md border border-border-strong bg-surface px-3 text-[12.5px] font-medium transition-colors hover:bg-surface-2"
           >
-            {copied === copyKey ? <CheckIcon size={14} className="text-good" /> : <CopyIcon size={14} className="text-muted" />}
-            {copied === copyKey ? 'Copied' : `Copy ${category.title} fixes`}
+            {copied === copyKey ? (
+              <CheckIcon size={14} className="text-good" />
+            ) : (
+              <CopyIcon size={14} className="text-muted" />
+            )}
+            {copied === copyKey ? "Copied" : `Copy ${category.title} fixes`}
           </button>
         )}
       </header>
@@ -98,9 +156,9 @@ export const CategorySection = memo(function CategorySection(props: CategorySect
         const isOpen = filtering || !quiet || expanded.has(key);
         const label = statusLabel(status, category.id);
 
-        if (status === 'locked' && category.locked && !filtering) {
+        if (status === "locked" && category.locked && !filtering) {
           return (
-            <div key={status} className="mt-6">
+            <div key={status} className="mt-3">
               <button
                 type="button"
                 onClick={() => onToggleGroup(key)}
@@ -109,17 +167,20 @@ export const CategorySection = memo(function CategorySection(props: CategorySect
               >
                 <LockIcon size={15} className="shrink-0 text-faint" />
                 <span className="min-w-0 flex-1 text-muted">
-                  {category.locked.count} {category.locked.count === 1 ? 'check is' : 'checks are'} waiting on{' '}
-                  <span className="font-mono text-text">{category.locked.unlockedBy.join(', ')}</span>
-                  {category.locked.gain > 0 ? (
-                    <>
-                      . Fixing it unlocks up to <span className="num font-medium text-good">+{category.locked.gain}</span> more.
-                    </>
-                  ) : (
-                    '.'
-                  )}
+                  {category.locked.count} more{" "}
+                  {category.locked.count === 1
+                    ? "suggestion applies"
+                    : "suggestions apply"}{" "}
+                  once a markdown twin is served. They wait on{" "}
+                  <span className="font-mono text-text">
+                    {category.locked.unlockedBy.join(", ")}
+                  </span>
+                  .
                 </span>
-                <ChevronIcon size={14} className={`shrink-0 text-faint transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+                <ChevronIcon
+                  size={14}
+                  className={`shrink-0 text-faint transition-transform ${isOpen ? "rotate-90" : ""}`}
+                />
               </button>
               {isOpen && <div className="mt-2">{rows(list)}</div>}
             </div>
@@ -128,6 +189,11 @@ export const CategorySection = memo(function CategorySection(props: CategorySect
 
         return (
           <div key={status} className="mt-6">
+            {status === "suggestion" && !filtering && (
+              <p className="mb-2 text-[12.5px] text-muted">
+                {SUGGESTIONS_INTRO}
+              </p>
+            )}
             {quiet && !filtering ? (
               <button
                 type="button"
@@ -135,7 +201,10 @@ export const CategorySection = memo(function CategorySection(props: CategorySect
                 aria-expanded={isOpen}
                 className="mb-2 flex items-center gap-2 rounded-md text-[12.5px] font-medium text-muted transition-colors hover:text-text"
               >
-                <ChevronIcon size={12} className={`transition-transform ${isOpen ? 'rotate-90' : ''}`} />
+                <ChevronIcon
+                  size={12}
+                  className={`transition-transform ${isOpen ? "rotate-90" : ""}`}
+                />
                 {label}
                 <span className="num text-faint">{list.length}</span>
               </button>
@@ -154,22 +223,32 @@ export const CategorySection = memo(function CategorySection(props: CategorySect
 });
 
 function countLine(category: CategoryView): string {
-  if (category.audits.length === 0) return category.error ? 'Not measured' : 'No audits';
-  return countParts(category).join(' · ');
+  if (category.audits.length === 0)
+    return category.error ? "Not measured" : "No audits";
+  return countParts(category).join(" · ");
 }
 
-/** A category's audits counted by outcome: "2 failed", "1 warning", "24 passed" and so on. */
+/** A category's audits counted by outcome: "2 failed", "1 warning", "3 suggestions", "24 passed" and so on. */
 export function countParts(category: CategoryView): string[] {
-  const count = (status: AuditStatus): number => category.audits.filter((audit) => audit.status === status).length;
+  const count = (status: AuditStatus): number =>
+    category.audits.filter((audit) => audit.status === status).length;
   const parts: string[] = [];
-  const failed = count('fail');
-  const partial = count('partial');
-  const passed = count('pass');
-  const locked = count('locked');
-  const na = count('na');
+  const failed = count("fail");
+  const partial = count("partial");
+  const suggested = count("suggestion");
+  const passed = count("pass");
+  const locked = count("locked");
+  const na = count("na");
   if (failed) parts.push(`${failed} failed`);
-  if (partial) parts.push(`${partial} ${category.id === 'agentic' ? 'partial' : partial === 1 ? 'warning' : 'warnings'}`);
-  if (locked) parts.push(`${locked} locked`);
+  if (partial)
+    parts.push(
+      `${partial} ${category.id === "agentic" ? "partial" : partial === 1 ? "warning" : "warnings"}`,
+    );
+  if (suggested)
+    parts.push(
+      `${suggested} ${suggested === 1 ? "suggestion" : "suggestions"}`,
+    );
+  if (locked) parts.push(`${locked} waiting on a markdown twin`);
   if (passed) parts.push(`${passed} passed`);
   if (na) parts.push(`${na} not applicable`);
   return parts;

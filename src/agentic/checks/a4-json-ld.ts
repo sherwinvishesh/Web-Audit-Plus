@@ -5,7 +5,7 @@ const MAX_TYPES_NAMED = 6;
 
 /** A4. A Schema.org JSON-LD block that parses and declares an `@type`. */
 export const a4JsonLd = defineCheck(
-  { id: 'A4', category: 'A', required: false, weight: 2, title: 'Schema.org JSON-LD is present and parses' },
+  { id: 'A4', category: 'A', scored: false, required: false, weight: 2, title: 'Schema.org JSON-LD is present and parses' },
   (e, self) => {
     if (!e.html.ok || !e.html.body) {
       return fail(self, 'Could not read the HTML response to look for JSON-LD.', {

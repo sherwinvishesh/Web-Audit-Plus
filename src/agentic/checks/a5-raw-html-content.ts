@@ -9,7 +9,7 @@ export const SSR_FLOOR_WORDS = 15;
  * read it. Ramped between 15 and 60 extracted words.
  */
 export const a5RawHtmlContent = defineCheck(
-  { id: 'A5', category: 'A', required: true, weight: 9, title: 'Real content is in the raw HTML, not only after JS runs' },
+  { id: 'A5', category: 'A', scored: true, required: true, weight: 9, title: 'Real content is in the raw HTML, not only after JS runs' },
   (e, self) => {
     if (!e.html.ok || !e.html.body) {
       return fail(self, `The page did not return usable HTML (${httpStatus(e.html.status)}).`, {

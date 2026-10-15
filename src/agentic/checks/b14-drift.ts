@@ -15,7 +15,7 @@ const DAY_MS = 86_400_000;
  * A changed hash with every fact intact is cosmetic drift and keeps half the weight.
  */
 export const b14Drift = defineCheck(
-  { id: 'B14', category: 'B', required: true, weight: 4, title: 'The served markdown still matches the live page (no drift or staleness)' },
+  { id: 'B14', category: 'B', scored: false, required: true, weight: 4, title: 'The served markdown still matches the live page (no drift or staleness)' },
   (e, self) => {
     if (!e.twin.ok || !e.twin.body.trim()) {
       return fail(self, `There is no markdown twin to compare against the live page (${httpStatus(e.twin.status)}).`, {

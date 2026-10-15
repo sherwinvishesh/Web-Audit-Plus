@@ -3,7 +3,7 @@ import { defineCheck, fail, pass, q } from './helpers';
 
 /** B4. `X-Markdown-Tokens`, a positive integer, so an agent can budget before reading. */
 export const b4TokensHeader = defineCheck(
-  { id: 'B4', category: 'B', required: false, weight: 3, title: 'X-Markdown-Tokens is present and a positive integer' },
+  { id: 'B4', category: 'B', scored: false, required: false, weight: 3, title: 'X-Markdown-Tokens is present and a positive integer' },
   (e, self) => {
     const raw = header(e.twin, 'x-markdown-tokens');
     if (!raw) {

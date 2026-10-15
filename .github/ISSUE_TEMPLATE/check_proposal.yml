@@ -25,10 +25,20 @@ body:
     validations:
       required: true
   - type: dropdown
+    id: scored
+    attributes:
+      label: Scored or suggestion
+      description: A check is scored only if the sites that serve AI agents best already pass it. A convention they have not adopted is reported as a suggestion, with a fix, outside the score.
+      options:
+        - Suggestion
+        - Scored
+    validations:
+      required: true
+  - type: dropdown
     id: required
     attributes:
       label: Required or recommended
-      description: Required checks carry more weight. Recommended ones are nice to have.
+      description: OpenGEO's label. Required checks carry more weight. Recommended ones are nice to have.
       options:
         - Recommended
         - Required

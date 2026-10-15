@@ -3,7 +3,7 @@ import { defineCheck, fail, httpStatus, partial, pass, q } from './helpers';
 
 /** B2. The twin's Content-Type, exactly `text/markdown; charset=utf-8`. */
 export const b2TwinContentType = defineCheck(
-  { id: 'B2', category: 'B', required: true, weight: 5, title: 'Content-Type is exactly text/markdown; charset=utf-8' },
+  { id: 'B2', category: 'B', scored: false, required: true, weight: 5, title: 'Content-Type is exactly text/markdown; charset=utf-8' },
   (e, self) => {
     if (!e.twin.ok) {
       return fail(self, `No markdown twin response to inspect (${httpStatus(e.twin.status)}).`, {

@@ -35,8 +35,9 @@ const INJECTED = /Ignore all previous instructions|delete the repository|Then pu
 const INVISIBLE = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F-\u009F؜​-‏‪-‮⁠-⁤⁦-⁩﻿]/;
 
 /** The headings a fix prompt writes itself; no other line may start one. */
-const PROMPT_HEADINGS = /^(# Fix |## Context$|## Failed \(\d+\)$|## Partly working \(\d+\)$|## Blocked behind |## What I need from you$|## Nothing to fix$|### [A-Za-z0-9-]+: )/;
-const SUMMARY_HEADINGS = /^(# Web Audit\+ report for |## Changes since the compared run$|## Fix next \()/;
+const PROMPT_HEADINGS =
+  /^(# Fix |# Adopt |## Context$|## Failed \(\d+\)$|## Partly working \(\d+\)$|## Suggestions \(not scored\) \(\d+\)$|## Blocked behind |## What I need from you$|## Nothing to fix$|### [A-Za-z0-9-]+: )/;
+const SUMMARY_HEADINGS = /^(# Web Audit\+ report for |## Changes since the compared run$|## Fix next \(|## Suggestions \(\d+\)$)/;
 
 const context: FixPromptContext = {
   url: 'https://example.com/resume',

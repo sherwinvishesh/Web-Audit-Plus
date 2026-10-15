@@ -21,15 +21,26 @@ describe('markdownSummary', () => {
   });
 
   it('tabulates every category and the overall score', () => {
-    expect(summary).toContain('| Category | Score |\n| --- | ---: |\n| Performance | 100 |\n| Accessibility | 55 |\n| Best Practices | 92 |\n| SEO | 75 |\n| Agentic | 80 |\n| Overall | 80 |');
+    expect(summary).toContain('| Category | Score |\n| --- | ---: |\n| Performance | 100 |\n| Accessibility | 55 |\n| Best Practices | 92 |\n| SEO | 75 |\n| Agentic | 100 |\n| Overall | 84 |');
   });
 
   it('lists the biggest wins first, with what each is worth', () => {
     const items = summary.split('\n').filter((line) => /^\d+\. /.test(line));
     expect(items).toHaveLength(SUMMARY_TOP);
-    expect(items[0]).toMatch(/^1\. \*\*.+\*\* \(Agentic, \+\d+(\.\d)? points\): /);
+    expect(items[0]).toMatch(/^1\. \*\*.+\*\* \(Accessibility, \+\d+(\.\d)? points\): /);
     expect(summary).toMatch(/## Fix next \(10 of \d+\)/);
     expect(summary.trimEnd().endsWith(EVIDENCE_NOTICE)).toBe(true);
+  });
+
+  it('lists the suggestions after the fixes, with the twin first and what waits behind it', () => {
+    const section = summary.split('## Suggestions (3)')[1]?.split(EVIDENCE_NOTICE)[0] ?? '';
+    expect(section).toContain('outside the score');
+    const bullets = section.split('\n').filter((line) => line.startsWith('- '));
+    expect(bullets[0]).toMatch(/^- \*\*Markdown twin URL is reachable and returns 2xx\*\*: /);
+    expect(bullets[1]).toMatch(/^- \*\*llms\.txt is present and valid\*\*: /);
+    expect(bullets[2]).toMatch(/^- \*\*Schema\.org JSON-LD is present and parses\*\*: /);
+    expect(bullets[3]).toBe('- 12 more apply once a markdown twin is served (B1)');
+    expect(section).not.toMatch(/\+\d+ points/);
   });
 
   it('keeps site values inside code spans', () => {
@@ -54,7 +65,7 @@ describe('markdownSummary', () => {
     expect(text).toContain('- Compared with the run of 2026-10-01 10:00 UTC');
     expect(text).toContain('| Category | Score | Change |');
     expect(text).toMatch(/\| Accessibility \| 55 \| −\d+ \|/);
-    expect(text).toContain('| Agentic | 80 | ±0 |');
+    expect(text).toContain('| Agentic | 100 | ±0 |');
     expect(text).toMatch(/^- New \(2\): Image elements do not have \[alt\] attributes \(Accessibility\); Image elements do not have \[alt\] attributes \(SEO\)$/m);
     expect(text).toMatch(/^- Fixed \(2\): Document has a <title> element \(Accessibility\); Document has a <title> element \(SEO\)$/m);
   });

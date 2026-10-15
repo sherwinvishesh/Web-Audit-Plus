@@ -6,7 +6,7 @@ const OPT_OUT = /\bnoai\b|\bnoimageai\b/i;
 
 /** A7. No `noai` / `noimageai` directive in `X-Robots-Tag` or a robots meta tag. */
 export const a7NoAiOptOut = defineCheck(
-  { id: 'A7', category: 'A', required: true, weight: 8, title: 'No noai / noimageai tag is silently blocking AI' },
+  { id: 'A7', category: 'A', scored: true, required: true, weight: 8, title: 'No noai / noimageai tag is silently blocking AI' },
   (e, self) => {
     const found: string[] = [];
     const robotsTag = header(e.html, 'x-robots-tag') ?? '';

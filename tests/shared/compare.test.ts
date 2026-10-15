@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
+import { buildAgenticReport } from '../../src/agentic/report';
 import { compareModels, metricDelta, signed } from '../../src/shared/compare';
 import { buildReportModel } from '../../src/shared/report-model';
 import { flawedDesktopResult } from '../engine/fixture';
+import { goodEvidence } from '../helpers/evidence';
 import { flawedRecord, withScores } from '../helpers/records';
 
 /** The run before the fixture's: alt text was fine, the title was missing, two insights scored differently, LCP was slower. */
@@ -41,6 +43,19 @@ describe('compareModels', () => {
     expect(Object.keys(comparison.audits)).toHaveLength(total);
     expect(comparison.counts.new).toBeGreaterThanOrEqual(2);
     expect(comparison.counts.fixed).toBeGreaterThanOrEqual(1);
+  });
+
+  it('reads a suggestion adopted or dropped since as fixed or new, without a score delta', () => {
+    const adopted = flawedRecord({ id: 'run-0', startedAt: '2026-10-01T10:00:00.000Z' });
+    adopted.agentic = buildAgenticReport(goodEvidence());
+    adopted.scores.agentic = adopted.agentic.score.value;
+    const since = compareModels(current, buildReportModel(adopted));
+    expect(since.audits['agentic:B1']).toEqual({ kind: 'new', before: 'pass' });
+    expect(since.audits['agentic:A2']?.kind).toBe('new');
+    expect(since.audits['agentic:B2']).toBeUndefined();
+    expect(since.scores.agentic).toBe(0);
+    const reverse = compareModels(buildReportModel(adopted), current);
+    expect(reverse.audits['agentic:B1']).toEqual({ kind: 'fixed', before: 'suggestion' });
   });
 
   it('gives score deltas only where both runs have a score', () => {

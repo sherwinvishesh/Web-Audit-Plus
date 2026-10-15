@@ -102,7 +102,8 @@ export function goodEvidence(): Evidence {
 
 /**
  * The calibration site: everything right except the AI conventions. No llms.txt, no JSON-LD, no
- * twin, no negotiation. OpenGEO pins this at 80, losing exactly A2, A4 and B1.
+ * twin, no negotiation. What openai.com and anthropic.com serve. OpenGEO pins this at 80, losing
+ * exactly A2, A4 and B1; here those three are suggestions and the page scores 100.
  */
 export function unadoptedEvidence(): Evidence {
   const e = goodEvidence();

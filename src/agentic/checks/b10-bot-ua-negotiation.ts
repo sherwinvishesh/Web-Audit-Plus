@@ -4,7 +4,7 @@ import { describeContentType, redirectedAway } from './negotiation';
 
 /** B10. A known AI crawler's User-Agent gets markdown with no Accept header to go on. */
 export const b10BotUaNegotiation = defineCheck(
-  { id: 'B10', category: 'B', required: true, weight: 6, title: 'A known AI bot User-Agent receives markdown without an Accept header' },
+  { id: 'B10', category: 'B', scored: false, required: true, weight: 6, title: 'A known AI bot User-Agent receives markdown without an Accept header' },
   (e, self) => {
     const response = e.botUa;
     const bot = e.botName || 'GPTBot';

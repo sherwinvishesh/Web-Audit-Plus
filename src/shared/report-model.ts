@@ -1,4 +1,4 @@
-import { agenticFixItem, needsWork } from '../agentic/fix-items';
+import { agenticFixItem, isSuggestion, needsWork } from '../agentic/fix-items';
 import { placementFor } from '../agentic/remedies';
 import { stripPrice } from '../agentic/score';
 import type { AgenticReport } from '../agentic/types';
@@ -14,10 +14,15 @@ import type { RunRecord } from './run';
  * disagree about what failed or what it is worth.
  */
 
-export type AuditStatus = 'fail' | 'partial' | 'error' | 'locked' | 'info' | 'manual' | 'pass' | 'na';
+/**
+ * `suggestion` is an Agentic check the page fell short on that is not part of the score: a
+ * convention for AI agents (llms.txt, structured data, a markdown twin) that the best-served sites
+ * have not adopted either. It carries a fix like a failure does, and is worth no points.
+ */
+export type AuditStatus = 'fail' | 'partial' | 'error' | 'suggestion' | 'locked' | 'info' | 'manual' | 'pass' | 'na';
 
-/** Display order of the status groups: what needs work first, then what passed, then what did not apply. */
-export const STATUS_ORDER: readonly AuditStatus[] = ['fail', 'partial', 'error', 'locked', 'info', 'manual', 'pass', 'na'];
+/** Display order of the status groups: what needs work first, then the suggestions, then what passed, then what did not apply. */
+export const STATUS_ORDER: readonly AuditStatus[] = ['fail', 'partial', 'error', 'suggestion', 'locked', 'info', 'manual', 'pass', 'na'];
 
 export interface AuditItem {
   /** Unique across the report: `${category}:${id}`. */
@@ -70,8 +75,8 @@ export interface CategoryView {
   /** Why the category produced no score. */
   error?: string;
   audits: AuditItem[];
-  /** Checks waiting on a prerequisite, shown as one line. */
-  locked?: { count: number; gain: number; unlockedBy: string[] };
+  /** Suggestions waiting on a prerequisite (the markdown twin), shown as one line. */
+  locked?: { count: number; unlockedBy: string[] };
   /** Performance only: the lab metrics. */
   metrics?: MetricView[];
 }
@@ -106,7 +111,7 @@ function categoryView(record: RunRecord, id: CategoryId): CategoryView {
   if (id === 'agentic' && record.agentic) {
     view.audits = agenticAudits(record.agentic);
     const { locked } = record.agentic.score;
-    if (locked.count > 0) view.locked = { count: locked.count, gain: locked.gain, unlockedBy: locked.unlockedBy };
+    if (locked.count > 0) view.locked = { count: locked.count, unlockedBy: locked.unlockedBy };
   } else if (id !== 'agentic' && record.engine) {
     view.audits = engineAudits(record.engine, id);
     if (id === 'performance') view.metrics = engineMetrics(record.engine);
@@ -116,13 +121,16 @@ function categoryView(record: RunRecord, id: CategoryId): CategoryView {
 
 export function agenticAudits(report: AgenticReport): AuditItem[] {
   return report.checks.map((check) => {
+    // A run saved before checks were split into scored and suggestions has no `scored` flag; its
+    // checks all counted, and still read that way beside the score it was given.
+    const suggestion = isSuggestion(check);
     const audit: AuditItem = {
       key: `agentic:${check.id}`,
       category: 'agentic',
       id: check.id,
       title: check.title,
-      status: check.status,
-      points: check.status === 'fail' || check.status === 'partial' ? (check.price ?? 0) : 0,
+      status: suggestion ? 'suggestion' : check.status,
+      points: !suggestion && (check.status === 'fail' || check.status === 'partial') ? (check.price ?? 0) : 0,
       reason: check.reason,
       earned: check.earned,
       weight: check.weight,
@@ -146,6 +154,18 @@ export function fixNext(model: ReportModel): AuditItem[] {
     .sort((a, b) => worth(b) - worth(a) || statusRank(a.status) - statusRank(b.status) || CATEGORY_IDS.indexOf(a.category) - CATEGORY_IDS.indexOf(b.category));
 }
 
+/** The conventions the page has not adopted, the one that unlocks the most first. Outside the score. */
+export function suggestions(model: ReportModel): AuditItem[] {
+  return model.categories
+    .flatMap((category) => category.audits)
+    .filter((audit) => audit.status === 'suggestion')
+    .sort(byWeight);
+}
+
+function byWeight(a: AuditItem, b: AuditItem): number {
+  return (b.weight ?? 0) - (a.weight ?? 0);
+}
+
 /** What fixing an audit is worth, for ordering: its points, or failing those its estimated impact. */
 export function worth(audit: Pick<AuditItem, 'points' | 'impact'>): number {
   return audit.points > 0 ? audit.points : (audit.impact ?? 0);
@@ -165,11 +185,11 @@ export function allFixItems(model: ReportModel, category?: CategoryId): FixPromp
     .sort((a, b) => worth(b) - worth(a));
 }
 
-/** Audits grouped by status, in display order, empty groups dropped. */
+/** Audits grouped by status, in display order, empty groups dropped. Suggestions are worth no points, so their weight orders them. */
 export function groupByStatus(audits: readonly AuditItem[]): Array<{ status: AuditStatus; audits: AuditItem[] }> {
   return STATUS_ORDER.map((status) => ({
     status,
-    audits: audits.filter((audit) => audit.status === status).sort((a, b) => worth(b) - worth(a)),
+    audits: audits.filter((audit) => audit.status === status).sort(status === 'suggestion' ? byWeight : (a, b) => worth(b) - worth(a)),
   })).filter((group) => group.audits.length > 0);
 }
 
@@ -177,6 +197,7 @@ export const STATUS_LABEL: Readonly<Record<AuditStatus, string>> = {
   fail: 'Failed',
   partial: 'Partial',
   error: 'Could not run',
+  suggestion: 'Suggestions',
   locked: 'Locked',
   info: 'Diagnostics',
   manual: 'Check manually',

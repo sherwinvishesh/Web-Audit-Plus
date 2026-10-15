@@ -6,7 +6,7 @@ const HTML_TYPES = ['text/html', 'application/xhtml+xml'];
 
 /** B13. A normal browser request still gets the real HTML page, at the page's own URL. */
 export const b13HtmlUnaffected = defineCheck(
-  { id: 'B13', category: 'B', required: true, weight: 9, title: 'The original HTML URL is still reachable and unaffected' },
+  { id: 'B13', category: 'B', scored: true, required: true, weight: 9, title: 'The original HTML URL is still reachable and unaffected' },
   (e, self) => {
     if (!e.html.ok) {
       return fail(self, `The original HTML URL returned ${httpStatus(e.html.status)} to a normal browser request.`, {

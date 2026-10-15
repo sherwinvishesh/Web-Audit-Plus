@@ -43,7 +43,7 @@ The build is a complete, self-contained extension. It makes no requests except t
 
 While the engine runs, Chrome shows a bar saying that Web Audit+ *started debugging this browser*. That is how Chrome tells you an extension is using the debugger, which the audit engine needs. It goes away when the run ends. Pressing **Cancel** on it stops the run. The bar also shows for a moment when you download a PDF, because Chrome prints the report through the same debugger.
 
-Mobile runs emulate a mid-range phone with simulated throttling; Desktop runs use a desktop viewport and lighter throttling. Both use the standard metric weights and thresholds, so the numbers line up with the ones you would get from a lab run in DevTools.
+Mobile runs emulate a mid-range phone with simulated throttling; Desktop runs use a desktop viewport and lighter throttling. Both use the standard metric weights and thresholds, so the numbers line up with the ones a standard lab run gives.
 
 ## The report
 
@@ -88,7 +88,9 @@ The Export menu in the report offers four formats. All of them are produced in y
 
 ## Agentic checks
 
-The Agentic category scores how well a page serves AI agents: crawlers that build training sets, search agents that cite pages, and assistants that fetch a page because someone asked about it. It runs 22 deterministic checks, ported from OpenGEO's `opengeo test` with the same weights, thresholds and calibration. No language model is involved anywhere: the same responses always produce the same score.
+The Agentic category scores how well a page serves AI agents: crawlers that build training sets, search agents that cite pages, and assistants that fetch a page because someone asked about it. It runs 22 deterministic checks, ported from OpenGEO's `opengeo test` (the author's other project, coming soon) with the same weights and thresholds. No language model is involved anywhere: the same responses always produce the same score.
+
+Seven of the checks are **scored**: they measure what AI agents need today, and the score is computed over them alone. The other fifteen are **suggestions**: llms.txt, structured data and the markdown-twin conventions. They are run, reported and given a fix like any other audit, but they never move the score, because the sites that serve AI agents best (openai.com and anthropic.com among them) have not adopted them either. A page that does what those sites do scores 100; the suggestions are what would set it apart.
 
 ### What is fetched
 
@@ -109,52 +111,55 @@ A status code is never trusted on its own. A catch-all route that answers `/robo
 
 ### How the score is computed
 
-Every check carries a weight. Required checks carry more than recommended ones. Weights total 122 and the score is out of 100, so a weight is not a score point: every "+N" the report shows has been converted into score points for this run.
+Every check carries a weight, OpenGEO's. The seven scored checks (A1, A3, A5, A6, A7, A8 and B13) weigh 61 between them and the score is out of 100, so a weight is not a score point: every "+N" the report shows has been converted into score points for this run. The fifteen suggestions weigh another 61; their weight only orders them in the report, heaviest first.
 
 ```
 score = round(100 × earned / applicable)
 ```
 
-`applicable` is the sum of the weights of the checks that returned pass, partial or fail. Rounding happens once, at the end.
+`applicable` is the sum of the weights of the scored checks that returned pass, partial or fail. Rounding happens once, at the end.
 
 | Verdict | In the denominator | Earns |
 |---|---|---|
 | pass | yes | the full weight |
 | partial | yes | part of the weight, named in the row |
 | fail | yes | nothing |
-| locked | no | nothing until the check it is waiting on passes |
+| suggestion | no | nothing; it is reported with its evidence and a fix, like a failure |
+| locked | no | nothing; it waits on the check it reads from |
 | n/a | no | nothing, and there is nothing to fix |
 
-When the markdown twin does not exist, the twelve category B checks that read it have nothing to inspect. They become **locked** behind B1 and leave the denominator, so the whole verdict on the markdown layer is carried by B1, the heaviest check in the table. The report shows them as one line, with what unlocking them is worth, rather than as twelve separate failures. A twin that exists but is served wrong is still scored in full detail.
+When the markdown twin does not exist, the twelve category B checks that read it have nothing to inspect. They become **locked** behind B1, the heaviest check in the table, and the report shows them as one line, "12 more suggestions apply once a markdown twin is served", rather than as twelve separate items. A twin that exists but is served wrong is checked header by header, and each shortfall is reported as its own suggestion.
 
-Two calibration points are pinned by tests: a site that does everything right except the AI conventions (no llms.txt, no JSON-LD, no twin) scores 80, and the same site serving a correct twin scores 100.
+Two calibration points are pinned by tests: a site that does what the leading AI sites do (crawlable, fast, HTTPS, content in the HTML, no llms.txt, no JSON-LD, no twin) scores 100 with A2, A4 and B1 open as suggestions, and the same site serving a correct twin scores 100 with every suggestion adopted. Only a scored check moves the score below 100.
 
 ### The checks
 
-| Id | Weight | Required | Check |
-|---|---|---|---|
-| A1 | 9 | yes | robots.txt exists and does not disallow known AI bots. Read the way a crawler reads it: each of 28 known AI agents obeys its own group if there is one and `*` otherwise. Blocking an assistant or search agent fails; blocking only bulk training crawlers reads as a deliberate opt-out and earns 6 of 9. |
-| A2 | 3 | no | llms.txt is present and valid: served as a file, with a `# Title` first line and at least one link. |
-| A3 | 9 | yes | sitemap.xml is present and valid, and lists this page. A valid sitemap that omits the page earns 6; a sitemap index is followed into its first 10 children. |
-| A4 | 2 | no | Schema.org JSON-LD is present and parses, with an `@type`. |
-| A5 | 9 | yes | Real content is in the raw HTML, not only after JS runs. 60 words or more in the main content passes; 15 or fewer fails; in between is ramped. |
-| A6 | 8 | yes | Time to first byte is fast enough for agent fetches: 400 ms or less passes, 1500 ms or more fails, ramped in between. |
-| A7 | 8 | yes | No `noai` or `noimageai` directive in `X-Robots-Tag` or a robots meta tag is silently blocking AI. |
-| A8 | 9 | yes | Served over HTTPS with HSTS. HTTPS without `Strict-Transport-Security` earns 6. Not applicable on local hosts. |
-| B1 | 10 | yes | Markdown twin URL is reachable and returns 2xx with something other than an HTML page. |
-| B2 | 5 | yes | Content-Type is exactly `text/markdown; charset=utf-8`. Without the charset earns 3; `text/plain` earns 2. |
-| B3 | 5 | yes | Markdown response body is non-empty and at least half the live page's word count. |
-| B4 | 3 | no | `X-Markdown-Tokens` is present and a positive integer. |
-| B5 | 3 | no | `X-Content-Type-Options: nosniff` is present on the twin. |
-| B6 | 3 | yes | `X-Robots-Tag` on the twin includes `noindex`. |
-| B7 | 4 | yes | `Vary` includes `Accept` on both responses, so CDNs cache the two formats separately. One side right earns 2. |
-| B8 | 3 | no | The HTML response advertises the twin via a `Link` header with `rel="alternate"` and `type="text/markdown"`. |
-| B9 | 6 | yes | `Accept: text/markdown` on the page URL receives markdown at the same URL, not HTML and not a redirect. |
-| B10 | 6 | yes | A known AI bot User-Agent receives markdown at the same URL without an Accept header. |
-| B11 | 2 | no | An Accept header excluding HTML and markdown (`application/pdf`) returns 406. |
-| B12 | 2 | no | `X-AEO-Version` on the markdown response advertises the spec version implemented. |
-| B13 | 9 | yes | The original HTML URL is still reachable and unaffected: 2xx, an HTML Content-Type, a non-empty body, and no redirect to the twin. |
-| B14 | 4 | yes | The served markdown still matches the live page. With a source hash, the live content is hashed and compared; without one, the numbers, dates and prices on the live page are compared with the twin one by one. One discrepancy earns 2. |
+"Required" is OpenGEO's label for the checks it treats as essential; it is kept for reference. The score is computed over the Scored column.
+
+| Id | Weight | Scored | Required | Check |
+|---|---|---|---|---|
+| A1 | 9 | yes | yes | robots.txt exists and does not disallow known AI bots. Read the way a crawler reads it: each of 28 known AI agents obeys its own group if there is one and `*` otherwise. Blocking an assistant or search agent fails; blocking only bulk training crawlers reads as a deliberate opt-out and earns 6 of 9. |
+| A2 | 3 | suggestion | no | llms.txt is present and valid: served as a file, with a `# Title` first line and at least one link. |
+| A3 | 9 | yes | yes | sitemap.xml is present and valid, and lists this page. A valid sitemap that omits the page earns 6; a sitemap index is followed into its first 10 children. |
+| A4 | 2 | suggestion | no | Schema.org JSON-LD is present and parses, with an `@type`. |
+| A5 | 9 | yes | yes | Real content is in the raw HTML, not only after JS runs. 60 words or more in the main content passes; 15 or fewer fails; in between is ramped. |
+| A6 | 8 | yes | yes | Time to first byte is fast enough for agent fetches: 400 ms or less passes, 1500 ms or more fails, ramped in between. |
+| A7 | 8 | yes | yes | No `noai` or `noimageai` directive in `X-Robots-Tag` or a robots meta tag is silently blocking AI. |
+| A8 | 9 | yes | yes | Served over HTTPS with HSTS. HTTPS without `Strict-Transport-Security` earns 6. Not applicable on local hosts. |
+| B1 | 10 | suggestion | yes | Markdown twin URL is reachable and returns 2xx with something other than an HTML page. |
+| B2 | 5 | suggestion | yes | Content-Type is exactly `text/markdown; charset=utf-8`. Without the charset earns 3; `text/plain` earns 2. |
+| B3 | 5 | suggestion | yes | Markdown response body is non-empty and at least half the live page's word count. |
+| B4 | 3 | suggestion | no | `X-Markdown-Tokens` is present and a positive integer. |
+| B5 | 3 | suggestion | no | `X-Content-Type-Options: nosniff` is present on the twin. |
+| B6 | 3 | suggestion | yes | `X-Robots-Tag` on the twin includes `noindex`. |
+| B7 | 4 | suggestion | yes | `Vary` includes `Accept` on both responses, so CDNs cache the two formats separately. One side right earns 2. |
+| B8 | 3 | suggestion | no | The HTML response advertises the twin via a `Link` header with `rel="alternate"` and `type="text/markdown"`. |
+| B9 | 6 | suggestion | yes | `Accept: text/markdown` on the page URL receives markdown at the same URL, not HTML and not a redirect. |
+| B10 | 6 | suggestion | yes | A known AI bot User-Agent receives markdown at the same URL without an Accept header. |
+| B11 | 2 | suggestion | no | An Accept header excluding HTML and markdown (`application/pdf`) returns 406. |
+| B12 | 2 | suggestion | no | `X-AEO-Version` on the markdown response advertises the spec version implemented. |
+| B13 | 9 | yes | yes | The original HTML URL is still reachable and unaffected: 2xx, an HTML Content-Type, a non-empty body, and no redirect to the twin. |
+| B14 | 4 | suggestion | yes | The served markdown still matches the live page. With a source hash, the live content is hashed and compared; without one, the numbers, dates and prices on the live page are compared with the twin one by one. One discrepancy earns 2. |
 
 Checks B4 to B12 read response headers that only the server can set. A static host that cannot send custom headers, such as GitHub Pages, can pass everything else and leaves those on the table; a CDN or edge layer in front of it can add them.
 

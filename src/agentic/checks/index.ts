@@ -53,7 +53,7 @@ export const CHECKS: readonly AgenticCheck[] = [
 export function checkDefinition(id: string): CheckDefinition {
   const check = CHECKS.find((entry) => entry.id === id);
   if (!check) throw new Error(`Unknown check ${id}`);
-  return { id: check.id, category: check.category, required: check.required, weight: check.weight, title: check.title };
+  return { id: check.id, category: check.category, scored: check.scored, required: check.required, weight: check.weight, title: check.title };
 }
 
 /** Every check against the evidence, then the twin cascade. Pure. */
@@ -72,16 +72,16 @@ export function runChecks(e: Evidence): CheckResult[] {
 }
 
 /**
- * One missing twin costs one check, not twelve.
+ * One missing twin costs one suggestion, not twelve.
  *
  * Without this, a site that has never served a markdown twin fails B1 and then fails a dozen more
  * checks that restate the same fact: there is no Content-Type to inspect on a document that does
- * not exist. So when the twin URL does not serve a file, everything downstream of it leaves the
- * denominator as `locked` behind B1, the heaviest check in the table. Locked rather than `na`: the
- * arithmetic is identical, but one says "nothing here applies" and the other says "this much is
- * waiting behind one missing file".
+ * not exist. So when the twin URL does not serve a file, everything downstream of it becomes
+ * `locked` behind B1. The whole twin layer is a set of suggestions, so none of this touches the
+ * score; what it changes is the report, which lists one suggestion to start with and says how many
+ * more apply once a twin is served, instead of twelve separate findings about the same missing file.
  *
- * A twin that exists but is wrong is a different situation and is still scored in full detail.
+ * A twin that exists but is wrong is a different situation and is reported in full detail.
  */
 export function collapseTwinCascade(results: CheckResult[], e: Evidence): CheckResult[] {
   if (servesFile(e.twin)) return results;
@@ -130,5 +130,5 @@ const LOCKED_ON_LIVE_URL: Record<string, string> = {
   B11: 'a site serving one format has nothing to refuse',
 };
 
-/** Every check the cascade can take out of the denominator. */
+/** Every check the cascade can lock. All of them are suggestions: the cascade never touches a scored check. */
 export const TWIN_LOCKED_IDS: readonly string[] = [...Object.keys(LOCKED_ON_TWIN), ...Object.keys(LOCKED_ON_LIVE_URL)];

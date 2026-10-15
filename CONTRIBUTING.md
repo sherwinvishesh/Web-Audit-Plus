@@ -68,10 +68,12 @@ and say in the pull request what was wrong and how you know it is fixed.
 
 ### Changing an Agentic check
 
-The Agentic checks are a port of OpenGEO's `opengeo test`, with the same ids, weights, thresholds
-and calibration, and the parity suites (`tests/parity-*.test.ts`) pin that. A change to a check's
-behaviour must either match a change upstream or be argued on its own merits in the pull request.
-Whatever you change, keep these in step:
+The Agentic checks are a port of OpenGEO's `opengeo test` (the author's other project, coming
+soon), with the same ids, weights and thresholds, and the parity suites (`tests/parity-*.test.ts`)
+pin that. Seven checks are scored and
+fifteen are suggestions (`scored` on each definition); the split is pinned by
+`tests/agentic/score.test.ts`. A change to a check's behaviour must either match a change upstream
+or be argued on its own merits in the pull request. Whatever you change, keep these in step:
 
 1. the check in `src/agentic/checks/`,
 2. its tests,
@@ -81,8 +83,10 @@ Whatever you change, keep these in step:
 
 ### Proposing a new Agentic check
 
-Use the **New Agentic check** issue template. A check needs an id, a weight, whether it is required
-or recommended, a precise pass/partial/fail rule, the evidence it reads, and a fix prompt. Checks
+Use the **New Agentic check** issue template. A check needs an id, a weight, whether it should be
+scored or reported as a suggestion, a precise pass/partial/fail rule, the evidence it reads, and a
+fix prompt. A check is scored only if the sites that serve AI agents best already pass it: the score
+measures what agents need today, and a convention they have not adopted is a suggestion. Checks
 must be deterministic: the same responses always produce the same verdict, and no language model
 is involved anywhere.
 

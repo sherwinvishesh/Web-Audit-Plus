@@ -11,13 +11,18 @@ export function needsWork(check: CheckResult): check is CheckResult & { status: 
   return check.status === 'fail' || check.status === 'partial' || check.status === 'locked';
 }
 
+/** A check that fell short and is not part of the score: a convention the page could adopt. */
+export function isSuggestion(check: Pick<CheckResult, 'scored' | 'status'>): boolean {
+  return check.scored === false && (check.status === 'fail' || check.status === 'partial');
+}
+
 export function agenticFixItem(check: CheckResult & { status: 'fail' | 'partial' | 'locked' }, twinUrl: string): FixPromptItem {
   const item: FixPromptItem = {
     category: 'agentic',
     id: check.id,
     title: check.title,
-    status: check.status,
-    points: check.status === 'locked' ? 0 : (check.price ?? 0),
+    status: isSuggestion(check) ? 'suggestion' : check.status,
+    points: check.status === 'locked' || !check.scored ? 0 : (check.price ?? 0),
     evidence: check.reason,
     earned: check.earned,
     weight: check.weight,

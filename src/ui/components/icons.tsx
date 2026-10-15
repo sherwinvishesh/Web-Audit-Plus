@@ -54,6 +54,13 @@ export const HalfIcon = (props: IconProps) => (
   </Icon>
 );
 
+export const BulbIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <path d="M8 2a3.75 3.75 0 00-2.2 6.8c.5.4.7.9.7 1.45h3c0-.55.2-1.05.7-1.45A3.75 3.75 0 008 2z" />
+    <path d="M6.75 12.5h2.5M7.25 14h1.5" />
+  </Icon>
+);
+
 export const LockIcon = (props: IconProps) => (
   <Icon {...props}>
     <rect x="3.5" y="7" width="9" height="6" rx="1.5" />

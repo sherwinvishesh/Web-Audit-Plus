@@ -7,7 +7,7 @@ import { defineCheck, fail, httpStatus, partial, pass, plural, q } from './helpe
  * URL known for certain to exist, so a sitemap that omits it is demonstrably incomplete.
  */
 export const a3Sitemap = defineCheck(
-  { id: 'A3', category: 'A', required: true, weight: 9, title: 'sitemap.xml is present and valid' },
+  { id: 'A3', category: 'A', scored: true, required: true, weight: 9, title: 'sitemap.xml is present and valid' },
   (e, self) => {
     if (!e.sitemap.ok) {
       return fail(self, `No sitemap.xml at ${q(e.sitemap.url)} (${httpStatus(e.sitemap.status)}).`, {

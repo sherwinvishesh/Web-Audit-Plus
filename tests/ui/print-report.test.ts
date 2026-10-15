@@ -43,8 +43,12 @@ describe('PrintReport', () => {
       expect(html).toContain(`href="#pdf-audit-${audit.key}"`);
       expect(html).toContain(`id="pdf-audit-${audit.key}"`);
     }
-    const detailed = model.categories.flatMap((category) => category.audits).filter((audit) => ['fail', 'partial', 'error'].includes(audit.status));
-    expect(html.match(/<h3[ >]/g)).toHaveLength(detailed.length);
+    // Suggestions are written out too, under their own heading, and the Fix next page lists them after the ranked fixes.
+    const detailed = model.categories.flatMap((category) => category.audits).filter((audit) => ['fail', 'partial', 'error', 'suggestion'].includes(audit.status));
+    expect(html.match(/<h3[ >]/g)).toHaveLength(detailed.length + 1);
+    expect(html).toContain('>Suggestions<');
+    expect(html).toContain('href="#pdf-audit-agentic:B1"');
+    expect(html).toContain('12 more suggestions apply once a markdown twin is served');
   });
 
   it('escapes everything that came from the site', () => {

@@ -4,7 +4,7 @@ import { describeContentType, redirectedAway } from './negotiation';
 
 /** B9. `Accept: text/markdown` at the page's own URL gets markdown back, by rewrite, not redirect. */
 export const b9AcceptNegotiation = defineCheck(
-  { id: 'B9', category: 'B', required: true, weight: 6, title: 'Accept: text/markdown receives markdown, not HTML' },
+  { id: 'B9', category: 'B', scored: false, required: true, weight: 6, title: 'Accept: text/markdown receives markdown, not HTML' },
   (e, self) => {
     const response = e.acceptMarkdown;
     if (!response.ok) {

@@ -38,7 +38,7 @@ export function unique<T>(values: readonly T[]): T[] {
 }
 
 function definitionOf(check: CheckDefinition): CheckDefinition {
-  return { id: check.id, category: check.category, required: check.required, weight: check.weight, title: check.title };
+  return { id: check.id, category: check.category, scored: check.scored, required: check.required, weight: check.weight, title: check.title };
 }
 
 export interface ResultOptions {
