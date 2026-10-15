@@ -1,3 +1,6 @@
+import { mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { compliantSite, flawedSite, type FixtureSite } from '../fixtures/sites';
 import { canRun, launch, type Harness } from './chrome';
@@ -130,6 +133,39 @@ describe.skipIf(!canRun)('the built extension in Chrome', () => {
     const ranked = await report.$$eval('#panel-fix-next [data-audit]', (rows) => rows.length);
     expect(ranked).toBeGreaterThan(0);
     expect(await report.evaluate(() => location.search)).toContain('view=fix-next');
+  });
+
+  it('exports the report as a tagged, bookmarked PDF', async () => {
+    const { tabId } = await harness.openTab(`${flawed.origin}/`);
+    const state = await harness.run(tabId, { ...AGENTIC_ONLY, categories: [...AGENTIC_ONLY.categories] });
+    const downloads = mkdtempSync(join(tmpdir(), 'webauditplus-pdf-'));
+    try {
+      const cdp = await harness.browser.target().createCDPSession();
+      await cdp.send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: downloads });
+      const report = await harness.page(`report.html?run=${state.runId}`);
+      await report.waitForSelector('#category-agentic');
+      await report.click('::-p-text(Export)');
+      await report.click('::-p-text(Download PDF)');
+      await report.waitForSelector('[role="status"] ::-p-text(PDF downloaded)', { timeout: 60_000 });
+
+      const started = Date.now();
+      let file: string | undefined;
+      while (!(file = readdirSync(downloads).find((name) => name.endsWith('.pdf')))) {
+        if (Date.now() - started > 30_000) throw new Error('The PDF never reached the downloads folder');
+        await new Promise((resolve) => setTimeout(resolve, 200));
+      }
+      expect(file).toMatch(/^web-audit-plus_127\.0\.0\.1.*\.pdf$/);
+      const pdf = readFileSync(join(downloads, file)).toString('latin1');
+      expect(pdf.startsWith('%PDF-')).toBe(true);
+      // A cover, the ranked fixes, the category, the fix prompt and the run details.
+      expect(pdf.match(/\/Type\s*\/Page\b(?!s)/g)?.length).toBeGreaterThan(3);
+      expect(pdf).toContain('/Outlines');
+      expect(pdf).toContain('/StructTreeRoot');
+      // The tab is left without the debugger attached, and keeps its own title.
+      expect(await report.title()).not.toMatch(/\.pdf$/);
+    } finally {
+      rmSync(downloads, { recursive: true, force: true });
+    }
   });
 
   it('runs from the side panel UI', async () => {

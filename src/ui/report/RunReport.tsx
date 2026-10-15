@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type CSSProperties, type KeyboardEvent, type ReactNode, type RefObject } from 'react';
+import { createPortal, flushSync } from 'react-dom';
 import { CATEGORY_TITLES, isCategoryId } from '../../shared/categories';
 import { CHANGE_LABEL, type ChangeKind, type Comparison } from '../../shared/compare';
 import { filterAudits, isFiltering, matchesFilter, NO_FILTER, STATUS_FILTER_LABEL, type AuditFilter, type StatusFilter } from '../../shared/filter';
@@ -9,9 +10,11 @@ import { exportFileName, markdownSummary } from '../../shared/summary';
 import { ScoreDelta } from '../components/Change';
 import { Facts } from '../components/Facts';
 import { ScoreRing } from '../components/ScoreRing';
-import { AlertIcon, CheckIcon, ChevronIcon, CopyIcon, DesktopIcon, DownloadIcon, ExternalIcon, MobileIcon, SearchIcon } from '../components/icons';
+import { AlertIcon, CheckIcon, ChevronIcon, CopyIcon, DesktopIcon, DownloadIcon, ExternalIcon, FileIcon, MobileIcon, SearchIcon, Spinner } from '../components/icons';
+import { PrintReport } from '../export/PrintReport';
+import { footerTemplate, paperFor, printLayoutReady, printParams, printTabToPdf, PrintUnavailableError } from '../export/pdf';
 import { useCopy } from '../lib/clipboard';
-import { downloadText } from '../lib/download';
+import { downloadBlob, downloadText } from '../lib/download';
 import { useSavedRun } from '../lib/saved-run';
 import { band, BAND_COLOR, displayUrl, formatDate, formatDuration } from '../lib/score';
 import { AuditRow } from './AuditRow';
@@ -88,7 +91,9 @@ function Report({ record }: { record: RunRecord }) {
         showToast(audit ? 'This audit passed: there is nothing to fix' : 'Nothing to copy');
         return;
       }
-      void copy(key, singleFixPrompt(model.context, audit.fixItem)).then((done) => showToast(done ? `Fix prompt copied: ${audit.title}` : 'Could not copy to the clipboard'));
+      void copy(key, singleFixPrompt(model.context, audit.fixItem)).then((done) =>
+        done ? showToast(`Fix prompt copied: ${audit.title}`) : showToast('Could not copy to the clipboard', 'error'),
+      );
     },
     [audits, copy, model.context, showToast],
   );
@@ -130,7 +135,61 @@ function Report({ record }: { record: RunRecord }) {
   const matchCount = filtering ? [...visible.values()].reduce((sum, list) => sum + list.length, 0) : audits.length;
   const nextVisible = useMemo(() => next.filter((audit) => matchesFilter(audit, { ...filter, status: 'all' }, changed)), [next, filter, changed]);
 
+  // The printed report: mounted once the page is idle, so the browser's Print finds it ready, and
+  // refreshed right before each print so its "Generated" time is current.
+  const [printedAt, setPrintedAt] = useState<string | undefined>();
+  useEffect(() => {
+    const idle = requestIdleCallback(() => setPrintedAt((current) => current ?? new Date().toISOString()), { timeout: 3000 });
+    const beforePrint = (): void => flushSync(() => setPrintedAt(new Date().toISOString()));
+    addEventListener('beforeprint', beforePrint);
+    return () => {
+      cancelIdleCallback(idle);
+      removeEventListener('beforeprint', beforePrint);
+    };
+  }, []);
+  const printDoc = useMemo(
+    () => printedAt !== undefined && createPortal(<PrintReport model={model} comparison={comparison} generatedAt={printedAt} />, document.body),
+    [model, comparison, printedAt],
+  );
+  const printing = useRef(false);
+  const downloadPdf = async (): Promise<void> => {
+    if (printing.current) return;
+    printing.current = true;
+    const title = document.title;
+    const { host } = displayUrl(record.url);
+    const fileName = exportFileName(record.url, record.startedAt, 'pdf');
+    showToast('Preparing the PDF', 'busy');
+    try {
+      flushSync(() => setPrintedAt(new Date().toISOString()));
+      const doc = document.querySelector<HTMLElement>('body > .print-doc');
+      if (doc) await printLayoutReady(doc);
+      document.title = `${host} · Web Audit+ report`;
+      const footer = footerTemplate(`${host} · Audit report · ${new Date(record.startedAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}`);
+      downloadBlob(fileName, await printTabToPdf(printParams(paperFor(navigator.language), footer)));
+      showToast('PDF downloaded');
+    } catch (error) {
+      if (error instanceof PrintUnavailableError) {
+        // Without the debugger, the print dialog makes the same document; its title names the file.
+        document.title = fileName.replace(/\.pdf$/, '');
+        showToast('Choose Save as PDF as the destination');
+        await new Promise((resolve) => setTimeout(resolve, 150));
+        print();
+      } else {
+        showToast(`Could not create the PDF: ${error instanceof Error ? error.message : String(error)}`, 'error');
+      }
+    } finally {
+      document.title = title;
+      printing.current = false;
+    }
+  };
+
   const exportActions: MenuAction[] = [
+    {
+      label: 'Download PDF',
+      hint: 'Print-ready, every finding written out',
+      icon: <FileIcon size={14} />,
+      run: downloadPdf,
+    },
     {
       label: 'Download HTML report',
       hint: 'One file that opens in any browser',
@@ -157,7 +216,8 @@ function Report({ record }: { record: RunRecord }) {
       icon: <CopyIcon size={14} />,
       run: async () => {
         const done = await copy('summary', markdownSummary(model, comparison));
-        showToast(done ? 'Markdown summary copied' : 'Could not copy to the clipboard');
+        if (done) showToast('Markdown summary copied');
+        else showToast('Could not copy to the clipboard', 'error');
       },
     },
   ];
@@ -308,7 +368,8 @@ function Report({ record }: { record: RunRecord }) {
 
         <RunDetails model={model} />
       </main>
-      <Toast message={toast} />
+      <Toast toast={toast} />
+      {printDoc}
     </Shell>
   );
 }
@@ -622,25 +683,39 @@ function RunDetails({ model }: { model: ReportModel }) {
   );
 }
 
-function useToast(): [string | undefined, (message: string) => void] {
-  const [message, setMessage] = useState<string | undefined>();
-  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  useEffect(() => () => clearTimeout(timer.current), []);
-  const show = useCallback((text: string) => {
-    setMessage(text);
-    clearTimeout(timer.current);
-    timer.current = setTimeout(() => setMessage(undefined), 2400);
-  }, []);
-  return [message, show];
+/** A toast says something is done, is still going (and stays until the next one), or went wrong. */
+type ToastTone = 'done' | 'busy' | 'error';
+
+interface ToastMessage {
+  text: string;
+  tone: ToastTone;
 }
 
-function Toast({ message }: { message: string | undefined }) {
+function useToast(): [ToastMessage | undefined, (text: string, tone?: ToastTone) => void] {
+  const [toast, setToast] = useState<ToastMessage | undefined>();
+  const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  useEffect(() => () => clearTimeout(timer.current), []);
+  const show = useCallback((text: string, tone: ToastTone = 'done') => {
+    setToast({ text, tone });
+    clearTimeout(timer.current);
+    if (tone !== 'busy') timer.current = setTimeout(() => setToast(undefined), tone === 'error' ? 4000 : 2400);
+  }, []);
+  return [toast, show];
+}
+
+function Toast({ toast }: { toast: ToastMessage | undefined }) {
   return (
     <div role="status" aria-live="polite" className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4">
-      {message && (
+      {toast && (
         <p className="flex max-w-lg items-center gap-2 truncate rounded-lg border border-border-strong bg-surface-2 px-4 py-2.5 text-[13px] shadow-[0_12px_32px_-12px_rgb(0_0_0/0.5)]">
-          <CheckIcon size={14} className="shrink-0 text-good" />
-          <span className="truncate">{message}</span>
+          {toast.tone === 'busy' ? (
+            <Spinner size={14} className="shrink-0 text-accent" />
+          ) : toast.tone === 'error' ? (
+            <AlertIcon size={14} className="shrink-0 text-bad" />
+          ) : (
+            <CheckIcon size={14} className="shrink-0 text-good" />
+          )}
+          <span className="truncate">{toast.text}</span>
         </p>
       )}
     </div>

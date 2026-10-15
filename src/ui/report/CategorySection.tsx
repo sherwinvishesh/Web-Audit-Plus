@@ -155,6 +155,11 @@ export const CategorySection = memo(function CategorySection(props: CategorySect
 
 function countLine(category: CategoryView): string {
   if (category.audits.length === 0) return category.error ? 'Not measured' : 'No audits';
+  return countParts(category).join(' · ');
+}
+
+/** A category's audits counted by outcome: "2 failed", "1 warning", "24 passed" and so on. */
+export function countParts(category: CategoryView): string[] {
   const count = (status: AuditStatus): number => category.audits.filter((audit) => audit.status === status).length;
   const parts: string[] = [];
   const failed = count('fail');
@@ -167,5 +172,5 @@ function countLine(category: CategoryView): string {
   if (locked) parts.push(`${locked} locked`);
   if (passed) parts.push(`${passed} passed`);
   if (na) parts.push(`${na} not applicable`);
-  return parts.join(' · ');
+  return parts;
 }

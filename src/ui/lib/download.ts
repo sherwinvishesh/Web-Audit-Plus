@@ -1,6 +1,6 @@
-/** Save text as a file through the browser's download flow. */
-export function downloadText(name: string, content: string, type: string): void {
-  const url = URL.createObjectURL(new Blob([content], { type }));
+/** Save a file through the browser's download flow. */
+export function downloadBlob(name: string, blob: Blob): void {
+  const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
   link.download = name;
@@ -9,4 +9,9 @@ export function downloadText(name: string, content: string, type: string): void 
   link.click();
   link.remove();
   setTimeout(() => URL.revokeObjectURL(url), 30_000);
+}
+
+/** Save text as a file through the browser's download flow. */
+export function downloadText(name: string, content: string, type: string): void {
+  downloadBlob(name, new Blob([content], { type }));
 }

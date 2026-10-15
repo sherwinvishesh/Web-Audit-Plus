@@ -35,6 +35,10 @@ npm run test:e2e    # builds, then drives the built extension in a real Chrome
   with a Content-Security-Policy that allows no script, and a URL, title, finding or stylesheet from
   a hostile site cannot add a tag, an event handler or a script to it. Rows and fix prompts work
   without JavaScript.
+- **PDF export** (`tests/ui/print-report.test.ts`): the print document has its cover, the ranked
+  fixes linked to their details, a page for each category, the fix prompt and the run details, and
+  escapes whatever the site sent. The page footer escapes its text and keeps its inline style intact,
+  the paper is Letter or A4 by locale, and Chrome is asked for a tagged PDF with bookmarks.
 - **Fix prompts, manifest, docs**: the prompt templates (including that everything quoted from the
   site stays inside code spans), the permissions the manifest asks for, and that `docs/CHECKS.md`
   lists exactly the checks the code implements.
@@ -57,6 +61,8 @@ serves the fixture sites on `127.0.0.1`, and:
   history;
 - on the report page, presses `/` and types a search, checks that the list narrows, presses Enter to
   reach the first result and `j` to move to the next, then opens the **Fix next** tab;
+- clicks **Export**, then **Download PDF**, and checks the downloaded file: a PDF of more than three
+  pages, with bookmarks and a structure tree;
 - clicks **Run audit** in the side panel page and waits for **Open full report**.
 
 It looks for Chrome at the platform's default location; set `CHROME_PATH` to use another build. The
@@ -78,6 +84,9 @@ suite skips itself when Chrome or the build output is missing.
    press `c`: the fix prompt is on the clipboard and a toast says so.
 9. **Export**: download the HTML report and open it with the network off. It renders with its fonts,
    rows open without JavaScript, and the browser console shows no CSP violation.
+10. **Export**, **Download PDF**: the file opens with a cover, a bookmark for each section, working
+    links from **Fix next** to the details, and page numbers in the footer. Press Cmd+P (Ctrl+P) on
+    the report page: the print preview shows the same paper layout, not the screen.
 
 ## Why the Agentic probes run in the background worker
 

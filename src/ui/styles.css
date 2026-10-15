@@ -5,9 +5,11 @@
 /*
  * Design tokens. Dark-first; light via prefers-color-scheme or a manual
  * data-theme toggle on <html>. One accent; score colors are the only other
- * semantic colors.
+ * semantic colors. The printed report is always light, but for the dark panel
+ * on its cover.
  */
-:root {
+:root,
+.print-dark {
   color-scheme: dark;
   --bg: #0b0d10;
   --surface: #12151a;
@@ -43,7 +45,8 @@
   }
 }
 
-:root[data-theme='light'] {
+:root[data-theme='light'],
+.print-doc {
   color-scheme: light;
   --bg: #f6f7f9;
   --surface: #ffffff;
@@ -98,4 +101,37 @@
 
 @utility num {
   font-variant-numeric: tabular-nums;
+}
+
+/*
+ * The printed report (PrintReport): hidden on screen, and the only thing on
+ * paper, in place of the app.
+ */
+.print-doc {
+  display: none;
+}
+
+.print-dark {
+  color: var(--text);
+}
+
+.print-break {
+  break-before: page;
+}
+
+@media print {
+  html,
+  body {
+    background: #ffffff;
+  }
+
+  body:has(> .print-doc) > #root {
+    display: none;
+  }
+
+  .print-doc {
+    display: block;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }

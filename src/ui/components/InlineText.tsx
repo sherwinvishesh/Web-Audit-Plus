@@ -12,7 +12,7 @@ export function InlineText({ text, className }: { text: string | undefined; clas
         part.kind === 'code' ? (
           <code
             key={index}
-            className="mx-px rounded-[5px] border border-border bg-surface-2 px-1 py-px font-mono text-[0.86em] break-all text-text [box-decoration-break:clone]"
+            className="mx-px rounded-[5px] border border-border bg-surface-2 px-1 py-px font-mono text-[0.86em] [overflow-wrap:anywhere] text-text [box-decoration-break:clone]"
           >
             {part.value}
           </code>

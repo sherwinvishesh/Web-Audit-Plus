@@ -134,6 +134,13 @@ export const DownloadIcon = (props: IconProps) => (
   </Icon>
 );
 
+export const FileIcon = (props: IconProps) => (
+  <Icon {...props}>
+    <path d="M9.25 1.75H4.5a1 1 0 00-1 1v10.5a1 1 0 001 1h7a1 1 0 001-1V5L9.25 1.75z" />
+    <path d="M9.25 1.75V5h3.25M5.75 8.25h4.5M5.75 10.75h3" />
+  </Icon>
+);
+
 export const PlayIcon = (props: IconProps) => (
   <Icon {...props}>
     <path d="M5 3.5v9l7.5-4.5z" fill="currentColor" />

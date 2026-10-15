@@ -16,8 +16,12 @@ AI agents. Every failing audit comes with a fix prompt you can paste into a codi
 - **A report you can work from.** Failed audits come first and passed ones are folded away. You can
   search and filter, and **Fix next** ranks every fix by the points it adds. Compare mode shows
   what changed since the last run of the same URL.
-- **Exports.** The full run as JSON (every audit result, as the engine produced it), a single-file
-  HTML report that works offline, and a markdown summary to copy.
+- **Exports.** A print-ready PDF, the full run as JSON (every audit result, as the engine produced
+  it), a single-file HTML report that works offline, and a markdown summary to copy. The PDF has a
+  cover with every score and a screenshot of the page, the ranked fixes, a page for each category
+  with every finding written out, and the fix prompt. Its text is selectable, its links work, its
+  headings are bookmarks, and it is tagged for screen readers. It prints on A4 or Letter, whichever
+  your locale uses.
 - **Private by default.** Runs are saved in your browser (IndexedDB, newest 200) and never leave
   it. There is no account, no server and no telemetry.
 
@@ -48,7 +52,8 @@ For development, `npm run dev` starts Chrome with the extension loaded and reloa
 
 While an audit runs, Chrome shows a bar saying that Web Audit+ "started debugging this browser".
 That bar is how Chrome tells you an extension is using the debugger, which the audit engine needs. It
-goes away when the run ends. Pressing **Cancel** on it stops the run.
+goes away when the run ends. Pressing **Cancel** on it stops the run. The bar also shows for a
+moment when you download a PDF, because Chrome prints the report through the same debugger.
 
 ### Keyboard, in the report
 
@@ -64,7 +69,7 @@ goes away when the run ends. Pressing **Cancel** on it stops the run.
 
 | Permission | Why |
 | --- | --- |
-| `debugger` | The audit engine drives the tab over the Chrome DevTools Protocol. It loads the page with emulation and throttling, records a trace, and collects network, DOM and accessibility data. The Agentic probe that sends a crawler's User-Agent uses it too, on the extension's own worker. |
+| `debugger` | The audit engine drives the tab over the Chrome DevTools Protocol. It loads the page with emulation and throttling, records a trace, and collects network, DOM and accessibility data. The Agentic probe that sends a crawler's User-Agent uses it too, on the extension's own worker, and the PDF export prints the report page through it. |
 | `<all_urls>` host access | The Agentic checks fetch `robots.txt`, `llms.txt`, the sitemap and the markdown twin from whatever site you audit, from the extension rather than the page, so the page's Content-Security-Policy cannot block them. |
 | `activeTab` | Gives access to the tab you clicked the icon on, even if you set the extension's site access to "On click". |
 | `tabs` | Reads the URL of the tab the side panel is showing, follows it as you switch tabs, and opens the report. |
@@ -89,7 +94,7 @@ src/
   engine/       the audit engine in the extension: CDP adapter, Node shims, result normalization
   shared/       run records, storage, the report model, fix prompts, compare, filters
   extension/    entrypoints: background worker, side panel, report page
-  ui/           React components for the side panel, the report and the HTML export
+  ui/           React components for the side panel, the report and the HTML and PDF exports
 packages/
   engine/       the audit engine: gatherers, audits and scoring (Apache-2.0, see its NOTICE)
 scripts/        build plugin that bundles the audit engine for a service worker
