@@ -94,3 +94,63 @@ describe('run store', () => {
     expect((await store.list()).map((run) => run.id)).toEqual(['new']);
   });
 });
+
+/**
+ * An IndexedDB that fails to open the way Chrome's does under pressure: asynchronously, with a
+ * DOMException that may carry no message. With `then`, every open after the first is real.
+ */
+function failingFactory(error: DOMException, then?: IDBFactory): IDBFactory {
+  let calls = 0;
+  return {
+    open(name: string, version?: number) {
+      calls += 1;
+      if (then && calls > 1) return then.open(name, version);
+      const req = { error, onerror: null as ((event: Event) => void) | null };
+      setTimeout(() => req.onerror?.(new Event('error')), 0);
+      return req as unknown as IDBOpenDBRequest;
+    },
+  } as unknown as IDBFactory;
+}
+
+describe('run store failures', () => {
+  it('explains a full quota, which Chrome reports with no message', async () => {
+    const store = createRunStore(failingFactory(new DOMException('', 'QuotaExceededError')));
+    await expect(store.put(record('a', 1))).rejects.toThrow(/storage for this extension is full/);
+  });
+
+  it('names a message-less failure instead of saying nothing', async () => {
+    const store = createRunStore(failingFactory(new DOMException('', 'UnknownError')));
+    await expect(store.list()).rejects.toThrow('Could not open the run database (UnknownError)');
+  });
+
+  it('explains a context that refuses IndexedDB outright', async () => {
+    const refused = {
+      open() {
+        throw new DOMException('', 'SecurityError');
+      },
+    } as unknown as IDBFactory;
+    await expect(createRunStore(refused).get('a')).rejects.toThrow('Could not open the run database (SecurityError)');
+  });
+
+  it('opens again after a failed open, rather than staying broken', async () => {
+    const store = createRunStore(failingFactory(new DOMException('', 'UnknownError'), new IDBFactory()));
+    await expect(store.put(record('a', 1))).rejects.toThrow(/UnknownError/);
+    await store.put(record('a', 1));
+    expect((await store.list()).map((summary) => summary.id)).toEqual(['a']);
+  });
+
+  it('deletes one run and leaves the others, so history and comparisons no longer see it', async () => {
+    const store = createRunStore(new IDBFactory());
+    await store.put(record('a', 1));
+    await store.put(record('b', 2));
+    await store.put(record('c', 3));
+    expect((await store.previous(record('c', 3)))?.id).toBe('b');
+    await store.delete('b');
+    expect(await store.get('b')).toBeUndefined();
+    expect((await store.list()).map((summary) => summary.id)).toEqual(['c', 'a']);
+    expect((await store.previous(record('c', 3)))?.id).toBe('a');
+    // Deleting a run that is already gone is not an error.
+    await store.delete('b');
+    expect(await store.list()).toHaveLength(2);
+  });
+});

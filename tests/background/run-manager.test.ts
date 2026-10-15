@@ -23,7 +23,7 @@ function deferred<T>(): Deferred<T> {
 const tick = (): Promise<void> => new Promise((resolve) => setTimeout(resolve, 0));
 
 /** A manager whose runs are driven by hand: each job waits until the test finishes it. */
-function harness(urls: Record<number, string | undefined> = {}) {
+function harness(urls: Record<number, string | undefined> = {}, save?: RunManagerDeps['save']) {
   const jobs: Array<{ job: RunJob; done: Deferred<RunResult> }> = [];
   const saved: RunRecord[] = [];
   const events: Array<{ tabId: number; state: RunState | null }> = [];
@@ -38,7 +38,7 @@ function harness(urls: Record<number, string | undefined> = {}) {
       job.signal.addEventListener('abort', () => done.reject(job.signal.reason));
       return done.promise;
     },
-    save: async (record) => void saved.push(record),
+    save: save ?? (async (record) => void saved.push(record)),
     environment: { extensionVersion: '0.1.0', userAgent: 'test' },
     now: () => (clock += 10),
   };
@@ -202,5 +202,31 @@ describe('RunManager', () => {
     await manager.start(1, AGENTIC_ONLY);
     stale.score('agentic', 99);
     expect(manager.state(1)?.scores).toEqual({});
+  });
+});
+
+describe('RunManager when the result cannot be saved', () => {
+  it('fails the run with a message the panel can show, keeps the scores, and frees the tab', async () => {
+    // Chrome reports a full quota as a DOMException with no message at all.
+    const { manager, jobs } = harness({}, async () => {
+      throw new DOMException('', 'QuotaExceededError');
+    });
+    await manager.start(1, AGENTIC_ONLY);
+    await tick();
+    const { job, done } = jobs[0]!;
+    job.score('agentic', 90);
+    done.resolve({ errors: {} });
+    await tick();
+    const final = manager.state(1)!;
+    expect(final.phase).toBe('failed');
+    expect(final.error).toMatch(/^The audit finished, but the result could not be saved: .*QuotaExceededError/);
+    expect(final.scores).toEqual({ agentic: 90 });
+    expect(final.saved).toBeUndefined();
+    // The tab is free for another attempt.
+    const again = await manager.start(1, AGENTIC_ONLY);
+    expect(again.runId).not.toBe(final.runId);
+    expect(again.phase).toBe('queued');
+    await tick();
+    expect(jobs).toHaveLength(2);
   });
 });

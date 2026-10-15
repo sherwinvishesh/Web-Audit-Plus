@@ -71,7 +71,8 @@ export function remedyFor(id: string, twinUrl: string): string | undefined {
   try {
     path = new URL(twinUrl).pathname;
   } catch {
-    // Keep the raw value.
+    // Not a URL: keep it, minus anything that could close the code span it lands in.
+    path = twinUrl.replace(/[`\s]/g, '');
   }
   return remedy.replaceAll('{twin}', path);
 }

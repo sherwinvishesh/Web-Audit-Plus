@@ -190,11 +190,16 @@ export class RunManager {
       };
       if (result.agentic) record.agentic = result.agentic;
       if (result.engine) record.engine = result.engine;
-      await this.#deps.save(record);
+      try {
+        await this.#deps.save(record);
+      } catch (error) {
+        // The scores stay in the state for the panel; only the saved report is missing.
+        throw new Error(`The audit finished, but the result could not be saved: ${describe(error)}`);
+      }
       update((latest) => ({ ...latest, phase: 'done', finishedAt: this.#now(), saved: true, steps: settle(latest.steps) }));
     } catch (error) {
       const cancelled = controller.signal.aborted;
-      const message = cancelled ? reasonOf(controller.signal.reason) : error instanceof Error ? error.message : String(error);
+      const message = cancelled ? reasonOf(controller.signal.reason) : describe(error);
       update((latest) => ({ ...latest, phase: cancelled ? 'cancelled' : 'failed', finishedAt: this.#now(), error: message, steps: settle(latest.steps) }));
     } finally {
       this.#controllers.delete(tabId);
@@ -229,4 +234,10 @@ function reasonOf(reason: unknown): string {
   if (reason instanceof RunAborted) return reason.message;
   if (reason instanceof Error && reason.message) return reason.message;
   return 'Cancelled';
+}
+
+/** An error as a sentence the panel can show; a DOMException with no message is named instead. */
+function describe(error: unknown): string {
+  if (error instanceof Error) return error.message || error.name || 'Unknown error';
+  return String(error);
 }

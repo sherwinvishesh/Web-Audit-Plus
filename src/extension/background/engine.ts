@@ -24,11 +24,17 @@ const TEMPORARY_PAGE = '/bfcache.html';
  * engine's own device emulation and throttling.
  */
 export async function runEngine(job: EngineJob): Promise<EngineResult> {
+  job.signal.throwIfAborted();
   // A background tab does not paint, and the engine fails a page that never paints (NO_FCP).
   await chrome.tabs.update(job.tabId, { active: true });
   try {
     return await withDebugger({ tabId: job.tabId }, async (session) => {
       const stopWatching = session.onDetached((reason) => job.onSessionLost(reason));
+      // The engine only watches the signal while the page loads. Detaching makes every later
+      // protocol command fail at once, so a cancel during gathering or auditing ends the run now.
+      const onAbort = (): void => void session.detach();
+      job.signal.addEventListener('abort', onAbort, { once: true });
+      if (job.signal.aborted) onAbort();
       const connection = new CdpConnection(chrome.debugger, job.tabId, LOCAL_COMMANDS);
       try {
         const page = pageFor(connection, async () => (await chrome.tabs.get(job.tabId)).url ?? job.url);
@@ -39,6 +45,7 @@ export async function runEngine(job: EngineJob): Promise<EngineResult> {
           onStatus: job.onStatus,
         });
       } finally {
+        job.signal.removeEventListener('abort', onAbort);
         connection.close();
         stopWatching();
       }

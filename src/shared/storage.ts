@@ -28,24 +28,43 @@ export interface RunStore {
   delete(id: string): Promise<void>;
 }
 
+/**
+ * The error to reject with. A `DOMException` from IndexedDB can carry no message at all (Chrome's
+ * `QuotaExceededError` is one), and the UI shows the message, so it gets one here.
+ */
+function failure(error: DOMException | null, fallback: string): Error {
+  if (!error) return new Error(fallback);
+  if (error.name === 'QuotaExceededError') {
+    return new Error('The browser’s storage for this extension is full. Delete some runs from the history and try again.');
+  }
+  return error.message ? error : new Error(`${fallback} (${error.name})`);
+}
+
 function request<T>(req: IDBRequest<T>): Promise<T> {
   return new Promise((resolve, reject) => {
     req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error ?? new Error('IndexedDB request failed'));
+    req.onerror = () => reject(failure(req.error, 'IndexedDB request failed'));
   });
 }
 
 function done(tx: IDBTransaction): Promise<void> {
   return new Promise((resolve, reject) => {
     tx.oncomplete = () => resolve();
-    tx.onerror = () => reject(tx.error ?? new Error('IndexedDB transaction failed'));
-    tx.onabort = () => reject(tx.error ?? new Error('IndexedDB transaction aborted'));
+    tx.onerror = () => reject(failure(tx.error, 'IndexedDB transaction failed'));
+    tx.onabort = () => reject(failure(tx.error, 'IndexedDB transaction aborted'));
   });
 }
 
 function open(factory: IDBFactory): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
-    const req = factory.open(DB_NAME, DB_VERSION);
+    let req: IDBOpenDBRequest;
+    try {
+      req = factory.open(DB_NAME, DB_VERSION);
+    } catch (error) {
+      // A context that refuses IndexedDB outright throws here (a SecurityError, often with no message).
+      reject(error instanceof DOMException ? failure(error, 'Could not open the run database') : error);
+      return;
+    }
     req.onupgradeneeded = (event) => {
       const db = req.result;
       if (event.oldVersion < 2) {
@@ -60,7 +79,7 @@ function open(factory: IDBFactory): Promise<IDBDatabase> {
       }
     };
     req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error ?? new Error('Could not open the run database'));
+    req.onerror = () => reject(failure(req.error, 'Could not open the run database'));
     req.onblocked = () => reject(new Error('The run database is blocked by another open version'));
   });
 }
@@ -70,7 +89,7 @@ function collect(source: IDBObjectStore | IDBIndex, range: IDBKeyRange | null, l
   return new Promise((resolve, reject) => {
     const out: RunSummary[] = [];
     const req = source.openCursor(range, 'prev');
-    req.onerror = () => reject(req.error ?? new Error('IndexedDB cursor failed'));
+    req.onerror = () => reject(failure(req.error, 'IndexedDB cursor failed'));
     req.onsuccess = () => {
       const cursor = req.result;
       if (!cursor || out.length >= limit) return resolve(out);
@@ -108,7 +127,7 @@ export function createRunStore(factory: IDBFactory = indexedDB): RunStore {
       if (excess > 0) {
         await new Promise<void>((resolve, reject) => {
           const req = index.openCursor(null, 'next');
-          req.onerror = () => reject(req.error ?? new Error('IndexedDB cursor failed'));
+          req.onerror = () => reject(failure(req.error, 'IndexedDB cursor failed'));
           req.onsuccess = () => {
             const cursor = req.result;
             if (!cursor || excess <= 0) return resolve();

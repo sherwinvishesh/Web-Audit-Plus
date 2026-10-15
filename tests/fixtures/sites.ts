@@ -152,3 +152,36 @@ export function flawedSite(): Promise<FixtureSite> {
     response.end('Not found');
   });
 }
+
+/**
+ * A sitemap index listing 10,000 child sitemaps, each of which exists. `hits` counts requests per
+ * path, so a test can see what was fetched.
+ */
+export function hugeSite(): Promise<FixtureSite & { hits: Map<string, number> }> {
+  const hits = new Map<string, number>();
+  const robots = 'User-agent: *\nAllow: /\n';
+  return serve((request, response, origin) => {
+    const path = new URL(request.url ?? '/', origin).pathname;
+    hits.set(path, (hits.get(path) ?? 0) + 1);
+    if (path === '/robots.txt') {
+      response.writeHead(200, { 'content-type': 'text/plain' });
+      return void response.end(robots);
+    }
+    if (path === '/sitemap.xml') {
+      const children = Array.from({ length: 10_000 }, (_, i) => `<sitemap><loc>${origin}/sitemaps/${i}.xml</loc></sitemap>`).join('');
+      response.writeHead(200, { 'content-type': 'application/xml' });
+      return void response.end(`<?xml version="1.0"?><sitemapindex>${children}</sitemapindex>`);
+    }
+    const child = /^\/sitemaps\/(\d+)\.xml$/.exec(path);
+    if (child) {
+      response.writeHead(200, { 'content-type': 'application/xml' });
+      return void response.end(`<?xml version="1.0"?><urlset><url><loc>${origin}/page-${child[1]}</loc></url></urlset>`);
+    }
+    if (path === '/') {
+      response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+      return void response.end(GOOD_HTML);
+    }
+    response.writeHead(404, { 'content-type': 'text/plain' });
+    response.end('Not found');
+  }).then((site) => ({ ...site, hits }));
+}

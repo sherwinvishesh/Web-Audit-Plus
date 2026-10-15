@@ -1,9 +1,10 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { gatherEvidence, PROBE_ORDER } from '../../src/agentic/evidence';
+import { MAX_CHILD_SITEMAPS } from '../../src/agentic/sitemap';
 import { buildAgenticReport } from '../../src/agentic/report';
 import { createNodeTransport } from '../../src/agentic/transports/node';
 import type { ProbeProgress } from '../../src/agentic/types';
-import { compliantSite, redirectLoopSite, spaCatchAllSite, type FixtureSite } from '../fixtures/sites';
+import { compliantSite, hugeSite, redirectLoopSite, spaCatchAllSite, type FixtureSite } from '../fixtures/sites';
 
 const transport = createNodeTransport();
 
@@ -91,5 +92,24 @@ describe('the node transport', () => {
     } finally {
       await big.close();
     }
+  });
+});
+
+describe('a site with a sitemap index far past any sensible size', () => {
+  let site: Awaited<ReturnType<typeof hugeSite>>;
+  beforeAll(async () => {
+    site = await hugeSite();
+  });
+  afterAll(() => site.close());
+
+  it('fetches only the first child sitemaps, and still builds a report', async () => {
+    const evidence = await gatherEvidence(`${site.origin}/`, transport);
+    expect(evidence.robots.status).toBe(200);
+    expect(evidence.sitemap.status).toBe(200);
+    expect(evidence.sitemapChildren).toHaveLength(MAX_CHILD_SITEMAPS);
+    expect(evidence.sitemapChildren.every((child) => child.status === 200)).toBe(true);
+    expect([...site.hits.keys()].filter((path) => path.startsWith('/sitemaps/'))).toHaveLength(MAX_CHILD_SITEMAPS);
+    const report = buildAgenticReport(evidence);
+    expect(typeof report.score.value).toBe('number');
   });
 });

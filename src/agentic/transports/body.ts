@@ -14,7 +14,8 @@ export async function readCapped(response: Response, maxBytes: number): Promise<
     const room = maxBytes - received;
     if (value.byteLength >= room) {
       body += decoder.decode(value.subarray(0, room));
-      await reader.cancel();
+      // A stream that fails to cancel (it errored under us) does not cost the body already read.
+      await reader.cancel().catch(() => undefined);
       return { body, truncated: true };
     }
     received += value.byteLength;

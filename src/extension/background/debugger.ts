@@ -8,10 +8,15 @@ const PROTOCOL_VERSION = '1.3';
 export class DebuggerSession {
   readonly target: chrome.debugger.Debuggee;
   #attached = true;
+  /** The detach in flight, so every caller that asks waits for Chrome to actually let go. */
+  #detaching: Promise<void> | undefined;
   readonly #listeners = new Set<(reason: string) => void>();
+  /** Why Chrome ended the session, for a listener that arrives after it did. */
+  #lostReason: string | undefined;
   readonly #onDetach = (source: chrome.debugger.Debuggee, reason: string): void => {
     if (!sameTarget(source, this.target) || !this.#attached) return;
     this.#attached = false;
+    this.#lostReason = reason;
     chrome.debugger.onDetach.removeListener(this.#onDetach);
     for (const listener of this.#listeners) listener(reason);
   };
@@ -41,16 +46,22 @@ export class DebuggerSession {
 
   /** Called when Chrome ends the session: the user cancelled it from the infobar, or the target closed. */
   onDetached(listener: (reason: string) => void): () => void {
+    if (this.#lostReason !== undefined) {
+      listener(this.#lostReason);
+      return () => undefined;
+    }
     this.#listeners.add(listener);
     return () => this.#listeners.delete(listener);
   }
 
   async detach(): Promise<void> {
-    if (!this.#attached) return;
-    this.#attached = false;
-    chrome.debugger.onDetach.removeListener(this.#onDetach);
-    this.#listeners.clear();
-    await chrome.debugger.detach(this.target).catch(() => undefined);
+    if (this.#attached) {
+      this.#attached = false;
+      chrome.debugger.onDetach.removeListener(this.#onDetach);
+      this.#listeners.clear();
+      this.#detaching = chrome.debugger.detach(this.target).catch(() => undefined);
+    }
+    await this.#detaching;
   }
 }
 
