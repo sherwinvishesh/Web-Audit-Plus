@@ -3,15 +3,17 @@ import { CATEGORY_IDS, CATEGORY_TITLES, type CategoryId } from '../../shared/cat
 import { allFixesPrompt } from '../../shared/fix-prompt';
 import { allFixItems, buildReportModel, fixNext } from '../../shared/report-model';
 import { runProgress } from '../../shared/progress';
-import { isFinished, type FormFactor, type RunOptions, type RunRecord, type RunState, type RunStep } from '../../shared/run';
+import { isFinished, type FormFactor, type RunOptions, type RunRecord, type RunState, type RunStep, type RunSummary } from '../../shared/run';
 import { auditability } from '../../shared/url-policy';
 import { PointsLabel } from '../components/AuditBody';
+import { ScoreDelta } from '../components/Change';
 import { InlineText } from '../components/InlineText';
 import { ScoreRing } from '../components/ScoreRing';
 import { statusColor } from '../components/StatusIcon';
 import {
   AlertIcon,
   CheckIcon,
+  ChevronIcon,
   CircleIcon,
   CopyIcon,
   CrossIcon,
@@ -29,11 +31,12 @@ import {
   SunIcon,
 } from '../components/icons';
 import { useCopy } from '../lib/clipboard';
+import { overallDelta, useSiteHistory } from '../lib/history';
 import { useNow } from '../lib/now';
 import { useRun } from '../lib/run-port';
 import { useRunOptions } from '../lib/run-options';
-import { openReport, useSavedRun } from '../lib/saved-run';
-import { displayUrl, formatDuration } from '../lib/score';
+import { openHistory, openReport, useSavedRun } from '../lib/saved-run';
+import { band, BAND_COLOR, displayUrl, formatDate, formatDuration } from '../lib/score';
 import { useTargetTab } from '../lib/target-tab';
 import { useTheme } from '../lib/theme';
 
@@ -78,6 +81,7 @@ export function SidePanelApp() {
           </>
         )}
         {state && <RunView state={state} currentUrl={policy.ok ? policy.url : undefined} />}
+        {policy.ok && !active && <PreviousRuns url={policy.url} exclude={state?.saved ? state.runId : undefined} version={state?.saved} />}
       </main>
     </div>
   );
@@ -385,6 +389,125 @@ function Summary({ runId, record }: { runId: string; record: RunRecord }) {
         )}
       </div>
     </div>
+  );
+}
+
+const SHOWN_RUNS = 5;
+
+/** Short category names for the run rows, where five full names would not fit beside a ring. */
+const CATEGORY_SHORT: Readonly<Record<CategoryId, string>> = {
+  performance: 'Perf',
+  accessibility: 'A11y',
+  'best-practices': 'Practices',
+  seo: 'SEO',
+  agentic: 'Agentic',
+};
+
+/**
+ * The saved runs of the page in the tab, newest first, each with its scores and the change since
+ * the run before it, so a page's history is one glance away without leaving the panel. The rest
+ * of the site's runs are a link to the history page, filtered to the site.
+ */
+function PreviousRuns({ url, exclude, version }: { url: string; exclude: string | undefined; version: unknown }) {
+  const history = useSiteHistory(url, exclude, version);
+  const [expanded, setExpanded] = useState(false);
+  if (!history) return null;
+  const { host } = displayUrl(url);
+  const total = history.page.length;
+  const elsewhere = history.elsewhere.length;
+
+  if (total === 0 && elsewhere === 0) {
+    return (
+      <p className="rounded-lg border border-dashed border-border px-3 py-2.5 text-[12px] leading-relaxed text-muted">
+        Runs are saved in this browser. Earlier audits of the page you are on will be listed here.
+      </p>
+    );
+  }
+
+  const shown = expanded ? history.page : history.page.slice(0, SHOWN_RUNS);
+  const hidden = total - shown.length;
+  return (
+    <section className="rounded-lg border border-border bg-surface" aria-label="Previous runs of this page">
+      <h2 className="flex items-baseline gap-1.5 border-b border-border px-3 py-2 text-[11px] font-medium tracking-wide text-muted uppercase">
+        Previous runs of this page
+        <span className="num text-faint">{total}</span>
+      </h2>
+      {total === 0 ? (
+        <p className="px-3 py-2.5 text-[12.5px] text-muted">No runs of this page yet.</p>
+      ) : (
+        <ul>
+          {shown.map((run) => (
+            <PreviousRun key={run.id} run={run} before={history.previous.get(run.id)} />
+          ))}
+        </ul>
+      )}
+      {(hidden > 0 || expanded) && (
+        <button
+          type="button"
+          onClick={() => setExpanded((current) => !current)}
+          className="flex w-full items-center gap-1.5 border-t border-border px-3 py-2 text-left text-[12px] text-muted transition-colors hover:bg-surface-2 hover:text-text"
+        >
+          <ChevronIcon size={13} className={expanded ? '-rotate-90' : 'rotate-90'} />
+          {expanded ? 'Show fewer' : `Show all ${total}`}
+        </button>
+      )}
+      {elsewhere > 0 && (
+        <button
+          type="button"
+          onClick={() => void openHistory(host)}
+          title="Open the history, filtered to this site"
+          className="flex w-full items-center gap-1.5 border-t border-border px-3 py-2 text-left text-[12px] text-muted transition-colors hover:bg-surface-2 hover:text-text"
+        >
+          <HistoryIcon size={13} />
+          <span className="min-w-0 flex-1 truncate">
+            <span className="num">{elsewhere}</span> {elsewhere === 1 ? 'run' : 'runs'} on other pages of {host}
+          </span>
+          <ExternalIcon size={12} className="shrink-0 text-faint" />
+        </button>
+      )}
+    </section>
+  );
+}
+
+function PreviousRun({ run, before }: { run: RunSummary; before: RunSummary | undefined }) {
+  const ids = CATEGORY_IDS.filter((id) => id in run.scores);
+  return (
+    <li className="border-b border-border last:border-b-0">
+      <button
+        type="button"
+        onClick={() => void openReport(run.id)}
+        title="Open this run's report"
+        className="flex w-full items-center gap-3 px-3 py-2 text-left transition-colors hover:bg-surface-2"
+      >
+        <ScoreRing score={run.overall} size={36} animate={false} label="Overall" />
+        <span className="min-w-0 flex-1">
+          <span className="flex items-center gap-1.5 text-[12px]">
+            <span className="num font-medium">{formatDate(run.startedAt)}</span>
+            <span className="flex items-center gap-1 text-muted">
+              {run.formFactor === 'mobile' ? <MobileIcon size={12} /> : <DesktopIcon size={12} />}
+              {run.formFactor === 'mobile' ? 'Mobile' : 'Desktop'}
+            </span>
+            <ScoreDelta delta={overallDelta(run, before)} className="text-[11.5px]" />
+          </span>
+          <span className="mt-1 flex gap-3">
+            {ids.map((id) => {
+              const score = run.scores[id];
+              return (
+                <span key={id} className="flex flex-col items-center" title={CATEGORY_TITLES[id]}>
+                  <span className="num text-[12px] leading-none font-medium" style={{ color: BAND_COLOR[band(score)] }}>
+                    {typeof score === 'number' ? score : '–'}
+                  </span>
+                  <span className="sr-only">{CATEGORY_TITLES[id]}</span>
+                  <span className="mt-0.5 text-[9.5px] leading-none text-faint" aria-hidden="true">
+                    {CATEGORY_SHORT[id]}
+                  </span>
+                </span>
+              );
+            })}
+          </span>
+        </span>
+      </button>
+    </li>
   );
 }
 

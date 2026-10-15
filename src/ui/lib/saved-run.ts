@@ -40,9 +40,24 @@ export function reportUrl(runId?: string, hash?: string): string {
   return url.toString();
 }
 
+/** The history page, filtered to the runs whose URL contains `query`. */
+export function historyUrl(query?: string): string {
+  const url = new URL(chrome.runtime.getURL('/report.html'));
+  if (query) url.searchParams.set('q', query);
+  return url.toString();
+}
+
 /** Open the report in a tab, reusing one already showing the same run. */
-export async function openReport(runId?: string, hash?: string): Promise<void> {
-  const target = reportUrl(runId, hash);
+export function openReport(runId?: string, hash?: string): Promise<void> {
+  return openPage(reportUrl(runId, hash));
+}
+
+/** Open the history in a tab, filtered to one page or site, reusing a tab already showing it. */
+export function openHistory(query?: string): Promise<void> {
+  return openPage(historyUrl(query));
+}
+
+async function openPage(target: string): Promise<void> {
   const base = target.split('#')[0] ?? target;
   const existing = (await chrome.tabs.query({})).find((tab) => tab.url?.split('#')[0] === base);
   if (existing?.id !== undefined) {

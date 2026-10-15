@@ -97,6 +97,10 @@ describe.skipIf(!canRun)('the built extension in Chrome', () => {
 
     const history = await harness.page('report.html');
     await history.waitForSelector(`a[href="report.html?run=${state.runId}"]`);
+    // `?q=` starts the filter: the side panel opens a site's history this way.
+    const filtered = await harness.page('report.html?q=no-such-page');
+    await filtered.waitForSelector('::-p-text(No run matches that URL.)');
+    expect(await filtered.$eval('input[type="search"]', (input) => (input as HTMLInputElement).value)).toBe('no-such-page');
   });
 
   it('searches, filters and moves through the report from the keyboard', async () => {
@@ -182,5 +186,11 @@ describe.skipIf(!canRun)('the built extension in Chrome', () => {
     }
     const rings = await panel.$$eval('[aria-label="Scores"] a, [aria-label="Scores"] button', (nodes) => nodes.length);
     expect(rings).toBeGreaterThan(0);
+    // The earlier runs of this page are listed under the result, newest first, without the run just shown.
+    await panel.waitForSelector('[aria-label="Previous runs of this page"] li');
+    const previous = await panel.$$eval('[aria-label="Previous runs of this page"] li', (rows) => rows.map((row) => row.textContent ?? ''));
+    expect(previous.length).toBeGreaterThan(0);
+    expect(previous[0]).toContain('Desktop');
+    expect(previous[0]).toContain('Agentic');
   });
 });

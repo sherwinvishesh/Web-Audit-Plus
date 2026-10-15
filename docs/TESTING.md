@@ -66,13 +66,14 @@ serves the fixture sites on `127.0.0.1`, and:
   was built to fail, that only the two coverage-based audits could not run, that the back/forward
   cache check ran, and that the tab ends up back on the audited page;
 - checks that a `chrome://` page is refused with an explanation;
-- opens the report page for the saved run, follows a deep link to one audit, and finds the run in the
-  history;
+- opens the report page for the saved run, follows a deep link to one audit, finds the run in the
+  history, and checks that `?q=` starts the history's filter;
 - on the report page, presses `/` and types a search, checks that the list narrows, presses Enter to
   reach the first result and `j` to move to the next, then opens the **Fix next** tab;
 - clicks **Export**, then **Download PDF**, and checks the downloaded file: a PDF of more than three
   pages, with bookmarks and a structure tree;
-- clicks **Run audit** in the side panel page and waits for **Open full report**.
+- clicks **Run audit** in the side panel page, waits for **Open full report**, and checks that the
+  earlier run of the same page is listed under the result.
 
 It looks for Chrome at the platform's default location; set `CHROME_PATH` to use another build. The
 suite skips itself when Chrome or the build output is missing.

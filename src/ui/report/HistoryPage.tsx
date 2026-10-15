@@ -4,15 +4,24 @@ import type { RunSummary } from '../../shared/run';
 import { ScoreDelta } from '../components/Change';
 import { ScoreRing } from '../components/ScoreRing';
 import { DesktopIcon, MobileIcon, SearchIcon, TrashIcon } from '../components/icons';
+import { overallDelta, previousRuns } from '../lib/history';
 import { runStore } from '../lib/saved-run';
 import { band, BAND_COLOR, displayUrl, formatDate } from '../lib/score';
+import { readParam, writeParam } from './hooks';
 import { Centered, Shell } from './Shell';
 
-/** Every saved run, grouped by site, newest first, with the change since the run before it. */
+/**
+ * Every saved run, grouped by site, newest first, with the change since the run before it.
+ * `?q=` starts the filter, so the side panel can open the history of one page or one site.
+ */
 export function HistoryPage() {
   const [runs, setRuns] = useState<RunSummary[] | undefined>();
   const [error, setError] = useState<string | undefined>();
-  const [query, setQuery] = useState('');
+  const [query, setQuery] = useState(() => readParam('q') ?? '');
+  const search = (value: string): void => {
+    setQuery(value);
+    writeParam('q', value || undefined);
+  };
   const [confirming, setConfirming] = useState<string | undefined>();
 
   useEffect(() => {
@@ -75,7 +84,7 @@ export function HistoryPage() {
             <input
               type="search"
               value={query}
-              onChange={(event) => setQuery(event.target.value)}
+              onChange={(event) => search(event.target.value)}
               placeholder="Filter by URL"
               spellCheck={false}
               className="h-8 w-60 rounded-md border border-border bg-surface pr-3 pl-8 text-[13px] placeholder:text-faint focus:border-accent focus:outline-none"
@@ -110,9 +119,7 @@ export function HistoryPage() {
                             {run.formFactor === 'mobile' ? <MobileIcon size={13} /> : <DesktopIcon size={13} />}
                             {run.formFactor === 'mobile' ? 'Mobile' : 'Desktop'}
                           </span>
-                          {before && typeof run.overall === 'number' && typeof before.overall === 'number' && run.overall !== before.overall && (
-                            <ScoreDelta delta={run.overall - before.overall} className="text-[11.5px]" />
-                          )}
+                          <ScoreDelta delta={overallDelta(run, before)} className="text-[11.5px]" />
                         </span>
                       </span>
                       <span className="hidden gap-2 md:flex">
@@ -167,14 +174,4 @@ export function HistoryPage() {
       </main>
     </Shell>
   );
-}
-
-/** For each run, the run of the same URL on the same device just before it. `runs` is newest first. */
-function previousRuns(runs: readonly RunSummary[]): Map<string, RunSummary> {
-  const result = new Map<string, RunSummary>();
-  runs.forEach((run, index) => {
-    const before = runs.slice(index + 1).find((candidate) => candidate.url === run.url && candidate.formFactor === run.formFactor);
-    if (before) result.set(run.id, before);
-  });
-  return result;
 }

@@ -161,8 +161,9 @@ a three-category run is never compared against a five-category one as if they we
 <div align="center">
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/screenshots/panel-light.png">
-  <img src="docs/screenshots/panel-dark.png" width="380" alt="The side panel after a run: the page being audited, the Desktop and Mobile switch, the five category toggles, a Run again button, five score rings, the top three fixes, and Open full report and Copy fixes buttons">
+  <img src="docs/screenshots/panel-dark.png" width="340" alt="The side panel after a run: the page being audited, the Desktop and Mobile switch, the five category toggles, a Run again button, five score rings, the top three fixes, Open full report and Copy fixes buttons, and the previous runs of the page beneath">
 </picture>
+<img src="docs/screenshots/panel-idle-dark.png" width="340" alt="The side panel before a run: the page being audited, the controls, a Run audit button, and the previous runs of this page with their scores, dates and devices, plus a link to the rest of the site's runs">
 </div>
 
 Pick **Desktop** or **Mobile**, toggle the categories you want, press **Run audit**. The panel
@@ -170,6 +171,11 @@ follows the tab you are looking at, shows each stage of the run as it happens, a
 puts the five rings, the three best fixes and a one-click copy right there. **Open full report**
 takes you to the report page; the history icon lists every saved run, grouped by site, searchable,
 with a delete for each.
+
+Under the controls, the panel lists the previous runs of the page you are on: the overall ring,
+the date and device, every category score, and how the overall score moved since the run before.
+Click one to open its report. The rest of the site's runs are one click away, in the history
+filtered to that site.
 
 ### History
 
