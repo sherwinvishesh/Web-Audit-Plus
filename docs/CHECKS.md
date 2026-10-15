@@ -156,7 +156,7 @@ charset earns 3; `text/plain` earns 2; anything else fails.
 **B3. Twin body** (5). Non-empty and at least half the live page's word count. Below that it is
 ramped down to 8% of the page; an empty body fails.
 
-**B4. X-Markdown-Tokens** (3). A positive integer.
+**B4. X-Markdown-Tokens** (3). A positive integer, written as plain digits.
 
 **B5. nosniff** (3). `X-Content-Type-Options: nosniff` on the twin.
 
