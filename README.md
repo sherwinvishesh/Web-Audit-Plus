@@ -26,10 +26,7 @@ Nothing leaves your browser.
 **[Privacy policy](https://sherwinvishesh.github.io/Web-Audit-Plus/privacy/)** ·
 **[Contributing](CONTRIBUTING.md)**
 
-<picture>
-  <source media="(prefers-color-scheme: light)" srcset="docs/screenshots/report-light.png">
-  <img src="docs/screenshots/report-dark.png" width="960" alt="The Web Audit+ report: five score rings for Performance, Accessibility, Best Practices, SEO and Agentic, a compare bar, the All audits and Fix next tabs, search and filters, and the Performance metrics">
-</picture>
+<img src="docs/screenshots/in-browser.png" width="960" alt="Web Audit+ open in Chrome's side panel next to neurips.cc: the page on the left, and on the right the Desktop and Mobile switch, the five category toggles, five score rings, the three best fixes with the score each is worth, and the suggestions that are not scored">
 
 </div>
 
@@ -85,6 +82,13 @@ And one constraint that shaped the whole architecture: **nothing leaves your bro
 backend to leak from. The extension talks to the site you audit and to nobody else.
 
 ## What you get
+
+<div align="center">
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="docs/screenshots/report-light.png">
+  <img src="docs/screenshots/report-dark.png" width="960" alt="The Web Audit+ report: five score rings for Performance, Accessibility, Best Practices, SEO and Agentic, a compare bar, the All audits and Fix next tabs, search and filters, and the Performance metrics">
+</picture>
+</div>
 
 ### A report you can work from, not just read
 
