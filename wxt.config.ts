@@ -16,7 +16,10 @@ export default defineConfig({
       'Lighthouse-parity audits (Performance, Accessibility, Best Practices, SEO) plus an Agentic readiness score, with copy-paste fix prompts.',
     // `action` with no popup: the toolbar click opens the side panel (see background/index.ts).
     action: { default_title: 'Web Audit+' },
-    permissions: ['debugger', 'activeTab', 'tabs', 'storage', 'sidePanel', 'scripting'],
+    // chrome.debugger child sessions (`DebuggerSession.sessionId`), which Lighthouse needs for iframes.
+    minimum_chrome_version: '125',
+    // Each one is justified in the README. No `scripting`: Lighthouse injects its own code through the debugger.
+    permissions: ['debugger', 'activeTab', 'tabs', 'storage', 'sidePanel'],
     host_permissions: ['<all_urls>'],
     icons: {
       16: 'icon/16.png',

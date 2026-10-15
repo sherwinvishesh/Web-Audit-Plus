@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import config from '../wxt.config';
 
 // Exactly these permissions, each justified in the README. A new one needs a reason users will accept.
-const EXPECTED_PERMISSIONS = ['debugger', 'activeTab', 'tabs', 'storage', 'sidePanel', 'scripting'];
+const EXPECTED_PERMISSIONS = ['debugger', 'activeTab', 'tabs', 'storage', 'sidePanel'];
 
 describe('manifest', () => {
   const manifest = config.manifest;
@@ -10,12 +10,16 @@ describe('manifest', () => {
     throw new Error('wxt.config manifest must be a plain object');
   }
 
-  it('requests exactly the spec permissions', () => {
+  it('requests exactly the permissions the README justifies', () => {
     expect([...(manifest.permissions ?? [])].sort()).toEqual([...EXPECTED_PERMISSIONS].sort());
   });
 
   it('requests <all_urls> host access only', () => {
     expect(manifest.host_permissions).toEqual(['<all_urls>']);
+  });
+
+  it('requires a Chrome whose debugger API has child sessions', () => {
+    expect(manifest.minimum_chrome_version).toBe('125');
   });
 
   it('has a toolbar action without a popup (click opens the side panel)', () => {
