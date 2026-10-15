@@ -1,7 +1,7 @@
 import { defineConfig } from 'wxt';
 import tailwindcss from '@tailwindcss/vite';
 
-// See DECISIONS.md for why these choices were made.
+// Chrome MV3 extension: React UI under src/ui, entrypoints under src/extension.
 export default defineConfig({
   srcDir: 'src',
   entrypointsDir: 'extension',
