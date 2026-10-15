@@ -28,6 +28,8 @@ export interface Harness {
   run(tabId: number, options: RunOptions): Promise<RunState>;
   /** Read a saved run from the extension's IndexedDB. */
   record(runId: string): Promise<RunRecord | undefined>;
+  /** The URL a tab is showing now. */
+  tabUrl(tabId: number): Promise<string | undefined>;
   close(): Promise<void>;
 }
 
@@ -93,6 +95,10 @@ export async function launch(): Promise<Harness> {
         tabId,
         options,
       );
+    },
+    async tabUrl(tabId) {
+      const ui = await controlPage();
+      return ui.evaluate(async (id) => (await chrome.tabs.get(id)).url, tabId);
     },
     async record(runId) {
       const ui = await controlPage();

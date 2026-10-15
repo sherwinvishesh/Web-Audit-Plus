@@ -3,6 +3,7 @@ import { placementFor } from '../agentic/remedies';
 import { stripPrice } from '../agentic/score';
 import type { AgenticReport } from '../agentic/types';
 import { WHY } from '../agentic/why';
+import { lighthouseAudits, lighthouseMeta, lighthouseMetrics, type LighthouseMeta, type MetricView } from '../lighthouse/normalize';
 import { CATEGORY_IDS, CATEGORY_TITLES, type CategoryId } from './categories';
 import type { FixPromptContext, FixPromptItem } from './fix-prompt';
 import type { RunRecord } from './run';
@@ -13,10 +14,10 @@ import type { RunRecord } from './run';
  * disagree about what failed or what it is worth.
  */
 
-export type AuditStatus = 'fail' | 'partial' | 'locked' | 'pass' | 'na' | 'info' | 'manual';
+export type AuditStatus = 'fail' | 'partial' | 'error' | 'locked' | 'info' | 'manual' | 'pass' | 'na';
 
-/** Display order of the status groups. */
-export const STATUS_ORDER: readonly AuditStatus[] = ['fail', 'partial', 'locked', 'pass', 'info', 'manual', 'na'];
+/** Display order of the status groups: what needs work first, then what passed, then what did not apply. */
+export const STATUS_ORDER: readonly AuditStatus[] = ['fail', 'partial', 'error', 'locked', 'info', 'manual', 'pass', 'na'];
 
 export interface AuditItem {
   /** Unique across the report: `${category}:${id}`. */
@@ -27,6 +28,12 @@ export interface AuditItem {
   status: AuditStatus;
   /** Points this audit would add to its category score if it passed. 0 when unknown. */
   points: number;
+  /**
+   * For an unweighted Performance insight or diagnostic: Lighthouse's estimate of the Performance
+   * points its savings would recover, through the metrics they improve. Estimates overlap with each
+   * other and with the metrics' own points, so they rank work but are never added up.
+   */
+  impact?: number;
   /** What was found. Markdown-lite: prose plus code spans quoting the site. */
   reason?: string;
   detail?: string;
@@ -42,6 +49,14 @@ export interface AuditItem {
   lockedBy?: string;
   /** Documentation for this audit. Always a URL we wrote or Lighthouse ships, never one from the site. */
   learnMore?: string;
+  /** One line per flagged element, request or location (Lighthouse audits), markdown-lite. */
+  evidence?: string[];
+  /** How many there were in all; `evidence` holds at most ten. */
+  evidenceTotal?: number;
+  /** The Lighthouse group the audit belongs to ("Names and labels"). */
+  group?: string;
+  /** Framework-specific advice from Lighthouse's stack packs, when it detected a known stack. */
+  stackNotes?: Array<{ title: string; text: string }>;
   /** Present when the audit needs work. */
   fixItem?: FixPromptItem;
 }
@@ -55,12 +70,16 @@ export interface CategoryView {
   audits: AuditItem[];
   /** Checks waiting on a prerequisite, shown as one line. */
   locked?: { count: number; gain: number; unlockedBy: string[] };
+  /** Performance only: the lab metrics. */
+  metrics?: MetricView[];
 }
 
 export interface ReportModel {
   record: RunRecord;
   categories: CategoryView[];
   context: FixPromptContext;
+  /** How Lighthouse ran, when it did. */
+  lighthouse?: LighthouseMeta;
 }
 
 export function buildReportModel(record: RunRecord): ReportModel {
@@ -73,7 +92,9 @@ export function buildReportModel(record: RunRecord): ReportModel {
     categories: categories.map((category) => ({ id: category.id, score: category.score })),
     placement: placementFor(framework),
   };
-  return { record, categories, context };
+  const model: ReportModel = { record, categories, context };
+  if (record.lighthouse) model.lighthouse = lighthouseMeta(record.lighthouse);
+  return model;
 }
 
 function categoryView(record: RunRecord, id: CategoryId): CategoryView {
@@ -84,6 +105,9 @@ function categoryView(record: RunRecord, id: CategoryId): CategoryView {
     view.audits = agenticAudits(record.agentic);
     const { locked } = record.agentic.score;
     if (locked.count > 0) view.locked = { count: locked.count, gain: locked.gain, unlockedBy: locked.unlockedBy };
+  } else if (id !== 'agentic' && record.lighthouse) {
+    view.audits = lighthouseAudits(record.lighthouse, id);
+    if (id === 'performance') view.metrics = lighthouseMetrics(record.lighthouse);
   }
   return view;
 }
@@ -116,7 +140,16 @@ export function fixNext(model: ReportModel): AuditItem[] {
   return model.categories
     .flatMap((category) => category.audits)
     .filter((audit) => (audit.status === 'fail' || audit.status === 'partial') && audit.fixItem)
-    .sort((a, b) => b.points - a.points || CATEGORY_IDS.indexOf(a.category) - CATEGORY_IDS.indexOf(b.category));
+    .sort((a, b) => worth(b) - worth(a) || statusRank(a.status) - statusRank(b.status) || CATEGORY_IDS.indexOf(a.category) - CATEGORY_IDS.indexOf(b.category));
+}
+
+/** What fixing an audit is worth, for ordering: its points, or failing those its estimated impact. */
+export function worth(audit: Pick<AuditItem, 'points' | 'impact'>): number {
+  return audit.points > 0 ? audit.points : (audit.impact ?? 0);
+}
+
+function statusRank(status: AuditStatus): number {
+  return STATUS_ORDER.indexOf(status);
 }
 
 /** Every fix-prompt item in the report: actionable ones by points, then locked ones. */
@@ -126,23 +159,30 @@ export function allFixItems(model: ReportModel, category?: CategoryId): FixPromp
     .flatMap((view) => view.audits)
     .map((audit) => audit.fixItem)
     .filter((item): item is FixPromptItem => item !== undefined)
-    .sort((a, b) => b.points - a.points);
+    .sort((a, b) => worth(b) - worth(a));
 }
 
 /** Audits grouped by status, in display order, empty groups dropped. */
 export function groupByStatus(audits: readonly AuditItem[]): Array<{ status: AuditStatus; audits: AuditItem[] }> {
   return STATUS_ORDER.map((status) => ({
     status,
-    audits: audits.filter((audit) => audit.status === status).sort((a, b) => b.points - a.points),
+    audits: audits.filter((audit) => audit.status === status).sort((a, b) => worth(b) - worth(a)),
   })).filter((group) => group.audits.length > 0);
 }
 
 export const STATUS_LABEL: Readonly<Record<AuditStatus, string>> = {
   fail: 'Failed',
   partial: 'Partial',
+  error: 'Could not run',
   locked: 'Locked',
-  pass: 'Passed',
   info: 'Diagnostics',
   manual: 'Check manually',
+  pass: 'Passed',
   na: 'Not applicable',
 };
+
+/** A status group's heading. Lighthouse's in-between scores are warnings, not partial passes. */
+export function statusLabel(status: AuditStatus, category: CategoryId): string {
+  if (status === 'partial' && category !== 'agentic') return 'Warnings';
+  return STATUS_LABEL[status];
+}

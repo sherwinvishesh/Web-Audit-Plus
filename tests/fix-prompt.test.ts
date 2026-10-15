@@ -4,7 +4,9 @@ import { remedyFor } from '../src/agentic/remedies';
 import { buildAgenticReport } from '../src/agentic/report';
 import { codeSpan, parseInline } from '../src/agentic/quote';
 import { allFixesPrompt, buildFixPrompt, categoryFixPrompt, EVIDENCE_NOTICE, inline, singleFixPrompt, type FixPromptContext, type FixPromptItem } from '../src/shared/fix-prompt';
+import { lighthouseAudits } from '../src/lighthouse/normalize';
 import { goodEvidence, unadoptedEvidence } from './helpers/evidence';
+import { flawedDesktopLhr } from './lighthouse/fixture';
 
 const context: FixPromptContext = {
   url: 'https://example.com/resume',
@@ -140,5 +142,47 @@ describe('agenticFixItems', () => {
 
   it('is empty for a perfect run', () => {
     expect(agenticFixItems(buildAgenticReport(goodEvidence()))).toEqual([]);
+  });
+});
+
+describe('Lighthouse items', () => {
+  const lhr = flawedDesktopLhr();
+  const rows = [...lighthouseAudits(lhr, 'accessibility'), ...lighthouseAudits(lhr, 'seo'), ...lighthouseAudits(lhr, 'best-practices')];
+  const fixItems = rows.flatMap((row) => (row.fixItem ? [row.fixItem] : []));
+
+  it('lists the evidence under the reason, with what fixed means and where to read more', () => {
+    const label = fixItems.find((fixItem) => fixItem.category === 'accessibility' && fixItem.id === 'label');
+    if (!label) throw new Error('fixture has no failing label audit');
+    const lines = singleFixPrompt(context, label).split('\n');
+    const evidence = lines.findIndex((line) => line.startsWith('- Evidence: '));
+    expect(lines[evidence + 1]).toMatch(/^ {2}- `+ <input/);
+    expect(lines).toContain('- Reference: https://dequeuniversity.com/rules/axe/4.13/label');
+    expect(lines.find((line) => line.startsWith('- Done when: '))).toMatch(/^- Done when: ` label ` passes: .+\. Re-run Web Audit\+ to confirm\.$/);
+    expect(lines.find((line) => line.startsWith('- Points at stake: '))).toBe('- Points at stake: +10.2 on the Accessibility score');
+  });
+
+  it('keeps everything the site served inside code spans', () => {
+    const prompt = allFixesPrompt(context, fixItems);
+    const prose = proseOnly(prompt);
+    for (const row of rows) for (const line of row.evidence ?? []) for (const part of parseInline(line)) if (part.kind === 'code' && part.value.length > 12) expect(prose).not.toContain(part.value);
+    expect(prose).not.toMatch(/<img|<input|<button/);
+  });
+
+  it('says how many more were flagged than it lists', () => {
+    const many = item({ category: 'accessibility', id: 'color-contrast', evidenceLines: ['`a`', '`b`'], evidenceMore: 14 });
+    expect(singleFixPrompt(context, many)).toContain('  - and 14 more of the same kind');
+  });
+
+  it('prices an unweighted insight by its estimated impact, and says so', () => {
+    const insight = item({ category: 'performance', id: 'render-blocking-insight', title: 'Render-blocking requests', points: 0, impact: 7.5 });
+    const prompt = singleFixPrompt(context, insight);
+    expect(prompt).toContain('- Estimated impact: up to +7.5 on the Performance score, through the metrics it improves (Lighthouse’s projection)');
+    expect(prompt).not.toContain('Points at stake');
+  });
+
+  it('adds stack advice, and links only to https', () => {
+    const prompt = singleFixPrompt(context, item({ stackNotes: [{ title: 'Next.js', text: 'Use next/image.' }], learnMore: 'javascript:alert(1)' }));
+    expect(prompt).toContain('- Next.js: Use next/image.');
+    expect(prompt).not.toContain('Reference:');
   });
 });

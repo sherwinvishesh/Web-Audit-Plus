@@ -1,4 +1,5 @@
 import type { AgenticReport } from '../../agentic/types';
+import type { Lhr } from '../../lighthouse/lhr';
 import type { CategoryId } from '../../shared/categories';
 import { newRunId, overallOf, type RunOptions, type RunRecord, type RunState, type RunStep } from '../../shared/run';
 import { auditability } from '../../shared/url-policy';
@@ -6,6 +7,7 @@ import { auditability } from '../../shared/url-policy';
 /** What one run produces before it is saved. */
 export interface RunResult {
   agentic?: AgenticReport;
+  lighthouse?: Lhr;
   errors: Partial<Record<CategoryId, string>>;
 }
 
@@ -187,6 +189,7 @@ export class RunManager {
         environment: this.#deps.environment,
       };
       if (result.agentic) record.agentic = result.agentic;
+      if (result.lighthouse) record.lighthouse = result.lighthouse;
       await this.#deps.save(record);
       update((latest) => ({ ...latest, phase: 'done', finishedAt: this.#now(), saved: true, steps: settle(latest.steps) }));
     } catch (error) {

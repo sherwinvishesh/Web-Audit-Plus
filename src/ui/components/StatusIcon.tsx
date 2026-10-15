@@ -1,9 +1,10 @@
 import type { AuditStatus } from '../../shared/report-model';
-import { CheckIcon, CircleIcon, CrossIcon, DashIcon, HalfIcon, LockIcon } from './icons';
+import { AlertIcon, CheckIcon, CircleIcon, CrossIcon, DashIcon, HalfIcon, LockIcon } from './icons';
 
 const TONE: Readonly<Record<AuditStatus, string>> = {
   fail: 'var(--bad)',
   partial: 'var(--warn)',
+  error: 'var(--muted)',
   locked: 'var(--faint)',
   pass: 'var(--good)',
   info: 'var(--muted)',
@@ -24,6 +25,8 @@ export function StatusIcon({ status, size = 15 }: { status: AuditStatus; size?: 
       return <HalfIcon size={size} style={style} className="shrink-0" />;
     case 'pass':
       return <CheckIcon size={size} style={style} className="shrink-0" />;
+    case 'error':
+      return <AlertIcon size={size} style={style} className="shrink-0" />;
     case 'locked':
       return <LockIcon size={size} style={style} className="shrink-0" />;
     case 'na':

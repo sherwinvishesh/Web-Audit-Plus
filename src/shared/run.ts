@@ -1,4 +1,5 @@
 import type { AgenticReport } from '../agentic/types';
+import type { Lhr } from '../lighthouse/lhr';
 import { CATEGORY_IDS, isCategoryId, overallScore, type CategoryId } from './categories';
 
 /**
@@ -77,6 +78,8 @@ export interface RunRecord {
   scores: Partial<Record<CategoryId, number | null>>;
   overall: number | null;
   agentic?: AgenticReport;
+  /** Lighthouse's result for the four Lighthouse categories, trimmed by `trimLhr`. */
+  lighthouse?: Lhr;
   /** Per-category failures, for categories that were asked for but produced nothing. */
   errors: Partial<Record<CategoryId, string>>;
   environment: { extensionVersion: string; userAgent: string };

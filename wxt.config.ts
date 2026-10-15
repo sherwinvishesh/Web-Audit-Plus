@@ -1,5 +1,6 @@
 import { defineConfig } from 'wxt';
 import tailwindcss from '@tailwindcss/vite';
+import { lighthouseBundle } from './scripts/lighthouse-bundle';
 
 // Chrome MV3 extension: React UI under src/ui, entrypoints under src/extension.
 export default defineConfig({
@@ -25,6 +26,13 @@ export default defineConfig({
     },
   },
   vite: () => ({
-    plugins: [tailwindcss()],
+    plugins: [tailwindcss(), lighthouseBundle()],
+    build: {
+      rolldownOptions: {
+        // Lighthouse identifies its computed artifacts and page functions by `Function.name` (its own
+        // bundles are built with esbuild's `keepNames`); the minifier must not rename or inline them.
+        output: { keepNames: true },
+      },
+    },
   }),
 });

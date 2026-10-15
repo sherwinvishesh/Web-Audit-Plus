@@ -90,3 +90,65 @@ export function redirectLoopSite(): Promise<FixtureSite> {
     response.end();
   });
 }
+
+/** A 1×1 transparent PNG. */
+const PIXEL = Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=', 'base64');
+
+const FLAWED_HTML = `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Flawed fixture</title>
+<script src="/blocking.js"></script>
+<style>body { font: 16px/1.5 sans-serif; margin: 2rem; } .faint { color: #c8c8c8; }</style>
+</head>
+<body>
+<main>
+<h1>A page with known problems</h1>
+<p class="faint">This paragraph is too faint to read comfortably.</p>
+<img src="/pixel.png" width="40" height="40">
+<button><svg width="16" height="16" aria-hidden="true"><circle cx="8" cy="8" r="6"></circle></svg></button>
+<form><input type="text" name="q"></form>
+<p><a href="/more">click here</a></p>
+</main>
+<script>console.error('Fixture error: something went wrong');</script>
+</body>
+</html>
+`;
+
+/**
+ * A page that fails specific Lighthouse audits on purpose: no `lang` (html-has-lang), an image with
+ * no `alt` (image-alt), an icon button with no name (button-name), an unlabeled input (label), faint
+ * text (color-contrast), a vague link (link-text), no meta description, a console error
+ * (errors-in-console), and a render-blocking script.
+ */
+export function flawedSite(): Promise<FixtureSite> {
+  return serve((request, response, origin) => {
+    const path = new URL(request.url ?? '/', origin).pathname;
+    if (path === '/blocking.js') {
+      setTimeout(() => {
+        response.writeHead(200, { 'content-type': 'text/javascript' });
+        response.end('window.fixtureLoaded = true;\n');
+      }, 300);
+      return;
+    }
+    if (path === '/pixel.png') {
+      response.writeHead(200, { 'content-type': 'image/png' });
+      response.end(PIXEL);
+      return;
+    }
+    if (path === '/robots.txt') {
+      response.writeHead(200, { 'content-type': 'text/plain' });
+      response.end('User-agent: *\nAllow: /\n');
+      return;
+    }
+    if (path === '/' || path === '/more') {
+      response.writeHead(200, { 'content-type': 'text/html; charset=utf-8' });
+      response.end(FLAWED_HTML);
+      return;
+    }
+    response.writeHead(404, { 'content-type': 'text/plain' });
+    response.end('Not found');
+  });
+}

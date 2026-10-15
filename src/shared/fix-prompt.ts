@@ -22,6 +22,8 @@ export interface FixPromptItem {
   status: 'fail' | 'partial' | 'locked';
   /** Score points (of 100, in the item's category) that fixing this would add. 0 when unknown or locked. */
   points: number;
+  /** For an unweighted Performance audit: Lighthouse's estimate of the points its savings recover. */
+  impact?: number;
   /** What was found. Markdown-lite: prose plus code spans quoting the site. */
   evidence: string;
   detail?: string;
@@ -34,6 +36,16 @@ export interface FixPromptItem {
   weight?: number;
   /** For a locked item, the audit that has to pass first. */
   lockedBy?: string;
+  /** One line per flagged element or request, markdown-lite with site values in code spans. */
+  evidenceLines?: string[];
+  /** How many more there were beyond `evidenceLines`. */
+  evidenceMore?: number;
+  /** What "fixed" means in terms the next run checks. Defaults to "the audit passes". */
+  acceptance?: string;
+  /** Framework-specific advice (Lighthouse stack packs). */
+  stackNotes?: Array<{ title: string; text: string }>;
+  /** The audit's documentation. Never a URL from the site. */
+  learnMore?: string;
 }
 
 export interface FixPromptContext {
@@ -61,7 +73,7 @@ export function inline(text: string | undefined): string {
 }
 
 export function buildFixPrompt(context: FixPromptContext, items: readonly FixPromptItem[], options: FixPromptOptions = {}): string {
-  const byPoints = (a: FixPromptItem, b: FixPromptItem): number => b.points - a.points;
+  const byPoints = (a: FixPromptItem, b: FixPromptItem): number => (b.points || b.impact || 0) - (a.points || a.impact || 0);
   const failed = items.filter((item) => item.status === 'fail').sort(byPoints);
   const partial = items.filter((item) => item.status === 'partial').sort(byPoints);
   const locked = items.filter((item) => item.status === 'locked');
@@ -141,14 +153,19 @@ function renderItem(item: FixPromptItem): string[] {
   const category = CATEGORY_TITLES[item.category];
   lines.push(`### ${inline(item.id)}: ${inline(item.title)} (${category})`, '');
   if (item.points > 0) lines.push(`- Points at stake: +${item.points} on the ${category} score`);
+  else if (item.impact) lines.push(`- Estimated impact: up to +${item.impact} on the ${category} score, through the metrics it improves (Lighthouse’s projection)`);
   if (item.status === 'partial' && item.earned !== undefined && item.weight !== undefined) {
     lines.push(`- Earned so far: ${item.earned} of ${item.weight}`);
   }
   lines.push(`- Evidence: ${inline(item.evidence)}`);
+  for (const line of item.evidenceLines ?? []) lines.push(`  - ${inline(line)}`);
+  if (item.evidenceMore) lines.push(`  - and ${item.evidenceMore} more of the same kind`);
   if (item.detail) lines.push(`- Detail: ${inline(item.detail)}`);
   if (item.fix) lines.push(`- Fix: ${inline(stripPrice(item.fix))}`);
   if (item.remedy) lines.push(`- ${item.fix ? 'Background' : 'Fix'}: ${inline(item.remedy)}`);
-  lines.push(`- Done when: re-run Web Audit+; ${inline(item.id)} should pass.`);
+  for (const note of item.stackNotes ?? []) lines.push(`- ${inline(note.title)}: ${inline(note.text)}`);
+  if (item.learnMore && /^https:\/\//.test(item.learnMore)) lines.push(`- Reference: ${item.learnMore.replace(/\s/g, '')}`);
+  lines.push(item.acceptance ? `- Done when: ${inline(item.acceptance)}. Re-run Web Audit+ to confirm.` : `- Done when: re-run Web Audit+; ${inline(item.id)} should pass.`);
   lines.push('');
   return lines;
 }
