@@ -2,10 +2,13 @@ import { useMemo, type ReactNode } from 'react';
 import { CATEGORY_IDS, CATEGORY_SHORT_TITLES, CATEGORY_TITLES, type CategoryId } from '../../shared/categories';
 import { allFixesPrompt } from '../../shared/fix-prompt';
 import { allFixItems, buildReportModel, fixNext } from '../../shared/report-model';
+import { runProgress } from '../../shared/progress';
 import { isFinished, type FormFactor, type RunOptions, type RunRecord, type RunState, type RunStep } from '../../shared/run';
 import { auditability } from '../../shared/url-policy';
+import { PointsLabel } from '../components/AuditBody';
 import { InlineText } from '../components/InlineText';
 import { ScoreRing } from '../components/ScoreRing';
+import { statusColor } from '../components/StatusIcon';
 import {
   AlertIcon,
   CheckIcon,
@@ -210,6 +213,7 @@ function RunView({ state, currentUrl }: { state: RunState; currentUrl: string | 
         <StatusLine state={state} />
         <span className="num shrink-0 text-[12px] text-muted">{state.phase === 'queued' ? '' : formatDuration(elapsed)}</span>
       </div>
+      {state.phase === 'running' && <ProgressBar value={runProgress(state.steps)} />}
       {otherPage && (
         <p className="-mt-2 truncate text-[12px] text-muted">
           Results for <span className="font-mono">{displayUrl(state.url).path}</span>
@@ -300,9 +304,11 @@ function Summary({ runId, record }: { runId: string; record: RunRecord }) {
                   onClick={() => void openReport(runId, `audit-${audit.key}`)}
                   className="flex w-full items-center gap-2.5 px-3 py-2 text-left transition-colors hover:bg-surface-2"
                 >
-                  <span className={`size-1.5 shrink-0 rounded-full ${audit.status === 'fail' ? 'bg-bad' : 'bg-warn'}`} aria-hidden="true" />
+                  <span className="size-1.5 shrink-0 rounded-full" style={{ background: statusColor(audit.status) }} aria-hidden="true" />
                   <span className="min-w-0 flex-1 truncate text-[12.5px]">{audit.title}</span>
-                  {audit.points > 0 && <span className="num shrink-0 font-mono text-[11.5px] text-good">+{audit.points}</span>}
+                  <span className="shrink-0 [&>span]:text-[11.5px]">
+                    <PointsLabel audit={audit} />
+                  </span>
                 </button>
               </li>
             ))}
@@ -330,6 +336,15 @@ function Summary({ runId, record }: { runId: string; record: RunRecord }) {
           </button>
         )}
       </div>
+    </div>
+  );
+}
+
+function ProgressBar({ value }: { value: number }) {
+  const percent = Math.round(Math.min(1, Math.max(0, value)) * 100);
+  return (
+    <div className="-mt-2 h-1 overflow-hidden rounded-full bg-surface-2" role="progressbar" aria-label="Audit progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={percent}>
+      <div className="h-full rounded-full bg-accent transition-[width] duration-500 ease-out" style={{ width: `${Math.max(percent, 3)}%` }} />
     </div>
   );
 }

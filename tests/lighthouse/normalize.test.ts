@@ -173,6 +173,12 @@ describe('lighthouseMetrics', () => {
     ]);
     expect(metrics.every((metric) => metric.displayValue && metric.status === 'pass')).toBe(true);
   });
+
+  it('keeps the measured value, for comparing runs', () => {
+    const metrics = lighthouseMetrics(flawedDesktopLhr());
+    expect(metrics.map((metric) => metric.unit)).toEqual(['ms', 'ms', 'ms', 'unitless', 'ms']);
+    expect(metrics.every((metric) => typeof metric.value === 'number')).toBe(true);
+  });
 });
 
 describe('lighthouseMeta', () => {

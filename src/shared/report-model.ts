@@ -28,6 +28,8 @@ export interface AuditItem {
   status: AuditStatus;
   /** Points this audit would add to its category score if it passed. 0 when unknown. */
   points: number;
+  /** The audit's own score from 0 to 1 (Lighthouse's, or earned over weight for Agentic), when it has one. */
+  score?: number;
   /**
    * For an unweighted Performance insight or diagnostic: Lighthouse's estimate of the Performance
    * points its savings would recover, through the metrics they improve. Estimates overlap with each
@@ -125,6 +127,7 @@ export function agenticAudits(report: AgenticReport): AuditItem[] {
       earned: check.earned,
       weight: check.weight,
     };
+    if (check.weight > 0 && (check.status === 'pass' || check.status === 'partial' || check.status === 'fail')) audit.score = check.earned / check.weight;
     if (check.detail) audit.detail = check.detail;
     if (check.fix) audit.fix = stripPrice(check.fix);
     if (check.lockedBy) audit.lockedBy = check.lockedBy;

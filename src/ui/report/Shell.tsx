@@ -3,11 +3,11 @@ import { HistoryIcon, Logo, MoonIcon, SunIcon } from '../components/icons';
 import { useTheme } from '../lib/theme';
 
 /** The report page frame: a slim top bar and a centred column. */
-export function Shell({ children, actions }: { children: ReactNode; actions?: ReactNode }) {
+export function Shell({ children, actions, sticky = true }: { children: ReactNode; actions?: ReactNode; sticky?: boolean }) {
   const theme = useTheme();
   return (
     <div className="min-h-screen text-[14px]">
-      <header className="sticky top-0 z-30 border-b border-border bg-bg">
+      <header className={`${sticky ? 'sticky top-0 z-30' : ''} border-b border-border bg-bg`}>
         <div className="mx-auto flex h-13 max-w-6xl items-center justify-between gap-4 px-6">
           <a href="report.html" className="flex items-center gap-2 rounded-md" aria-label="Web Audit+ history">
             <Logo size={22} />

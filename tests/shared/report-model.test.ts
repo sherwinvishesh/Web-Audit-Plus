@@ -1,36 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { buildAgenticReport } from '../../src/agentic/report';
-import { categoryScore } from '../../src/lighthouse/lhr';
 import { allFixItems, buildReportModel, fixNext, groupByStatus, statusLabel, worth } from '../../src/shared/report-model';
-import { overallOf, type RunRecord } from '../../src/shared/run';
-import { unadoptedEvidence } from '../helpers/evidence';
-import { flawedDesktopLhr } from '../lighthouse/fixture';
+import { flawedRecord } from '../helpers/records';
 
-function record(): RunRecord {
-  const lighthouse = flawedDesktopLhr();
-  const agentic = buildAgenticReport(unadoptedEvidence());
-  const scores: RunRecord['scores'] = {
-    performance: categoryScore(lighthouse, 'performance'),
-    accessibility: categoryScore(lighthouse, 'accessibility'),
-    'best-practices': categoryScore(lighthouse, 'best-practices'),
-    seo: categoryScore(lighthouse, 'seo'),
-    agentic: agentic.score.value,
-  };
-  return {
-    id: 'run-1',
-    url: lighthouse.finalDisplayedUrl,
-    origin: new URL(lighthouse.finalDisplayedUrl).origin,
-    startedAt: lighthouse.fetchTime,
-    durationMs: 9_000,
-    options: { formFactor: 'desktop', categories: ['performance', 'accessibility', 'best-practices', 'seo', 'agentic'] },
-    scores,
-    overall: overallOf(scores),
-    agentic,
-    lighthouse,
-    errors: {},
-    environment: { extensionVersion: '0.1.0', userAgent: 'test' },
-  };
-}
+const record = flawedRecord;
 
 describe('buildReportModel with Lighthouse', () => {
   const model = buildReportModel(record());

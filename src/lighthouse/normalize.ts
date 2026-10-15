@@ -56,6 +56,7 @@ export function lighthouseAudits(lhr: Lhr, category: CategoryId): AuditItem[] {
     const { why, learnMore } = describe(audit.description);
     const points = pointsFor(ref, audit, status, weightTotal);
     const item: AuditItem = { key: `${category}:${ref.id}`, category, id: ref.id, title: plain(audit.title).replace(/\.$/, ''), status, points };
+    if (typeof audit.score === 'number') item.score = audit.score;
     const reason = reasonFor(audit, status, evidence);
     if (reason) item.reason = reason;
     if (why) item.why = why;
@@ -91,6 +92,9 @@ export interface MetricView {
   status: AuditStatus;
   /** The metric's share of the Performance score, in points. */
   weight: number;
+  /** The measured value, for comparing runs: milliseconds, or unitless (CLS). */
+  value?: number;
+  unit?: 'ms' | 'unitless';
 }
 
 /** The Performance category's lab metrics, in Lighthouse's order. */
@@ -112,6 +116,10 @@ export function lighthouseMetrics(lhr: Lhr): MetricView[] {
         weight: weightTotal > 0 ? round1((ref.weight / weightTotal) * 100) : 0,
       };
       if (audit.displayValue) metric.displayValue = plain(audit.displayValue);
+      if (typeof audit.numericValue === 'number' && Number.isFinite(audit.numericValue)) {
+        metric.value = audit.numericValue;
+        metric.unit = audit.numericUnit === 'millisecond' ? 'ms' : 'unitless';
+      }
       return [metric];
     });
 }

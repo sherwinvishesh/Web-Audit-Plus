@@ -96,6 +96,42 @@ describe.skipIf(!canRun)('the built extension in Chrome', () => {
     await history.waitForSelector(`a[href="report.html?run=${state.runId}"]`);
   });
 
+  it('searches, filters and moves through the report from the keyboard', async () => {
+    const { tabId } = await harness.openTab(`${flawed.origin}/`);
+    const state = await harness.run(tabId, { ...AGENTIC_ONLY, categories: [...AGENTIC_ONLY.categories] });
+    const report = await harness.page(`report.html?run=${state.runId}`);
+    await report.waitForSelector('#category-agentic');
+    const visibleRows = (): Promise<string[]> =>
+      report.$$eval('[data-audit] > button', (rows) => rows.filter((row) => row.checkVisibility()).map((row) => row.parentElement?.getAttribute('data-audit') ?? ''));
+
+    // One ring per category, and no Overall cell for a single category.
+    expect(await report.$$eval('[aria-label="Scores"] a', (links) => links.map((link) => link.getAttribute('href')))).toEqual(['#category-agentic']);
+
+    const before = await visibleRows();
+    await report.keyboard.press('/');
+    expect(await report.evaluate(() => document.activeElement?.getAttribute('type'))).toBe('search');
+    await report.keyboard.type('llms.txt');
+    await report.waitForFunction((count) => document.querySelectorAll('[data-audit]').length < count, {}, before.length);
+    const matches = await visibleRows();
+    expect(matches.length).toBeGreaterThan(0);
+    expect(await report.$eval('main', (main) => main.textContent ?? '')).toMatch(/\d+ audits? match/);
+
+    // Enter goes to the first result, j to the next one.
+    await report.keyboard.press('Enter');
+    const focused = (): Promise<string | null | undefined> => report.evaluate(() => document.activeElement?.closest('[data-audit]')?.getAttribute('data-audit'));
+    expect(await focused()).toBe(matches[0]);
+    await report.keyboard.press('j');
+    expect(await focused()).toBe(matches[Math.min(1, matches.length - 1)]);
+
+    // The Fix next tab ranks what failed, and keeps its place in the URL.
+    await report.click('#tab-fix-next');
+    await report.waitForSelector('#panel-fix-next');
+    await report.click('::-p-text(Clear filters)');
+    const ranked = await report.$$eval('#panel-fix-next [data-audit]', (rows) => rows.length);
+    expect(ranked).toBeGreaterThan(0);
+    expect(await report.evaluate(() => location.search)).toContain('view=fix-next');
+  });
+
   it('runs from the side panel UI', async () => {
     const { tabId } = await harness.openTab(`${site.origin}/resume`);
     const panel = await harness.page(`sidepanel.html?tab=${tabId}`);
