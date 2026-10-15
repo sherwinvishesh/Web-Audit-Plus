@@ -1,39 +1,39 @@
 import { buildAgenticReport } from '../../src/agentic/report';
-import { categoryScore, type Lhr } from '../../src/lighthouse/lhr';
+import { categoryScore, type EngineResult } from '../../src/engine/result';
 import { overallOf, type RunRecord } from '../../src/shared/run';
-import { flawedDesktopLhr } from '../lighthouse/fixture';
+import { flawedDesktopResult } from '../engine/fixture';
 import { unadoptedEvidence } from './evidence';
 
-/** A saved run of the flawed fixture site: real Lighthouse result, Agentic from hand-built evidence. */
-export function flawedRecord(overrides: { id?: string; startedAt?: string; lighthouse?: Lhr } = {}): RunRecord {
-  const lighthouse = overrides.lighthouse ?? flawedDesktopLhr();
+/** A saved run of the flawed fixture site: real engine result, Agentic from hand-built evidence. */
+export function flawedRecord(overrides: { id?: string; startedAt?: string; engine?: EngineResult } = {}): RunRecord {
+  const engine = overrides.engine ?? flawedDesktopResult();
   const agentic = buildAgenticReport(unadoptedEvidence());
   const scores: RunRecord['scores'] = {
-    performance: categoryScore(lighthouse, 'performance'),
-    accessibility: categoryScore(lighthouse, 'accessibility'),
-    'best-practices': categoryScore(lighthouse, 'best-practices'),
-    seo: categoryScore(lighthouse, 'seo'),
+    performance: categoryScore(engine, 'performance'),
+    accessibility: categoryScore(engine, 'accessibility'),
+    'best-practices': categoryScore(engine, 'best-practices'),
+    seo: categoryScore(engine, 'seo'),
     agentic: agentic.score.value,
   };
   return {
     id: overrides.id ?? 'run-1',
-    url: lighthouse.finalDisplayedUrl,
-    origin: new URL(lighthouse.finalDisplayedUrl).origin,
-    startedAt: overrides.startedAt ?? lighthouse.fetchTime,
+    url: engine.finalDisplayedUrl,
+    origin: new URL(engine.finalDisplayedUrl).origin,
+    startedAt: overrides.startedAt ?? engine.fetchTime,
     durationMs: 9_000,
     options: { formFactor: 'desktop', categories: ['performance', 'accessibility', 'best-practices', 'seo', 'agentic'] },
     scores,
     overall: overallOf(scores),
     agentic,
-    lighthouse,
+    engine,
     errors: {},
     environment: { extensionVersion: '0.1.0', userAgent: 'test' },
   };
 }
 
-/** Set some audits' scores in a Lighthouse result, and recompute the category scores the way Lighthouse does. */
-export function withScores(lhr: Lhr, scores: Record<string, number | null>, numeric: Record<string, number> = {}): Lhr {
-  const copy = structuredClone(lhr);
+/** Set some audits' scores in an engine result, and recompute the category scores the way the engine does. */
+export function withScores(engineResult: EngineResult, scores: Record<string, number | null>, numeric: Record<string, number> = {}): EngineResult {
+  const copy = structuredClone(engineResult);
   for (const [id, score] of Object.entries(scores)) {
     const audit = copy.audits[id];
     if (!audit) throw new Error(`no audit ${id}`);

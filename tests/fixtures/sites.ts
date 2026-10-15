@@ -118,7 +118,7 @@ const FLAWED_HTML = `<!doctype html>
 `;
 
 /**
- * A page that fails specific Lighthouse audits on purpose: no `lang` (html-has-lang), an image with
+ * A page that fails specific engine audits on purpose: no `lang` (html-has-lang), an image with
  * no `alt` (image-alt), an icon button with no name (button-name), an unlabeled input (label), faint
  * text (color-contrast), a vague link (link-text), no meta description, a console error
  * (errors-in-console), and a render-blocking script.

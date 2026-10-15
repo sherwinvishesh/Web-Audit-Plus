@@ -3,7 +3,7 @@ import { placementFor } from '../agentic/remedies';
 import { stripPrice } from '../agentic/score';
 import type { AgenticReport } from '../agentic/types';
 import { WHY } from '../agentic/why';
-import { lighthouseAudits, lighthouseMeta, lighthouseMetrics, type LighthouseMeta, type MetricView } from '../lighthouse/normalize';
+import { engineAudits, engineMeta, engineMetrics, type EngineMeta, type MetricView } from '../engine/normalize';
 import { CATEGORY_IDS, CATEGORY_TITLES, type CategoryId } from './categories';
 import type { FixPromptContext, FixPromptItem } from './fix-prompt';
 import type { RunRecord } from './run';
@@ -28,10 +28,10 @@ export interface AuditItem {
   status: AuditStatus;
   /** Points this audit would add to its category score if it passed. 0 when unknown. */
   points: number;
-  /** The audit's own score from 0 to 1 (Lighthouse's, or earned over weight for Agentic), when it has one. */
+  /** The audit's own score from 0 to 1 (the engine's, or earned over weight for Agentic), when it has one. */
   score?: number;
   /**
-   * For an unweighted Performance insight or diagnostic: Lighthouse's estimate of the Performance
+   * For an unweighted Performance insight or diagnostic: the engine's estimate of the Performance
    * points its savings would recover, through the metrics they improve. Estimates overlap with each
    * other and with the metrics' own points, so they rank work but are never added up.
    */
@@ -39,7 +39,7 @@ export interface AuditItem {
   /** What was found. Markdown-lite: prose plus code spans quoting the site. */
   reason?: string;
   detail?: string;
-  /** Why it matters. Our own text, or Lighthouse's. */
+  /** Why it matters. Our own text, or the engine's. */
   why?: string;
   /** The specific next step, markdown-lite. */
   fix?: string;
@@ -49,15 +49,15 @@ export interface AuditItem {
   earned?: number;
   weight?: number;
   lockedBy?: string;
-  /** Documentation for this audit. Always a URL we wrote or Lighthouse ships, never one from the site. */
+  /** Documentation for this audit. Always a URL we wrote or the engine ships, never one from the site. */
   learnMore?: string;
-  /** One line per flagged element, request or location (Lighthouse audits), markdown-lite. */
+  /** One line per flagged element, request or location (engine audits), markdown-lite. */
   evidence?: string[];
   /** How many there were in all; `evidence` holds at most ten. */
   evidenceTotal?: number;
-  /** The Lighthouse group the audit belongs to ("Names and labels"). */
+  /** The engine group the audit belongs to ("Names and labels"). */
   group?: string;
-  /** Framework-specific advice from Lighthouse's stack packs, when it detected a known stack. */
+  /** Framework-specific advice from the engine's stack packs, when it detected a known stack. */
   stackNotes?: Array<{ title: string; text: string }>;
   /** Present when the audit needs work. */
   fixItem?: FixPromptItem;
@@ -80,8 +80,8 @@ export interface ReportModel {
   record: RunRecord;
   categories: CategoryView[];
   context: FixPromptContext;
-  /** How Lighthouse ran, when it did. */
-  lighthouse?: LighthouseMeta;
+  /** How the engine ran, when it did. */
+  engine?: EngineMeta;
 }
 
 export function buildReportModel(record: RunRecord): ReportModel {
@@ -95,7 +95,7 @@ export function buildReportModel(record: RunRecord): ReportModel {
     placement: placementFor(framework),
   };
   const model: ReportModel = { record, categories, context };
-  if (record.lighthouse) model.lighthouse = lighthouseMeta(record.lighthouse);
+  if (record.engine) model.engine = engineMeta(record.engine);
   return model;
 }
 
@@ -107,9 +107,9 @@ function categoryView(record: RunRecord, id: CategoryId): CategoryView {
     view.audits = agenticAudits(record.agentic);
     const { locked } = record.agentic.score;
     if (locked.count > 0) view.locked = { count: locked.count, gain: locked.gain, unlockedBy: locked.unlockedBy };
-  } else if (id !== 'agentic' && record.lighthouse) {
-    view.audits = lighthouseAudits(record.lighthouse, id);
-    if (id === 'performance') view.metrics = lighthouseMetrics(record.lighthouse);
+  } else if (id !== 'agentic' && record.engine) {
+    view.audits = engineAudits(record.engine, id);
+    if (id === 'performance') view.metrics = engineMetrics(record.engine);
   }
   return view;
 }
@@ -184,7 +184,7 @@ export const STATUS_LABEL: Readonly<Record<AuditStatus, string>> = {
   na: 'Not applicable',
 };
 
-/** A status group's heading. Lighthouse's in-between scores are warnings, not partial passes. */
+/** A status group's heading. The engine's in-between scores are warnings, not partial passes. */
 export function statusLabel(status: AuditStatus, category: CategoryId): string {
   if (status === 'partial' && category !== 'agentic') return 'Warnings';
   return STATUS_LABEL[status];

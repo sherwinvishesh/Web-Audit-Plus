@@ -1,4 +1,4 @@
-/** Lighthouse's score bands: 0–49 poor, 50–89 needs improvement, 90–100 good. */
+/** The score bands: 0–49 poor, 50–89 needs improvement, 90–100 good. */
 export type Band = 'good' | 'warn' | 'bad' | 'none';
 
 export function band(score: number | null | undefined): Band {

@@ -4,7 +4,7 @@ import { flawedRecord } from '../helpers/records';
 
 const record = flawedRecord;
 
-describe('buildReportModel with Lighthouse', () => {
+describe('buildReportModel with an engine result', () => {
   const model = buildReportModel(record());
 
   it('builds every category from its engine', () => {
@@ -16,7 +16,7 @@ describe('buildReportModel with Lighthouse', () => {
       ['agentic', 80, true],
     ]);
     expect(model.categories[0]?.metrics).toHaveLength(5);
-    expect(model.lighthouse?.formFactor).toBe('desktop');
+    expect(model.engine?.formFactor).toBe('desktop');
   });
 
   it('puts the biggest wins first, across engines', () => {
@@ -40,7 +40,7 @@ describe('buildReportModel with Lighthouse', () => {
     expect(statuses.indexOf('error')).toBeLessThan(statuses.indexOf('pass'));
   });
 
-  it('calls Lighthouse’s in-between scores warnings', () => {
+  it('calls in-between scores warnings', () => {
     expect(statusLabel('partial', 'performance')).toBe('Warnings');
     expect(statusLabel('partial', 'agentic')).toBe('Partial');
     expect(statusLabel('error', 'performance')).toBe('Could not run');

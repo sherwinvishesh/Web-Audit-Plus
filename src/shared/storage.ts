@@ -1,15 +1,17 @@
 import { summarize, type RunRecord, type RunSummary } from './run';
 
 /**
- * Saved runs live in IndexedDB: a Lighthouse result is several megabytes, and chrome.storage.local
+ * Saved runs live in IndexedDB: an engine result is several megabytes, and chrome.storage.local
  * has a 10 MB quota without the `unlimitedStorage` permission. Two stores keep listing cheap:
  * `summaries` holds the few hundred bytes a history list needs, `runs` the full record, written in
  * one transaction so they never disagree. The extension's pages and its worker share the origin, so
  * they share the database.
+ *
+ * Version 2 changed the record format; version 1 runs are dropped on upgrade rather than shown broken.
  */
 
 const DB_NAME = 'webauditplus';
-const DB_VERSION = 1;
+const DB_VERSION = 2;
 const RUNS = 'runs';
 const SUMMARIES = 'summaries';
 
@@ -44,8 +46,11 @@ function done(tx: IDBTransaction): Promise<void> {
 function open(factory: IDBFactory): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
     const req = factory.open(DB_NAME, DB_VERSION);
-    req.onupgradeneeded = () => {
+    req.onupgradeneeded = (event) => {
       const db = req.result;
+      if (event.oldVersion < 2) {
+        for (const name of [RUNS, SUMMARIES]) if (db.objectStoreNames.contains(name)) db.deleteObjectStore(name);
+      }
       if (!db.objectStoreNames.contains(RUNS)) db.createObjectStore(RUNS, { keyPath: 'id' });
       if (!db.objectStoreNames.contains(SUMMARIES)) {
         const summaries = db.createObjectStore(SUMMARIES, { keyPath: 'id' });

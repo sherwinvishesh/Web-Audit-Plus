@@ -1,5 +1,5 @@
 import type { AgenticReport } from '../agentic/types';
-import type { Lhr } from '../lighthouse/lhr';
+import type { EngineResult } from '../engine/result';
 import { CATEGORY_IDS, isCategoryId, overallScore, type CategoryId } from './categories';
 
 /**
@@ -32,7 +32,7 @@ export type StepStatus = 'pending' | 'running' | 'done' | 'failed' | 'skipped';
 /** One line in the live progress log. */
 export interface RunStep {
   id: string;
-  group: 'agentic' | 'lighthouse';
+  group: 'agentic' | 'engine';
   label: string;
   status: StepStatus;
   /** A short result: "200 · 84 ms", or why it failed. */
@@ -78,8 +78,8 @@ export interface RunRecord {
   scores: Partial<Record<CategoryId, number | null>>;
   overall: number | null;
   agentic?: AgenticReport;
-  /** Lighthouse's result for the four Lighthouse categories, trimmed by `trimLhr`. */
-  lighthouse?: Lhr;
+  /** The engine's result for Performance, Accessibility, Best Practices and SEO, trimmed by `trimResult`. */
+  engine?: EngineResult;
   /** Per-category failures, for categories that were asked for but produced nothing. */
   errors: Partial<Record<CategoryId, string>>;
   environment: { extensionVersion: string; userAgent: string };

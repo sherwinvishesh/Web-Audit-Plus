@@ -1,24 +1,23 @@
 import type { CategoryId } from '../../shared/categories';
 import type { RunOptions, RunStep } from '../../shared/run';
-import type { LighthouseCategory } from '../../lighthouse/engine';
-import { categoryScore, trimLhr, type Lhr } from '../../lighthouse/lhr';
-import { LighthouseProgress } from '../../lighthouse/progress';
+import type { EngineCategory } from '../../engine/engine';
+import { categoryScore, trimResult, type EngineResult } from '../../engine/result';
+import { EngineProgress } from '../../engine/progress';
 import { agenticSteps, runAgentic } from './agentic';
-import { runLighthouse } from './lighthouse';
+import { runEngine } from './engine';
 import type { RunJob, RunResult } from './run-manager';
 
 /** Every step a run with these options will take, for the progress log. */
 export function planRun(options: RunOptions): RunStep[] {
   const steps: RunStep[] = [];
   if (options.categories.includes('agentic')) steps.push(...agenticSteps());
-  const lighthouse = options.categories.filter((id) => id !== 'agentic');
-  if (lighthouse.length > 0) steps.push(...LighthouseProgress.plan());
+  if (options.categories.some((id) => id !== 'agentic')) steps.push(...EngineProgress.plan());
   return steps;
 }
 
 /**
  * Run the selected categories against one URL. Agentic goes first: it never touches the tab, and it
- * finishes in seconds, so its score is on screen while Lighthouse is still loading the page.
+ * finishes in seconds, so its score is on screen while the engine is still loading the page.
  */
 export async function executeRun(job: RunJob): Promise<RunResult> {
   const result: RunResult = { errors: {} };
@@ -40,42 +39,42 @@ export async function executeRun(job: RunJob): Promise<RunResult> {
     }
   }
 
-  const lighthouse = job.options.categories.filter((id): id is LighthouseCategory => id !== 'agentic');
-  if (lighthouse.length > 0) {
-    const progress = new LighthouseProgress(job.step);
+  const engineCategories = job.options.categories.filter((id): id is EngineCategory => id !== 'agentic');
+  if (engineCategories.length > 0) {
+    const progress = new EngineProgress(job.step);
     progress.start();
     try {
-      const lhr = await runLighthouse({
+      const engineResult = await runEngine({
         tabId: job.tabId,
         url: job.url,
         formFactor: job.options.formFactor,
-        categories: lighthouse,
+        categories: engineCategories,
         signal: job.signal,
         onStatus: (message) => progress.status(message),
         onSessionLost: (reason) => job.abort(detachMessage(reason)),
       });
-      result.lighthouse = trimLhr(lhr);
-      for (const category of lighthouse) {
-        const score = categoryScore(lhr, category);
-        if (score === null) result.errors[category] = unscoredReason(lhr, category);
+      result.engine = trimResult(engineResult);
+      for (const category of engineCategories) {
+        const score = categoryScore(engineResult, category);
+        if (score === null) result.errors[category] = unscoredReason(engineResult, category);
         job.score(category, score);
       }
-      for (const warning of lhr.runWarnings) job.warn(`Lighthouse: ${warning}`);
+      for (const warning of engineResult.runWarnings) job.warn(`Audit engine: ${warning}`);
       progress.finish();
     } catch (error) {
       progress.fail(error instanceof Error ? error.message : String(error));
-      for (const category of lighthouse) fail(category, error);
+      for (const category of engineCategories) fail(category, error);
     }
   }
   return result;
 }
 
 /** A category with no score means one of its weighted audits errored; say which. */
-function unscoredReason(lhr: Lhr, category: LighthouseCategory): string {
-  const errored = (lhr.categories[category]?.auditRefs ?? [])
-    .map((ref) => lhr.audits[ref.id])
+function unscoredReason(engineResult: EngineResult, category: EngineCategory): string {
+  const errored = (engineResult.categories[category]?.auditRefs ?? [])
+    .map((ref) => engineResult.audits[ref.id])
     .find((audit) => audit?.scoreDisplayMode === 'error');
-  return errored ? `Lighthouse could not run “${errored.title}”: ${errored.errorMessage ?? 'unknown error'}` : 'Lighthouse returned no score for this category';
+  return errored ? `Could not run “${errored.title}”: ${errored.errorMessage ?? 'unknown error'}` : 'The audit engine returned no score for this category';
 }
 
 function detachMessage(reason: string): string {

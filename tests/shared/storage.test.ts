@@ -72,4 +72,25 @@ describe('run store', () => {
     expect(await store.get('r0')).toBeUndefined();
     expect(await store.get('r3')).toBeDefined();
   });
+
+  it('drops runs saved in the version 1 format', async () => {
+    const factory = new IDBFactory();
+    await new Promise<void>((resolve, reject) => {
+      const req = factory.open('webauditplus', 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        db.createObjectStore('runs', { keyPath: 'id' }).put(record('old', 1));
+        db.createObjectStore('summaries', { keyPath: 'id' }).createIndex('startedAt', 'startedAt');
+      };
+      req.onsuccess = () => {
+        req.result.close();
+        resolve();
+      };
+      req.onerror = () => reject(req.error ?? new Error('open failed'));
+    });
+    const store = createRunStore(factory);
+    expect(await store.get('old')).toBeUndefined();
+    await store.put(record('new', 2));
+    expect((await store.list()).map((run) => run.id)).toEqual(['new']);
+  });
 });

@@ -1,12 +1,12 @@
 # Web Audit+
 
 A Chrome extension that audits the page you are on: **Performance, Accessibility, Best Practices
-and SEO**, scored by real Lighthouse, plus **Agentic**, a fifth category for how well the page serves
+and SEO**, scored by the bundled audit engine, plus **Agentic**, a fifth category for how well the page serves
 AI agents. Every failing audit comes with a fix prompt you can paste into a coding assistant.
 
-- **Lighthouse parity.** Lighthouse 13.5.0 runs inside the extension, on your tab, with its stock
-  configs and scoring. The scores match the Lighthouse CLI of the same version in the same Chrome.
-  The few differences are listed in [docs/PARITY.md](docs/PARITY.md).
+- **Lab-standard scores.** The audit engine (`packages/engine`) runs inside the extension, on your
+  tab, with simulated throttling, device emulation and the standard metric weights and thresholds.
+  How it runs, and the few things an extension cannot do, are in [docs/ENGINE.md](docs/ENGINE.md).
 - **Agentic readiness.** 22 deterministic checks for crawl access, `llms.txt`, sitemaps, markdown
   twins, content negotiation and structured data, scored out of 100. No language model is involved.
   See [docs/CHECKS.md](docs/CHECKS.md).
@@ -16,8 +16,8 @@ AI agents. Every failing audit comes with a fix prompt you can paste into a codi
 - **A report you can work from.** Failed audits come first and passed ones are folded away. You can
   search and filter, and **Fix next** ranks every fix by the points it adds. Compare mode shows
   what changed since the last run of the same URL.
-- **Exports.** The full run as JSON (its `lighthouse` field opens in the Lighthouse Viewer), a
-  single-file HTML report that works offline, and a markdown summary to copy.
+- **Exports.** The full run as JSON (every audit result, as the engine produced it), a single-file
+  HTML report that works offline, and a markdown summary to copy.
 - **Private by default.** Runs are saved in your browser (IndexedDB, newest 200) and never leave
   it. There is no account, no server and no telemetry.
 
@@ -42,12 +42,12 @@ For development, `npm run dev` starts Chrome with the extension loaded and reloa
 
 1. Open any website and click the Web Audit+ icon. The side panel opens.
 2. Pick **Desktop** or **Mobile** and the categories to run, then press **Run audit**.
-3. Watch the progress. The Agentic score arrives in seconds, while Lighthouse reloads the page with
-   its own emulation and throttling.
+3. Watch the progress. The Agentic score arrives in seconds, while the audit engine reloads the page
+   with its own emulation and throttling.
 4. Press **Open full report**.
 
 While an audit runs, Chrome shows a bar saying that Web Audit+ "started debugging this browser".
-That bar is how Chrome tells you an extension is using the debugger, which Lighthouse needs. It
+That bar is how Chrome tells you an extension is using the debugger, which the audit engine needs. It
 goes away when the run ends. Pressing **Cancel** on it stops the run.
 
 ### Keyboard, in the report
@@ -64,7 +64,7 @@ goes away when the run ends. Pressing **Cancel** on it stops the run.
 
 | Permission | Why |
 | --- | --- |
-| `debugger` | Lighthouse drives the tab over the Chrome DevTools Protocol. It loads the page with emulation and throttling, records a trace, and collects network, DOM and accessibility data. The Agentic probe that sends a crawler's User-Agent uses it too, on the extension's own worker. |
+| `debugger` | The audit engine drives the tab over the Chrome DevTools Protocol. It loads the page with emulation and throttling, records a trace, and collects network, DOM and accessibility data. The Agentic probe that sends a crawler's User-Agent uses it too, on the extension's own worker. |
 | `<all_urls>` host access | The Agentic checks fetch `robots.txt`, `llms.txt`, the sitemap and the markdown twin from whatever site you audit, from the extension rather than the page, so the page's Content-Security-Policy cannot block them. |
 | `activeTab` | Gives access to the tab you clicked the icon on, even if you set the extension's site access to "On click". |
 | `tabs` | Reads the URL of the tab the side panel is showing, follows it as you switch tabs, and opens the report. |
@@ -86,14 +86,21 @@ npm run test:e2e    # builds, then drives the extension in a real Chrome
 ```
 src/
   agentic/      the Agentic engine: evidence gathering, the 22 checks, scoring
-  lighthouse/   Lighthouse in the extension: CDP adapter, Node shims, result normalization
+  engine/       the audit engine in the extension: CDP adapter, Node shims, result normalization
   shared/       run records, storage, the report model, fix prompts, compare, filters
   extension/    entrypoints: background worker, side panel, report page
   ui/           React components for the side panel, the report and the HTML export
-scripts/        build plugin that bundles Lighthouse for a service worker
+packages/
+  engine/       the audit engine: gatherers, audits and scoring (Apache-2.0, see its NOTICE)
+scripts/        build plugin that bundles the audit engine for a service worker
 tests/          Vitest suites, fixture sites, end-to-end harness
-docs/           parity notes, the Agentic check catalog, testing
+docs/           engine notes, the Agentic check catalog, testing
 ```
 
 Built with [WXT](https://wxt.dev), React 18, TypeScript and Tailwind CSS 4. The typeface is
 [Geist](https://vercel.com/font), bundled with the extension.
+
+## License
+
+`packages/engine` is derived from Apache-2.0 code by Google LLC and keeps that license; see its
+[LICENSE](packages/engine/LICENSE) and [NOTICE](packages/engine/NOTICE).

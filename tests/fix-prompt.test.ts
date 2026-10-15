@@ -4,9 +4,9 @@ import { remedyFor } from '../src/agentic/remedies';
 import { buildAgenticReport } from '../src/agentic/report';
 import { codeSpan, parseInline } from '../src/agentic/quote';
 import { allFixesPrompt, buildFixPrompt, categoryFixPrompt, EVIDENCE_NOTICE, inline, singleFixPrompt, type FixPromptContext, type FixPromptItem } from '../src/shared/fix-prompt';
-import { lighthouseAudits } from '../src/lighthouse/normalize';
+import { engineAudits } from '../src/engine/normalize';
 import { goodEvidence, unadoptedEvidence } from './helpers/evidence';
-import { flawedDesktopLhr } from './lighthouse/fixture';
+import { flawedDesktopResult } from './engine/fixture';
 
 const context: FixPromptContext = {
   url: 'https://example.com/resume',
@@ -145,9 +145,9 @@ describe('agenticFixItems', () => {
   });
 });
 
-describe('Lighthouse items', () => {
-  const lhr = flawedDesktopLhr();
-  const rows = [...lighthouseAudits(lhr, 'accessibility'), ...lighthouseAudits(lhr, 'seo'), ...lighthouseAudits(lhr, 'best-practices')];
+describe('Engine items', () => {
+  const engineResult = flawedDesktopResult();
+  const rows = [...engineAudits(engineResult, 'accessibility'), ...engineAudits(engineResult, 'seo'), ...engineAudits(engineResult, 'best-practices')];
   const fixItems = rows.flatMap((row) => (row.fixItem ? [row.fixItem] : []));
 
   it('lists the evidence under the reason, with what fixed means and where to read more', () => {
@@ -176,7 +176,7 @@ describe('Lighthouse items', () => {
   it('prices an unweighted insight by its estimated impact, and says so', () => {
     const insight = item({ category: 'performance', id: 'render-blocking-insight', title: 'Render-blocking requests', points: 0, impact: 7.5 });
     const prompt = singleFixPrompt(context, insight);
-    expect(prompt).toContain('- Estimated impact: up to +7.5 on the Performance score, through the metrics it improves (Lighthouse’s projection)');
+    expect(prompt).toContain('- Estimated impact: up to +7.5 on the Performance score, through the metrics it improves (projected from its metric savings)');
     expect(prompt).not.toContain('Points at stake');
   });
 

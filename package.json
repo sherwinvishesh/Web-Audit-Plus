@@ -2,8 +2,11 @@
   "name": "webauditplus",
   "version": "0.1.0",
   "private": true,
-  "description": "Web Audit+ — Lighthouse-parity audits plus an Agentic readiness category, as a Chrome MV3 extension.",
+  "description": "Web Audit+ audits the page you are on for Performance, Accessibility, Best Practices, SEO and Agentic readiness, as a Chrome MV3 extension.",
   "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "wxt",
     "build": "wxt build",
@@ -18,8 +21,8 @@
   "dependencies": {
     "@fontsource-variable/geist": "^5.3.0",
     "@fontsource-variable/geist-mono": "^5.3.0",
+    "@webauditplus/engine": "0.1.0",
     "axe-core": "^4.14.0",
-    "lighthouse": "^13.5.0",
     "linkedom": "^0.18.13",
     "puppeteer-core": "^25.14.0",
     "react": "^18.3.1",

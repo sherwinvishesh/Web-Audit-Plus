@@ -143,7 +143,7 @@ function Report({ record }: { record: RunRecord }) {
     },
     {
       label: 'Download JSON',
-      hint: 'The full run, Lighthouse result included',
+      hint: 'The full run, every audit result included',
       icon: <DownloadIcon size={14} />,
       run: () => {
         downloadText(exportFileName(record.url, record.startedAt, 'json'), `${JSON.stringify(record, null, 2)}\n`, 'application/json');
@@ -298,7 +298,7 @@ function Report({ record }: { record: RunRecord }) {
                   ))}
                 </ol>
                 <p className="mt-3 text-[12.5px] text-faint">
-                  Points are what a fix adds to its category score. A ≈ marks Lighthouse’s estimate for an insight; estimates overlap with each other and with the metrics, so they rank the work but do not add up.
+                  Points are what a fix adds to its category score. A ≈ marks an estimate for an insight; estimates overlap with each other and with the metrics, so they rank the work but do not add up.
                 </p>
               </>
             )}
@@ -351,10 +351,10 @@ function Hero({ model, comparable, compareId, onCompare, actions }: { model: Rep
               <span>Built with {model.context.framework.name}</span>
             </>
           )}
-          {model.lighthouse && (
+          {model.engine && (
             <>
               <Dot />
-              <span>Lighthouse {model.lighthouse.version}</span>
+              <span>Audit engine {model.engine.version}</span>
             </>
           )}
         </p>
@@ -435,7 +435,7 @@ function ScorePanel({ model, comparison }: { model: ReportModel; comparison: Com
 const SUMMARY_ORDER: readonly ChangeKind[] = ['fixed', 'improved', 'regressed', 'new'];
 
 function Notices({ model, comparison, onShowChanges }: { model: ReportModel; comparison: Comparison | undefined; onShowChanges(): void }) {
-  const warnings = model.lighthouse?.warnings ?? [];
+  const warnings = model.engine?.warnings ?? [];
   const total = comparison ? Object.values(comparison.counts).reduce((sum, count) => sum + count, 0) : 0;
   if (warnings.length === 0 && !comparison) return null;
   return (
@@ -583,14 +583,14 @@ function EmptyResult({ onClear }: { onClear(): void }) {
 }
 
 function RunDetails({ model }: { model: ReportModel }) {
-  const { record, lighthouse } = model;
+  const { record, engine } = model;
   const rows: Array<[string, string]> = [];
-  if (lighthouse) {
-    rows.push(['Lighthouse', lighthouse.version]);
-    rows.push(['Device', `${lighthouse.formFactor === 'mobile' ? 'Mobile' : 'Desktop'}, ${lighthouse.screen}`]);
-    rows.push(['Throttling', lighthouse.throttling]);
-    if (lighthouse.benchmarkIndex !== undefined) rows.push(['CPU benchmark', String(Math.round(lighthouse.benchmarkIndex))]);
-    rows.push(['User agent', lighthouse.userAgent]);
+  if (engine) {
+    rows.push(['Audit engine', engine.version]);
+    rows.push(['Device', `${engine.formFactor === 'mobile' ? 'Mobile' : 'Desktop'}, ${engine.screen}`]);
+    rows.push(['Throttling', engine.throttling]);
+    if (engine.benchmarkIndex !== undefined) rows.push(['CPU benchmark', String(Math.round(engine.benchmarkIndex))]);
+    rows.push(['User agent', engine.userAgent]);
   }
   rows.push(['Categories', record.options.categories.map((id) => CATEGORY_TITLES[id]).join(', ')]);
   rows.push(['Duration', formatDuration(record.durationMs)]);

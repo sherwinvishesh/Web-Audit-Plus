@@ -46,7 +46,7 @@ export function StaticReport({ model, comparison, generatedAt }: { model: Report
             <span>{record.options.formFactor === 'mobile' ? 'Mobile' : 'Desktop'}</span>
             <span className="num">took {formatDuration(record.durationMs)}</span>
             {model.context.framework && <span>Built with {model.context.framework.name}</span>}
-            {model.lighthouse && <span>Lighthouse {model.lighthouse.version}</span>}
+            {model.engine && <span>Audit engine {model.engine.version}</span>}
             {comparison && <span>Compared with the run of {utc(comparison.previousStartedAt)}</span>}
           </p>
         </section>
@@ -100,12 +100,12 @@ export function StaticReport({ model, comparison, generatedAt }: { model: Report
           <StaticCategory key={category.id} model={model} category={category} comparison={comparison} />
         ))}
 
-        {model.lighthouse && (
+        {model.engine && (
           <footer className="mt-16 border-t border-border pt-6 text-[12.5px] text-muted">
             <p>
-              Lighthouse {model.lighthouse.version} · {model.lighthouse.throttling} · {model.lighthouse.screen}
+              Audit engine {model.engine.version} · {model.engine.throttling} · {model.engine.screen}
             </p>
-            <p className="mt-1 break-all text-faint">{model.lighthouse.userAgent}</p>
+            <p className="mt-1 break-all text-faint">{model.engine.userAgent}</p>
           </footer>
         )}
       </main>
@@ -131,7 +131,7 @@ function StaticCategory({ model, category, comparison }: { model: ReportModel; c
       {category.metrics && category.metrics.length > 0 && (
         <div className="mt-6 grid gap-3">
           <MetricTiles metrics={category.metrics} comparison={comparison} />
-          {category.id === 'performance' && <Filmstrip meta={model.lighthouse} />}
+          {category.id === 'performance' && <Filmstrip meta={model.engine} />}
         </div>
       )}
       {groups.map(({ status, audits }) => (

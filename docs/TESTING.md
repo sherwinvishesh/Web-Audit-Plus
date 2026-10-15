@@ -20,13 +20,13 @@ npm run test:e2e    # builds, then drives the built extension in a real Chrome
   cancellation, and the gate that keeps a User-Agent override from leaking into other probes.
 - **Run manager** (`tests/background/run-manager.test.ts`): queueing across tabs, cancellation while
   queued and while running, closed tabs, and what gets saved.
-- **Lighthouse** (`tests/lighthouse/`): the CDP adapter over `chrome.debugger` (sessions, events,
-  commands answered locally), the build plugin's rewrites of the installed Lighthouse (each one fails
-  loudly if an upgrade moved what it patches), the Node shims, progress tracking, the log-normal
-  scoring and impact estimates (checked against Lighthouse's own `statistics.js` and `util.js`), and
-  how audits become report rows: status, points, evidence lines, remedies and acceptance criteria.
-  These run against `tests/fixtures/lhr-flawed-desktop.json`, a trimmed real result for the flawed
-  fixture site.
+- **Audit engine** (`tests/engine/`): the CDP adapter over `chrome.debugger` (sessions, events,
+  commands answered locally), the build plugin's steps against `packages/engine` (each one fails
+  loudly if an engine change moved what it patches), the Node shims, progress tracking, the
+  log-normal scoring and impact estimates (checked against the engine's own `statistics.js` and
+  `util.js`), and how audits become report rows: status, points, evidence lines, remedies and
+  acceptance criteria. These run against `tests/fixtures/result-flawed-desktop.json`, a trimmed real
+  result for the flawed fixture site.
 - **Shared modules** (`tests/shared/`): the URL policy, the port protocol, the IndexedDB run store
   (against `fake-indexeddb`), the report model that puts both engines' rows in one order, compare
   mode (which audits are new, fixed, better or worse, and the score and metric deltas), the search
@@ -48,10 +48,10 @@ serves the fixture sites on `127.0.0.1`, and:
   A8 not applicable because the host is local);
 - runs the same audit against a page that sends `Content-Security-Policy: default-src 'none';
   connect-src 'none'`, which must not change the result;
-- runs Lighthouse on the flawed fixture site (desktop) and checks the four category scores against
-  the CLI's, the accessibility and SEO audits the site was built to fail, that only the two
-  coverage-based audits could not run, that the back/forward cache check ran, and that the tab ends
-  up back on the audited page;
+- runs the audit engine on the flawed fixture site (desktop) and checks the four category scores
+  against its known scores (see [ENGINE.md](ENGINE.md)), the accessibility and SEO audits the site
+  was built to fail, that only the two coverage-based audits could not run, that the back/forward
+  cache check ran, and that the tab ends up back on the audited page;
 - checks that a `chrome://` page is refused with an explanation;
 - opens the report page for the saved run, follows a deep link to one audit, and finds the run in the
   history;

@@ -19,7 +19,7 @@ export function markdownSummary(model: ReportModel, comparison?: Comparison): st
   lines.push(`# Web Audit+ report for ${codeSpan(hostOf(record.url))}`, '');
   lines.push(`- URL: ${codeSpan(record.url)}`);
   lines.push(`- Audited: ${utc(record.startedAt)}, ${record.options.formFactor === 'mobile' ? 'mobile' : 'desktop'}`);
-  if (model.lighthouse) lines.push(`- Lighthouse ${inline(model.lighthouse.version)}, ${inline(model.lighthouse.throttling)}`);
+  if (model.engine) lines.push(`- Audit engine ${inline(model.engine.version)}, ${inline(model.engine.throttling)}`);
   if (model.context.framework) lines.push(`- Framework: ${inline(model.context.framework.name)}`);
   if (comparison) lines.push(`- Compared with the run of ${utc(comparison.previousStartedAt)}`);
   lines.push('');

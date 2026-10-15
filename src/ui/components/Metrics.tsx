@@ -1,9 +1,9 @@
 import type { Comparison } from '../../shared/compare';
-import type { LighthouseMeta, MetricView } from '../../lighthouse/normalize';
+import type { EngineMeta, MetricView } from '../../engine/normalize';
 import { MetricDelta } from './Change';
 import { statusColor } from './StatusIcon';
 
-/** The Performance lab metrics as a row of tiles: value colored by Lighthouse's rating, its weight, and the change. */
+/** The Performance lab metrics as a row of tiles: value colored by its rating, its weight, and the change. */
 export function MetricTiles({ metrics, comparison }: { metrics: readonly MetricView[]; comparison?: Comparison | undefined }) {
   if (metrics.length === 0) return null;
   return (
@@ -32,8 +32,8 @@ export function MetricTiles({ metrics, comparison }: { metrics: readonly MetricV
   );
 }
 
-/** How the page painted over time, from Lighthouse's screenshots. */
-export function Filmstrip({ meta }: { meta: LighthouseMeta | undefined }) {
+/** How the page painted over time, from the engine's screenshots. */
+export function Filmstrip({ meta }: { meta: EngineMeta | undefined }) {
   const frames = meta?.filmstrip ?? [];
   if (frames.length === 0) return null;
   return (
@@ -46,7 +46,7 @@ export function Filmstrip({ meta }: { meta: LighthouseMeta | undefined }) {
           </div>
         ))}
       </div>
-      <figcaption className="border-t border-border px-3 py-2 text-[12px] text-muted">How the page rendered while loading, as Lighthouse captured it</figcaption>
+      <figcaption className="border-t border-border px-3 py-2 text-[12px] text-muted">How the page rendered while loading</figcaption>
     </figure>
   );
 }

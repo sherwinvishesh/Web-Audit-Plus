@@ -3,7 +3,7 @@ export type CategoryId = 'performance' | 'accessibility' | 'best-practices' | 's
 
 export const CATEGORY_IDS: readonly CategoryId[] = ['performance', 'accessibility', 'best-practices', 'seo', 'agentic'];
 
-export const LIGHTHOUSE_CATEGORY_IDS: readonly CategoryId[] = ['performance', 'accessibility', 'best-practices', 'seo'];
+export const ENGINE_CATEGORY_IDS: readonly CategoryId[] = ['performance', 'accessibility', 'best-practices', 'seo'];
 
 export const CATEGORY_TITLES: Readonly<Record<CategoryId, string>> = {
   performance: 'Performance',

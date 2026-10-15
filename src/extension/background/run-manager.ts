@@ -1,5 +1,5 @@
 import type { AgenticReport } from '../../agentic/types';
-import type { Lhr } from '../../lighthouse/lhr';
+import type { EngineResult } from '../../engine/result';
 import type { CategoryId } from '../../shared/categories';
 import { newRunId, overallOf, type RunOptions, type RunRecord, type RunState, type RunStep } from '../../shared/run';
 import { auditability } from '../../shared/url-policy';
@@ -7,7 +7,7 @@ import { auditability } from '../../shared/url-policy';
 /** What one run produces before it is saved. */
 export interface RunResult {
   agentic?: AgenticReport;
-  lighthouse?: Lhr;
+  engine?: EngineResult;
   errors: Partial<Record<CategoryId, string>>;
 }
 
@@ -43,7 +43,7 @@ class RunAborted extends Error {
 }
 
 /**
- * One run per tab, one at a time across the browser: concurrent Lighthouse runs would distort each
+ * One run per tab, one at a time across the browser: concurrent engine runs would distort each
  * other's timings, and the User-Agent override is shared by every request the worker sends. A second
  * tab's run waits in a queue and says so.
  */
@@ -189,7 +189,7 @@ export class RunManager {
         environment: this.#deps.environment,
       };
       if (result.agentic) record.agentic = result.agentic;
-      if (result.lighthouse) record.lighthouse = result.lighthouse;
+      if (result.engine) record.engine = result.engine;
       await this.#deps.save(record);
       update((latest) => ({ ...latest, phase: 'done', finishedAt: this.#now(), saved: true, steps: settle(latest.steps) }));
     } catch (error) {

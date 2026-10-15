@@ -94,7 +94,7 @@ function Block({ label, children }: { label: string; children: ReactNode }) {
   );
 }
 
-/** What fixing an audit is worth, as the row shows it: "+30", or "≈+7.5" for a Lighthouse estimate. */
+/** What fixing an audit is worth, as the row shows it: "+30", or "≈+7.5" for an estimate. */
 export function PointsLabel({ audit }: { audit: AuditItem }) {
   if (audit.status !== 'fail' && audit.status !== 'partial') return null;
   if (audit.points > 0) {
@@ -108,7 +108,7 @@ export function PointsLabel({ audit }: { audit: AuditItem }) {
     return (
       <span
         className="num font-mono text-[12px] text-muted"
-        title={`Lighthouse estimates up to ${audit.impact} Performance points, through the metrics this improves. Estimates overlap, so they are not added up.`}
+        title={`Estimated at up to ${audit.impact} Performance points, through the metrics this improves. Estimates overlap, so they are not added up.`}
       >
         ≈+{audit.impact}
       </span>

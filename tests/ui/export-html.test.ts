@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { compareModels } from '../../src/shared/compare';
 import { buildReportModel } from '../../src/shared/report-model';
 import { EXPORT_CSP, escapeStyle, reportHtml } from '../../src/ui/export/html';
-import { flawedDesktopLhr } from '../lighthouse/fixture';
+import { flawedDesktopResult } from '../engine/fixture';
 import { flawedRecord, withScores } from '../helpers/records';
 
 const HOSTILE = '"><script>alert(1)</script><img src=x onerror=alert(2)>';
@@ -10,7 +10,7 @@ const HOSTILE = '"><script>alert(1)</script><img src=x onerror=alert(2)>';
 function hostileModel() {
   const record = flawedRecord();
   record.url = `https://example.com/?q=${HOSTILE}`;
-  const audit = record.lighthouse?.audits['link-text'];
+  const audit = record.engine?.audits['link-text'];
   if (audit) audit.displayValue = HOSTILE;
   const check = record.agentic?.checks[0];
   if (check) check.reason = `Found \`${HOSTILE}\` in the page ${HOSTILE}`;
@@ -53,7 +53,7 @@ describe('reportHtml', () => {
 
   it('shows the comparison when there is one', () => {
     const model = buildReportModel(flawedRecord());
-    const before = buildReportModel(flawedRecord({ id: 'run-0', startedAt: '2026-10-01T10:00:00.000Z', lighthouse: withScores(flawedDesktopLhr(), { 'image-alt': 1 }) }));
+    const before = buildReportModel(flawedRecord({ id: 'run-0', startedAt: '2026-10-01T10:00:00.000Z', engine: withScores(flawedDesktopResult(), { 'image-alt': 1 }) }));
     const compared = reportHtml(model, { css: '', comparison: compareModels(model, before), generatedAt: '2026-10-15T03:58:00.000Z' });
     expect(compared).toContain('Compared with the run of 2026-10-01 10:00 UTC');
     expect(compared).toContain('>New</span>');

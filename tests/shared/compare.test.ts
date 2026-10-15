@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import { compareModels, metricDelta, signed } from '../../src/shared/compare';
 import { buildReportModel } from '../../src/shared/report-model';
-import { flawedDesktopLhr } from '../lighthouse/fixture';
+import { flawedDesktopResult } from '../engine/fixture';
 import { flawedRecord, withScores } from '../helpers/records';
 
 /** The run before the fixture's: alt text was fine, the title was missing, two insights scored differently, LCP was slower. */
 function earlierModel() {
-  const lighthouse = withScores(
-    flawedDesktopLhr(),
+  const engine = withScores(
+    flawedDesktopResult(),
     { 'image-alt': 1, 'document-title': 0, 'render-blocking-insight': 0, 'cache-insight': 0.7 },
     { 'largest-contentful-paint': 1400.7164 },
   );
-  return buildReportModel(flawedRecord({ id: 'run-0', startedAt: '2026-10-01T10:00:00.000Z', lighthouse }));
+  return buildReportModel(flawedRecord({ id: 'run-0', startedAt: '2026-10-01T10:00:00.000Z', engine }));
 }
 
 describe('compareModels', () => {
@@ -58,7 +58,7 @@ describe('compareModels', () => {
   it('compares nothing in a category that errored in either run', () => {
     const before = earlierModel();
     const accessibility = before.categories.find((category) => category.id === 'accessibility');
-    if (accessibility) accessibility.error = 'Lighthouse could not run';
+    if (accessibility) accessibility.error = 'The audit engine could not run';
     const result = compareModels(current, before);
     expect(Object.keys(result.audits).some((key) => key.startsWith('accessibility:'))).toBe(false);
   });

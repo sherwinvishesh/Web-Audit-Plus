@@ -2,15 +2,15 @@ import type { RunStep } from './run';
 
 /**
  * How far a run has got, from 0 to 1. Steps are weighted by how long they usually take: loading the
- * page and collecting its data dominate a Lighthouse run, while each Agentic probe is one request.
+ * page and collecting its data dominate an engine run, while each Agentic probe is one request.
  * A running step counts as half done.
  */
 const WEIGHT: Readonly<Record<string, number>> = {
-  'lh:prepare': 2,
-  'lh:load': 6,
-  'lh:gather': 8,
-  'lh:audit': 4,
-  'lh:score': 1,
+  'engine:prepare': 2,
+  'engine:load': 6,
+  'engine:gather': 8,
+  'engine:audit': 4,
+  'engine:score': 1,
 };
 const AGENTIC_WEIGHT = 0.5;
 

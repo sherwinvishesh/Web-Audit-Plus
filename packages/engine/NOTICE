@@ -1,0 +1,7 @@
+Web Audit+ audit engine
+
+This package contains files derived from software by Google LLC, licensed under
+the Apache License, Version 2.0 (see LICENSE). The files have been modified for
+Web Audit+: renamed, adapted to run bundled inside a Chrome extension service
+worker, and changed where Web Audit+ needs different behavior. The original
+copyright notices are kept at the top of each file.

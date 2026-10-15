@@ -41,33 +41,33 @@ describe.skipIf(!canRun)('the built extension in Chrome', () => {
     expect(state.scores.agentic).toBe(100);
   });
 
-  it('runs Lighthouse on the tab and finds the problems the flawed site was built with', async () => {
+  it('runs the audit engine on the tab and finds the problems the flawed site was built with', async () => {
     const { tabId } = await harness.openTab(`${flawed.origin}/`);
     const state = await harness.run(tabId, { formFactor: 'desktop', categories: ['performance', 'accessibility', 'best-practices', 'seo'] });
     expect(state.error).toBeUndefined();
     expect(state.phase).toBe('done');
-    expect(state.steps.filter((step) => step.group === 'lighthouse').map((step) => `${step.id}:${step.status}`)).toEqual([
-      'lh:prepare:done',
-      'lh:load:done',
-      'lh:gather:done',
-      'lh:audit:done',
-      'lh:score:done',
+    expect(state.steps.filter((step) => step.group === 'engine').map((step) => `${step.id}:${step.status}`)).toEqual([
+      'engine:prepare:done',
+      'engine:load:done',
+      'engine:gather:done',
+      'engine:audit:done',
+      'engine:score:done',
     ]);
-    // The same scores the Lighthouse CLI gives this page in the same Chrome (see docs/PARITY.md).
+    // The flawed site's known scores: a change here means the engine now scores differently.
     expect(state.scores).toEqual({ performance: 100, accessibility: 55, 'best-practices': 92, seo: 75 });
 
-    const lhr = (await harness.record(state.runId))?.lighthouse;
-    expect(lhr?.configSettings.formFactor).toBe('desktop');
+    const engineResult = (await harness.record(state.runId))?.engine;
+    expect(engineResult?.configSettings.formFactor).toBe('desktop');
     const failing = (category: string): string[] =>
-      (lhr?.categories[category]?.auditRefs ?? []).filter((ref) => ref.weight > 0 && lhr?.audits[ref.id]?.score === 0).map((ref) => ref.id).sort();
+      (engineResult?.categories[category]?.auditRefs ?? []).filter((ref) => ref.weight > 0 && engineResult?.audits[ref.id]?.score === 0).map((ref) => ref.id).sort();
     expect(failing('accessibility')).toEqual(['button-name', 'color-contrast', 'html-has-lang', 'image-alt', 'label']);
     expect(failing('seo')).toEqual(['image-alt', 'link-text', 'meta-description']);
     // Only the audits built on JavaScript coverage, which Chrome keeps from extensions, could not run.
-    const errored = Object.values(lhr?.audits ?? {}).filter((audit) => audit.scoreDisplayMode === 'error').map((audit) => audit.id);
+    const errored = Object.values(engineResult?.audits ?? {}).filter((audit) => audit.scoreDisplayMode === 'error').map((audit) => audit.id);
     expect(errored.sort()).toEqual(['script-treemap-data', 'unused-javascript']);
     // The back/forward cache check ran on the extension's own page instead of chrome://terms.
-    expect(lhr?.audits['bf-cache']?.scoreDisplayMode).not.toBe('error');
-    expect(lhr?.fullPageScreenshot).toBeUndefined();
+    expect(engineResult?.audits['bf-cache']?.scoreDisplayMode).not.toBe('error');
+    expect(engineResult?.fullPageScreenshot).toBeUndefined();
     // The tab is back on the page it was audited on.
     expect(await harness.tabUrl(tabId)).toBe(`${flawed.origin}/`);
   });

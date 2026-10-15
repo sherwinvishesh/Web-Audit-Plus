@@ -88,7 +88,7 @@ export const CategorySection = memo(function CategorySection(props: CategorySect
       {!filtering && category.metrics && category.metrics.length > 0 && (
         <div className="mt-6 grid gap-3">
           <MetricTiles metrics={category.metrics} comparison={comparison} />
-          <Filmstrip meta={model.lighthouse} />
+          <Filmstrip meta={model.engine} />
         </div>
       )}
 

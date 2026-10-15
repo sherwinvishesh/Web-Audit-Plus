@@ -1,0 +1,41 @@
+{
+  "name": "@webauditplus/engine",
+  "version": "0.1.0",
+  "private": true,
+  "description": "The Web Audit+ audit engine: loads a page over the Chrome DevTools Protocol, gathers artifacts and scores Performance, Accessibility, Best Practices and SEO.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "./core/index.js",
+  "types": "./core/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./core/index.d.ts",
+      "default": "./core/index.js"
+    },
+    "./logger": {
+      "types": "./logger/index.d.ts",
+      "default": "./logger/index.js"
+    },
+    "./package.json": "./package.json"
+  },
+  "dependencies": {
+    "@paulirish/trace_engine": "0.0.65",
+    "ajv-formats": "^3.0.1",
+    "axe-core": "^4.14.0",
+    "csp_evaluator": "1.1.8",
+    "debug": "^4.4.1",
+    "devtools-protocol": "0.0.1687809",
+    "http-link-header": "^1.1.1",
+    "intl-messageformat": "^10.5.3",
+    "jpeg-js": "^0.4.4",
+    "js-library-detector": "^6.7.0",
+    "lodash-es": "^4.17.21",
+    "lookup-closest-locale": "6.2.0",
+    "marky": "^1.2.2",
+    "puppeteer-core": "^25.14.0",
+    "robots-parser": "^3.0.1",
+    "speedline-core": "^1.4.3",
+    "third-party-web": "^0.30.0",
+    "tldts-icann": "^7.4.13"
+  }
+}
