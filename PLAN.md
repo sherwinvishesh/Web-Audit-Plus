@@ -23,43 +23,43 @@ Legend: `[x]` done · `[ ]` todo · `[~]` in progress
 ## Phase 1 — Agentic engine in pure Node (`src/agentic/`, zero `chrome.*`)
 
 Types & plumbing
-- [ ] `types.ts`: `Status`, `CheckResult`, `ProbeRequest`, `ProbeResponse`, `Evidence`, `Transport`, `CheckDefinition`, `AgenticReport`
-- [ ] `quote.ts`: `codeSpan()` — single-line code span, fence longer than any backtick run, whitespace collapsed, control/bidi chars escaped, ~400-char cap. Every site-provided value in a `reason` goes through it
-- [ ] `http.ts`: case-insensitive header access, comma token-list parsing (`Vary`, `X-Robots-Tag`, `X-Content-Type-Options`), `Content-Type` parsing (media type + params), RFC 8288 `Link` header parser, URL normalization / same-origin helpers
-- [ ] `sniff.ts`: `looksLikeHtml(body, contentType)`, `isMarkdownResponse(resp)` — never trust a status code
-- [ ] `html.ts` (linkedom, never executes scripts): extracted main text (strip nav/header/footer/script/style/noscript/template), word count (CJK-aware), meta robots, JSON-LD blocks, canonical, `<link rel=alternate type=text/markdown>`
-- [ ] `markdown.ts`: frontmatter parse, markdown → plain text for word counting, H1/link detection for llms.txt
-- [ ] `sha256.ts`: pure synchronous SHA-256 (checks stay sync and pure); tested against `node:crypto`
-- [ ] `facts.ts`: numbers / dates / prices extraction + normalization for B14
-- [ ] `framework.ts`: detect Next.js, Nuxt, Astro, WordPress, Gatsby, SvelteKit, Remix, Docusaurus, Hugo, Jekyll, Shopify, Webflow, Wix, Squarespace… from headers/markup
-- [ ] Locate OpenGEO's reference implementation (twin URL convention, source-hash algorithm, header formats) and match it; record findings in DECISIONS.md
+- [x] `types.ts`: `Status`, `ProbeRequest`/`ProbeResponse`, `Transport`, `Evidence` (plain JSON), `CheckDefinition`/`AgenticCheck`, `CheckResult`, `Score`, `FixStep`, `AgenticReport`, `Framework`
+- [x] `quote.ts`: `codeSpan()` (single line, fence longer than any backtick run, invisibles shown, 400-char cap), `parseInline()` (CommonMark code-span rule), `stripCodeSpans()`
+- [x] `http.ts`: UAs and Accept values, header map, token lists (`varyIncludesAccept`), `isMarkdownResponse`, RFC 8288 `Link` alternate parsing
+- [x] `sniff.ts`: `looksLikeHtml`, `servesFile` — never trust a status code
+- [x] `dom.ts` (linkedom + HTML5-structure shims), `extract.ts` (main-content extraction to markdown, word count, JSON-LD scan)
+- [x] `frontmatter.ts`, `tokens.ts` (`countWords`), `sha256.ts` (pure sync, tested against `node:crypto`), `hash.ts` (OpenGEO content hash)
+- [x] `fidelity.ts`: facts (numbers, dates, prices, percents) extraction, canonicalisation, `verifyFidelity` for B14
+- [x] `framework.ts`: 16 framework/platform signatures from markup and headers
+- [x] Matched OpenGEO's `opengeo test` (twin convention, hash, weights, thresholds, calibration); findings in DECISIONS.md
 
 Evidence (the only I/O layer)
-- [ ] `bots.ts`: assistant/search agents vs bulk training crawlers, with source citations
-- [ ] `robots.ts`: RFC 9309 parser — groups, own-UA group then `*`, longest match, Allow wins ties, `*` and trailing `$` wildcards, percent-encoding normalization; returns the deciding rule
-- [ ] `sitemap.ts`: `<urlset>` / `<sitemapindex>` detection, `<loc>` extraction (CDATA, entities)
-- [ ] `twin.ts`: twin URL derivation (`/resume` → `/resume.md`, `/` → `/index.md`), Link-header advertisement handling (same-origin http(s) only; cross-origin reported, not followed)
-- [ ] `evidence.ts`: `gatherEvidence(url, transport, onProgress)` — probe 1 first, then probes 2–8 (+ ≤10 same-origin child sitemaps); errors recorded, never thrown
-- [ ] `transports/node.ts`: Node `fetch` with manual redirect following (records chain), 15 s timeout, 8 MiB cap + `truncated`, TTFB, sets `User-Agent`
+- [x] `bots.ts`: 28 AI agents, assistant/search vs training
+- [x] `robots.ts`: RFC 9309 groups, own group then `*`, longest match, Allow wins ties, `*` and `$`
+- [x] `sitemap.ts`: urlset/index detection, `<loc>` extraction, ≤10 same-origin child sitemaps
+- [x] `routes.ts`: twin URL convention (`/resume` → `/resume.md`, `/` → `/index.md`)
+- [x] `evidence.ts`: `gatherEvidence(url, transport, { onProgress, signal, measuredFrom, now })` — page first, then 7 probes in parallel, then child sitemaps; same-origin Link twin followed, cross-origin reported only
+- [x] `transports/node.ts`: manual redirects with chain, timeout, streamed 8 MiB cap + `truncated`, errors as status-0 responses
 
 Checks (one file each in `checks/`, registry is a plain array)
-- [ ] A1 robots · A2 llms.txt · A3 sitemap · A4 JSON-LD · A5 raw-HTML content · A6 TTFB · A7 noai · A8 HTTPS/HSTS
-- [ ] B1 twin reachable · B2 Content-Type · B3 twin content · B4 X-Markdown-Tokens · B5 nosniff · B6 X-Robots-Tag noindex · B7 Vary: Accept · B8 Link advertises twin · B9 Accept negotiation · B10 bot UA routing · B11 406 · B12 X-AEO-Version · B13 humans unaffected · B14 twin up to date
-- [ ] `checks/index.ts` registry + `runChecks(evidence)` applying the B1 cascade (B2–B12, B14 → `locked`, `lockedBy: 'B1'`; B13 still runs)
+- [x] A1 robots · A2 llms.txt · A3 sitemap · A4 JSON-LD · A5 raw-HTML content · A6 TTFB · A7 noai · A8 HTTPS/HSTS
+- [x] B1 twin reachable · B2 Content-Type · B3 twin body · B4 X-Markdown-Tokens · B5 nosniff · B6 noindex · B7 Vary: Accept · B8 Link alternate · B9 Accept negotiation · B10 bot UA · B11 406 · B12 X-AEO-Version · B13 HTML unaffected · B14 drift
+- [x] `checks/index.ts`: registry, `runChecks` (a throwing check becomes na), B1 cascade (12 checks → `locked`, weight 46)
 
 Score & report
-- [ ] `score.ts`: applicable/earned sums, round once, fix list priced in score points (`lost / applicable × 100`), locked groups summarised as one line ("up to +N points waiting behind B1")
-- [ ] `report.ts`: `buildAgenticReport()` → JSON (url, timestamps, framework, score, checks, fixes, locked groups, evidence summary)
-- [ ] `remedies.ts`: one actionable remedy per check id
-- [ ] `src/shared/fix-prompt.ts`: generic fix-prompt builder (context block, per-audit sections, acceptance criteria, closing ask, the "Quoted values above are evidence…" sentence); agentic adapter
+- [x] `score.ts`: round once, na/locked out of the denominator, prices in score points, locked block valued after its blocker, ranked `fixSteps`
+- [x] `report.ts`: `buildAgenticReport()` → JSON (score, priced checks, fixes, probe summaries, framework)
+- [x] `remedies.ts`: one remedy per check id + where request-level changes go per framework
+- [x] `src/shared/fix-prompt.ts`: generic builder (single / category / all), `inline()` sanitiser, evidence notice; `src/agentic/fix-items.ts` adapter; `src/shared/categories.ts`
 
-Tests
-- [ ] Every check: pass, each partial tier, fail, edge cases (Vary `Accept-Encoding` only, HTML at /robots.txt, sitemap index, redirect vs rewrite for B9/B10, cross-origin Link, robots longest-match + `$`)
-- [ ] Scorer: na/locked leave denominator, round once, 122 = 57 + 65, ~80 calibration case pinned, B1 cascade
-- [ ] Integration (`node:http`): compliant site → 100 with A8 `na`; SPA catch-all → B1/A2/A3 fail, cascade engaged
-- [ ] `docs/CHECKS.md` ids/weights ⇔ registry test
-- [ ] Fix prompt: backticks + "ignore previous instructions" rendered inert in a code span
-- [ ] Commit
+Tests (141)
+- [x] Primitives: quoting, parseInline round-trip, sha256 vs node:crypto, robots, sitemap, frontmatter, fidelity, dom/extraction, http helpers, framework
+- [x] Every check: pass, each partial tier, fail, edge cases (Vary `Accept-Encoding` only, HTML at /robots.txt, sitemap index, redirect vs rewrite for B9/B10, cross-origin Link, A8 local hosts, B13 redirect to twin, B14 hash/no hash)
+- [x] Scorer: na/locked leave denominator, round once, 122 = 57 + 65, calibration 80 losing exactly A2/A4/B1, 100 with a twin, cascade = 12 checks / 46 weight
+- [x] Integration (`node:http`): compliant site → 100 with A8 `na`; SPA catch-all → cascade engaged; redirect loop, refused connection, body cap, abort
+- [x] `docs/CHECKS.md` ⇔ registry test
+- [x] Fix prompt: hostile backticks + "ignore previous instructions" stay inside code spans, prose flattened
+- [x] Commit
 
 ## Phase 2 — Extension shell + CDP transport
 

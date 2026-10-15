@@ -16,3 +16,27 @@ One line of reasoning each. Newest at the bottom of each section.
 ## Product
 
 - **Side panel follows the active tab of its window** (global panel + `tabs.onActivated/onUpdated`) rather than per-tab panel instances: one panel, always showing the tab you are looking at.
+
+## Agentic engine
+
+- **OpenGEO's `opengeo test` is the reference, ported check for check.** Same 22 ids, weights (122 = 57 + 65), thresholds, cascade and calibration (unadopted site = 80, losing A2/A4/B1), so a score here means what it means there.
+- **Evidence is plain JSON (`target` is a string, headers a lower-cased map).** It crosses extension message ports and is persisted with each run; `URL`/`Headers` objects do not survive structured cloning.
+- **linkedom plus small shims, not DOMParser.** The MV3 service worker has no DOMParser; linkedom runs identically in Node, the worker and pages. The shims (html/head/body rebuild, `<template>` removal, `table.rows`, `<base>` resolution) close the gaps that change what checks see.
+- **A check that throws becomes `na` with the error quoted.** One bug must not cost the other 21 results, and `na` leaves the denominator instead of inventing a verdict about the site.
+- **A3 does not re-check "serves a file"; it checks for a `<urlset>`/`<sitemapindex>` root.** An HTML shell at /sitemap.xml has neither, which is the same verdict with a more specific reason.
+- **A8 is na on `localhost`, `127.0.0.1`, `[::1]`, `*.localhost` and `*.local`.** HSTS cannot apply to a dev host; `.local` (mDNS) was added to OpenGEO's list because it is just as local.
+- **B10 always probes as GPTBot.** One well-known UA with `Accept: */*` isolates UA routing from Accept negotiation; probing every bot would multiply requests for the same answer.
+- **B12 is presence-only.** There is no registry of AEO versions to validate against; any value tells an agent which convention is in play.
+- **B13 fails a browser redirected to the twin or any `.md` path.** OpenGEO only checked status and Content-Type; a redirect to markdown breaks humans just as surely and was otherwise invisible.
+- **B14 without a source hash compares facts (OpenGEO behaviour), it is not na.** Most twins are hand-written; comparing numbers/dates/prices still catches the drift that matters. Ages are measured from `fetchedAt`, never the wall clock, so checks stay pure.
+- **B7–B11 passes survive the cascade.** They probe the live URL, and a site can negotiate markdown at the page URL without a `.md` file; only non-passes are locked.
+- **Locked results drop their `fix` and price.** They are worth nothing until B1 passes; B1's step carries the block's value ("also unlocks 12 checks, worth up to N more points"), so points are never claimed twice.
+- **Our own User-Agent (`WebAuditPlus/0.1 (+repo URL)`) for the Accept-negotiation probe.** It is on no bot list, so a markdown answer can only be explained by the Accept header.
+- **Every interpolated site value is its own `codeSpan()`.** Quoting per value (not per sentence) keeps prose ours and makes the injection boundary checkable by `parseInline()`.
+- **Hosted builders (Shopify, Webflow, Wix, Squarespace) were added to framework detection.** Their fix lives in an edge worker, not the repo, and the fix prompt should say so instead of inventing middleware.
+- **Remedies are generic per check id, placement is per framework.** One remedy table plus one "where this goes in your stack" line covers 22 × 16 combinations without 352 hand-written strings.
+- **Checks are registered via `defineCheck(definition, run)`.** The definition is frozen and passed to `run`, so a check never restates its own id/weight and results always carry the registry values.
+
+## Scoring
+
+- **The overall score is the mean of the category scores that ran.** Lighthouse has no overall score; a plain mean is the only weighting that does not privilege one category, and categories the user turned off are excluded rather than counted as 0.
