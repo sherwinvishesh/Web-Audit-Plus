@@ -13,7 +13,7 @@ export const CHROME_PATH =
       ? 'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe'
       : '/usr/bin/google-chrome');
 
-export const EXTENSION_PATH = resolve('.output/chrome-mv3');
+export const EXTENSION_PATH = resolve('output/chrome-mv3');
 
 export const canRun = existsSync(CHROME_PATH) && existsSync(resolve(EXTENSION_PATH, 'manifest.json'));
 

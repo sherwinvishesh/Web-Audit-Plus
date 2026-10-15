@@ -7,6 +7,8 @@ export default defineConfig({
   srcDir: 'src',
   entrypointsDir: 'extension',
   publicDir: 'public',
+  // Not a dot-folder, so it shows in the Load unpacked file picker.
+  outDir: 'output',
   modules: ['@wxt-dev/module-react'],
   // Explicit imports everywhere: easier to audit what touches chrome.*.
   imports: false,

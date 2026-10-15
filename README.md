@@ -31,11 +31,12 @@ npm run build
 ```
 
 1. Open `chrome://extensions` and turn on **Developer mode**.
-2. Click **Load unpacked** and select `.output/chrome-mv3`.
+2. Click **Load unpacked** and select the `output/chrome-mv3` folder.
 3. Pin Web Audit+ to the toolbar.
 
 For development, `npm run dev` starts Chrome with the extension loaded and reloads it as you edit.
-`npm run zip` packages the build.
+`npm run zip` packages the build for the Chrome Web Store, as
+`output/webauditplus-0.1.0-chrome.zip`.
 
 ## Use
 

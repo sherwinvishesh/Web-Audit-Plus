@@ -3,7 +3,7 @@
 ```sh
 npm run typecheck   # strict TypeScript, no emit
 npm run test        # unit and integration tests (Vitest, Node)
-npm run build       # production build into .output/chrome-mv3
+npm run build       # production build into output/chrome-mv3
 npm run test:e2e    # builds, then drives the built extension in a real Chrome
 ```
 
@@ -64,7 +64,7 @@ suite skips itself when Chrome or the build output is missing.
 
 ## Manual checks
 
-1. `npm run build`, then load `.output/chrome-mv3` from `chrome://extensions` (Developer mode,
+1. `npm run build`, then load `output/chrome-mv3` from `chrome://extensions` (Developer mode,
    **Load unpacked**).
 2. Open a website, click the toolbar icon, and press **Run audit**. Chrome shows its "started
    debugging this browser" bar while the audit runs; it disappears when the run ends.
