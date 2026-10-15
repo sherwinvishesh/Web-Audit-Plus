@@ -42,7 +42,7 @@ export function Filmstrip({ meta }: { meta: EngineMeta | undefined }) {
         {frames.map((frame) => (
           <div key={frame.timing} className="flex shrink-0 flex-col items-center gap-1.5">
             <img src={frame.data} alt="" className="h-28 w-auto rounded-md border border-border bg-bg object-contain" loading="lazy" decoding="async" />
-            <span className="num font-mono text-[11px] text-faint">{frame.timing < 1000 ? `${Math.round(frame.timing)} ms` : `${(frame.timing / 1000).toFixed(1)} s`}</span>
+            <span className="num text-[11px] text-faint">{frame.timing < 1000 ? `${Math.round(frame.timing)} ms` : `${(frame.timing / 1000).toFixed(1)} s`}</span>
           </div>
         ))}
       </div>

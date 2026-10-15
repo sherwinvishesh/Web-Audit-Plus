@@ -1,5 +1,5 @@
-import { useMemo, type ReactNode } from 'react';
-import { CATEGORY_IDS, CATEGORY_SHORT_TITLES, CATEGORY_TITLES, type CategoryId } from '../../shared/categories';
+import { useLayoutEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react';
+import { CATEGORY_IDS, CATEGORY_TITLES, type CategoryId } from '../../shared/categories';
 import { allFixesPrompt } from '../../shared/fix-prompt';
 import { allFixItems, buildReportModel, fixNext } from '../../shared/report-model';
 import { runProgress } from '../../shared/progress';
@@ -18,6 +18,7 @@ import {
   DashIcon,
   DesktopIcon,
   ExternalIcon,
+  GlobeIcon,
   HistoryIcon,
   Logo,
   MobileIcon,
@@ -118,19 +119,30 @@ function IconButton({ label, onClick, children }: { label: string; onClick(): vo
 
 function Target({ url, title }: { url: string | undefined; title: string | undefined }) {
   const { host, path } = displayUrl(url ?? '');
-  const initial = (host.replace(/^www\./, '')[0] ?? '?').toUpperCase();
+  // A site's first letter; an IP address or an unusual host gets a globe instead of a digit.
+  const initial = /^[a-z]/i.exec(host.replace(/^www\./, ''))?.[0].toUpperCase();
+  const fullPath = path === '/' ? '' : path;
+  // The page title, with its address beneath; a page without a title shows its host, then its path.
+  const heading = title?.trim() || host || url || '';
+  const address = heading === host ? fullPath : `${host}${fullPath}`;
   return (
     <section className="flex items-center gap-3 rounded-lg border border-border bg-surface p-3" aria-label="Page to audit">
-      <div className="grid size-9 shrink-0 place-items-center rounded-md border border-border bg-surface-2 font-mono text-[13px] font-medium text-muted" aria-hidden="true">
-        {initial}
+      <div className="grid size-9 shrink-0 place-items-center rounded-md border border-border bg-surface-2 text-[14px] font-semibold text-muted" aria-hidden="true">
+        {initial ?? <GlobeIcon size={16} />}
       </div>
       <div className="min-w-0">
-        <p className="truncate font-medium" title={title ?? host}>
-          {url ? host || url : 'No page'}
+        <p className="truncate font-medium" title={heading}>
+          {url ? heading : 'No page'}
         </p>
-        <p className="truncate font-mono text-[11px] text-muted" title={url}>
-          {url ? path || '/' : 'Open a website in this window'}
-        </p>
+        {url ? (
+          address && (
+            <p className="truncate font-mono text-[11px] text-muted" title={url}>
+              {address}
+            </p>
+          )
+        ) : (
+          <p className="truncate text-[12px] text-muted">Open a website in this window</p>
+        )}
       </div>
     </section>
   );
@@ -220,25 +232,7 @@ function RunView({ state, currentUrl }: { state: RunState; currentUrl: string | 
         </p>
       )}
 
-      <div className="grid grid-cols-5 gap-1" role="group" aria-label="Scores">
-        {state.options.categories.map((id) => {
-          const score = state.scores[id];
-          const pending = state.phase === 'running' && score === undefined;
-          return (
-            <button
-              key={id}
-              type="button"
-              disabled={!record}
-              onClick={() => void openReport(state.runId, `category-${id}`)}
-              title={CATEGORY_TITLES[id]}
-              className="flex flex-col items-center gap-1.5 rounded-lg py-1.5 transition-colors enabled:hover:bg-surface-2"
-            >
-              <ScoreRing score={score} pending={pending} size={50} label={CATEGORY_TITLES[id]} />
-              <span className="text-[11px] text-muted">{CATEGORY_SHORT_TITLES[id]}</span>
-            </button>
-          );
-        })}
-      </div>
+      <Scores state={state} canOpen={record !== undefined} />
 
       {state.error && (
         <Callout tone={state.phase === 'cancelled' ? 'neutral' : 'bad'} title={state.phase === 'cancelled' ? 'Cancelled' : 'The audit did not finish'}>
@@ -256,6 +250,60 @@ function RunView({ state, currentUrl }: { state: RunState; currentUrl: string | 
       <ProgressLog steps={state.steps} open={active} />
     </section>
   );
+}
+
+/**
+ * One ring per category, labeled with its full name. Columns take their content's width and spread
+ * across the row, so "Performance" and "Accessibility" fit beside three rings even in Chrome's
+ * narrowest side panel, where the rings and labels also step down a size.
+ */
+function Scores({ state, canOpen }: { state: RunState; canOpen: boolean }) {
+  const [ref, width] = useWidth<HTMLDivElement>();
+  const compact = width !== undefined && width < 330;
+  const ids = state.options.categories;
+  return (
+    <div
+      ref={ref}
+      className={`grid items-start ${ids.length === CATEGORY_IDS.length ? 'justify-between' : 'justify-around'}`}
+      style={{ gridTemplateColumns: `repeat(${ids.length}, auto)` }}
+      role="group"
+      aria-label="Scores"
+    >
+      {ids.map((id) => {
+        const score = state.scores[id];
+        const pending = state.phase === 'running' && score === undefined;
+        return (
+          <button
+            key={id}
+            type="button"
+            disabled={!canOpen}
+            onClick={() => void openReport(state.runId, `category-${id}`)}
+            title={canOpen ? `Open ${CATEGORY_TITLES[id]} in the report` : undefined}
+            className="flex flex-col items-center gap-1.5 rounded-lg py-1.5 transition-colors enabled:hover:bg-surface-2"
+          >
+            <ScoreRing score={score} pending={pending} size={compact ? 44 : 50} label={CATEGORY_TITLES[id]} />
+            {/* w-min breaks "Best Practices" over two lines; single words keep their width. */}
+            <span className={`w-min text-center leading-tight text-muted ${compact ? 'text-[10.5px]' : 'text-[11px]'}`}>{CATEGORY_TITLES[id]}</span>
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+/** An element's width, kept current as the side panel is resized. */
+function useWidth<T extends HTMLElement>(): [RefObject<T>, number | undefined] {
+  const ref = useRef<T>(null);
+  const [width, setWidth] = useState<number>();
+  useLayoutEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+    setWidth(element.clientWidth);
+    const observer = new ResizeObserver(() => setWidth(element.clientWidth));
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+  return [ref, width];
 }
 
 function StatusLine({ state }: { state: RunState }) {
@@ -358,7 +406,7 @@ function ProgressLog({ steps, open }: { steps: RunStep[]; open: boolean }) {
           <StepIcon status={step.status} />
           <span className={`min-w-0 flex-1 truncate text-[12.5px] ${step.status === 'pending' || step.status === 'skipped' ? 'text-muted' : ''}`}>{step.label}</span>
           {step.detail && (
-            <span className={`num max-w-[45%] shrink-0 truncate font-mono text-[11px] ${step.status === 'failed' ? 'text-bad' : 'text-muted'}`} title={step.detail}>
+            <span className={`max-w-[45%] shrink-0 truncate text-[11px] ${step.status === 'failed' ? 'text-bad' : 'text-muted'}`} title={step.detail}>
               {step.detail}
             </span>
           )}

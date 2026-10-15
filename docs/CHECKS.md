@@ -193,7 +193,7 @@ more fails. Ages are measured from when the evidence was gathered.
 
 Every failing, partial or locked check produces a fix prompt for a coding agent. It includes the
 check's evidence, the specific next step the check suggested, background on what "fixed" looks like
-for that id, and, when the framework can be recognised from the served HTML, where request-level
+for that id, and, when the framework can be recognized from the served HTML, where request-level
 changes belong in that stack (`middleware.ts` for Next.js, `_headers` on Netlify-style hosts, an edge
 worker for hosted builders, and so on).
 

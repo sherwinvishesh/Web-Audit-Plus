@@ -83,7 +83,7 @@ export const AI_BOTS: readonly AiBot[] = [
   { name: 'Timpibot', vendor: 'Timpi', uaPatterns: ['timpibot'], robotsToken: 'Timpibot', kind: 'training' },
 ];
 
-/** Identify an AI bot from a User-Agent string. Unrecognised means an ordinary visitor. */
+/** Identify an AI bot from a User-Agent string. Unrecognized means an ordinary visitor. */
 export function identifyBot(userAgent: string | undefined): AiBot | undefined {
   if (!userAgent) return undefined;
   const ua = userAgent.toLowerCase();

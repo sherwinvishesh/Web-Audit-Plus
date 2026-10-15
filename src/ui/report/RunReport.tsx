@@ -7,6 +7,7 @@ import { allFixItems, buildReportModel, fixNext, type CategoryView, type ReportM
 import type { RunRecord, RunSummary } from '../../shared/run';
 import { exportFileName, markdownSummary } from '../../shared/summary';
 import { ScoreDelta } from '../components/Change';
+import { Facts } from '../components/Facts';
 import { ScoreRing } from '../components/ScoreRing';
 import { AlertIcon, CheckIcon, ChevronIcon, CopyIcon, DesktopIcon, DownloadIcon, ExternalIcon, MobileIcon, SearchIcon } from '../components/icons';
 import { useCopy } from '../lib/clipboard';
@@ -190,7 +191,7 @@ function Report({ record }: { record: RunRecord }) {
                     }`}
                   >
                     {category.title}
-                    <span className="num font-mono text-[12px] font-medium" style={{ color: BAND_COLOR[band(category.score)] }}>
+                    <span className="num text-[12px] font-medium" style={{ color: BAND_COLOR[band(category.score)] }}>
                       {category.score ?? '–'}
                     </span>
                   </a>
@@ -336,28 +337,16 @@ function Hero({ model, comparable, compareId, onCompare, actions }: { model: Rep
             </a>
           )}
         </h1>
-        <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-muted">
+        <Facts className="mt-2">
           <span className="num">{formatDate(record.startedAt)}</span>
-          <Dot />
           <span className="flex items-center gap-1.5">
             {record.options.formFactor === 'mobile' ? <MobileIcon size={14} /> : <DesktopIcon size={14} />}
             {record.options.formFactor === 'mobile' ? 'Mobile' : 'Desktop'}
           </span>
-          <Dot />
           <span className="num">took {formatDuration(record.durationMs)}</span>
-          {model.context.framework && (
-            <>
-              <Dot />
-              <span>Built with {model.context.framework.name}</span>
-            </>
-          )}
-          {model.engine && (
-            <>
-              <Dot />
-              <span>Audit engine {model.engine.version}</span>
-            </>
-          )}
-        </p>
+          {model.context.framework && <span>Built with {model.context.framework.name}</span>}
+          {model.engine && <span>Audit engine {model.engine.version}</span>}
+        </Facts>
       </div>
       <div className="flex flex-wrap items-center gap-2">
         {comparable && comparable.length > 0 && (
@@ -378,18 +367,12 @@ function Hero({ model, comparable, compareId, onCompare, actions }: { model: Rep
   );
 }
 
-function Dot() {
-  return (
-    <span className="text-faint" aria-hidden="true">
-      ·
-    </span>
-  );
-}
-
 function ScorePanel({ model, comparison }: { model: ReportModel; comparison: Comparison | undefined }) {
   const { categories, record } = model;
   const withOverall = categories.length > 1;
   const style = { '--n': categories.length, '--cols': categories.length + (withOverall ? 1 : 0) } as CSSProperties;
+  // Room for a note under each score only when some score has one, so the cards stay balanced.
+  const notes = comparison !== undefined || categories.some((category) => category.error);
   return (
     <section
       aria-label="Scores"
@@ -417,15 +400,17 @@ function ScorePanel({ model, comparison }: { model: ReportModel; comparison: Com
         <a
           key={category.id}
           href={`#category-${category.id}`}
-          className={`group flex flex-col items-center gap-2.5 bg-surface px-3 pt-5 pb-4 transition-colors hover:bg-surface-2 ${
+          className={`group flex flex-col items-center gap-2.5 bg-surface px-3 py-5 transition-colors hover:bg-surface-2 ${
             index === categories.length - 1 && categories.length % 2 === 1 ? 'col-span-2 sm:col-span-1' : ''
           }`}
         >
           <ScoreRing score={category.score} size={76} label={category.title} />
           <span className="text-[13px] font-medium">{category.title}</span>
-          <span className="flex h-4 items-center">
-            {comparison?.scores[category.id] !== undefined ? <ScoreDelta delta={comparison.scores[category.id]} /> : category.error ? <span className="text-[11.5px] text-faint">not measured</span> : null}
-          </span>
+          {notes && (
+            <span className="-mt-1 flex h-4 items-center">
+              {comparison?.scores[category.id] !== undefined ? <ScoreDelta delta={comparison.scores[category.id]} /> : category.error ? <span className="text-[11.5px] text-faint">not measured</span> : null}
+            </span>
+          )}
         </a>
       ))}
     </section>
@@ -505,7 +490,7 @@ function Tabs({ view, onChange, total, fixes }: { view: View; onChange(view: Vie
           }`}
         >
           {tab.label}
-          <span className={`num rounded-full px-1.5 py-px font-mono text-[11px] ${view === tab.id ? 'bg-surface-2 text-text' : 'bg-surface text-faint'}`}>{tab.count}</span>
+          <span className={`num rounded-full px-1.5 py-px text-[11px] ${view === tab.id ? 'bg-surface-2 text-text' : 'bg-surface text-faint'}`}>{tab.count}</span>
         </button>
       ))}
     </div>

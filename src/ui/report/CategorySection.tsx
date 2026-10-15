@@ -113,7 +113,7 @@ export const CategorySection = memo(function CategorySection(props: CategorySect
                   <span className="font-mono text-text">{category.locked.unlockedBy.join(', ')}</span>
                   {category.locked.gain > 0 ? (
                     <>
-                      . Fixing it unlocks up to <span className="num font-mono text-good">+{category.locked.gain}</span> more.
+                      . Fixing it unlocks up to <span className="num font-medium text-good">+{category.locked.gain}</span> more.
                     </>
                   ) : (
                     '.'
@@ -137,12 +137,12 @@ export const CategorySection = memo(function CategorySection(props: CategorySect
               >
                 <ChevronIcon size={12} className={`transition-transform ${isOpen ? 'rotate-90' : ''}`} />
                 {label}
-                <span className="num font-mono text-faint">{list.length}</span>
+                <span className="num text-faint">{list.length}</span>
               </button>
             ) : (
               <h3 className="mb-2 flex items-center gap-2 text-[12.5px] font-medium text-muted">
                 {label}
-                <span className="num font-mono text-faint">{list.length}</span>
+                <span className="num text-faint">{list.length}</span>
               </h3>
             )}
             {isOpen && rows(list)}

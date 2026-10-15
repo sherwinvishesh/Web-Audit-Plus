@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import type { AuditChange } from '../../shared/compare';
-import { CATEGORY_SHORT_TITLES } from '../../shared/categories';
+import { CATEGORY_TITLES } from '../../shared/categories';
 import type { AuditItem } from '../../shared/report-model';
 import { AuditBody, PointsLabel } from '../components/AuditBody';
 import { ChangeBadge } from '../components/Change';
@@ -36,16 +36,16 @@ export const AuditRow = memo(function AuditRow({ audit, open, copied, onToggle, 
         aria-controls={bodyId}
         className="flex w-full scroll-mt-32 items-center gap-3 px-4 py-2.5 text-left transition-colors outline-none hover:bg-surface-2 focus-visible:bg-surface-2 focus-visible:shadow-[inset_2px_0_0_var(--accent)]"
       >
-        {rank !== undefined && <span className="num w-5 shrink-0 text-right font-mono text-[12px] text-faint">{rank}</span>}
+        {rank !== undefined && <span className="num w-5 shrink-0 text-right text-[12px] text-faint">{rank}</span>}
         <StatusIcon status={audit.status} />
         <span className="flex min-w-0 flex-1 items-center gap-2">
           <span className="truncate">{audit.title}</span>
           {showCategory && (
-            <span className="hidden shrink-0 rounded-[5px] border border-border px-1.5 py-px text-[11px] text-muted sm:inline">{CATEGORY_SHORT_TITLES[audit.category]}</span>
+            <span className="hidden shrink-0 rounded-[5px] border border-border px-1.5 py-px text-[11px] text-muted sm:inline">{CATEGORY_TITLES[audit.category]}</span>
           )}
         </span>
         {change && <ChangeBadge kind={change.kind} />}
-        {audit.displayValue && <span className="num hidden max-w-56 shrink-0 truncate font-mono text-[12px] text-muted md:inline">{audit.displayValue}</span>}
+        {audit.displayValue && <span className="num hidden max-w-56 shrink-0 truncate text-[12px] text-muted md:inline">{audit.displayValue}</span>}
         <span className="w-12 shrink-0 text-right">
           <PointsLabel audit={audit} />
         </span>

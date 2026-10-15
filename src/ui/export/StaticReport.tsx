@@ -1,11 +1,12 @@
 import type { CSSProperties } from 'react';
-import { CATEGORY_SHORT_TITLES } from '../../shared/categories';
+import { CATEGORY_TITLES } from '../../shared/categories';
 import type { Comparison } from '../../shared/compare';
 import { allFixesPrompt, categoryFixPrompt, singleFixPrompt } from '../../shared/fix-prompt';
 import { allFixItems, fixNext, groupByStatus, statusLabel, type AuditItem, type CategoryView, type ReportModel } from '../../shared/report-model';
 import { utc } from '../../shared/summary';
 import { AuditBody, PointsLabel } from '../components/AuditBody';
 import { ChangeBadge, ScoreDelta } from '../components/Change';
+import { Facts } from '../components/Facts';
 import { InlineText } from '../components/InlineText';
 import { Filmstrip, MetricTiles } from '../components/Metrics';
 import { ScoreRing } from '../components/ScoreRing';
@@ -41,14 +42,14 @@ export function StaticReport({ model, comparison, generatedAt }: { model: Report
             {host}
             <span className="text-muted">{path === '/' ? '' : path}</span>
           </h1>
-          <p className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[13px] text-muted">
+          <Facts className="mt-2">
             <span className="num">{utc(record.startedAt)}</span>
             <span>{record.options.formFactor === 'mobile' ? 'Mobile' : 'Desktop'}</span>
             <span className="num">took {formatDuration(record.durationMs)}</span>
             {model.context.framework && <span>Built with {model.context.framework.name}</span>}
             {model.engine && <span>Audit engine {model.engine.version}</span>}
             {comparison && <span>Compared with the run of {utc(comparison.previousStartedAt)}</span>}
-          </p>
+          </Facts>
         </section>
 
         <section
@@ -84,7 +85,7 @@ export function StaticReport({ model, comparison, generatedAt }: { model: Report
         {next.length > 0 && (
           <section className="mt-12" aria-labelledby="fix-next">
             <h2 id="fix-next" className="text-lg font-semibold tracking-tight">
-              Fix next <span className="num font-mono text-base text-muted">{next.length}</span>
+              Fix next <span className="num text-base text-muted">{next.length}</span>
             </h2>
             <p className="mt-1 text-[13px] text-muted">Everything that needs work, biggest score gain first.</p>
             <ol className="mt-4 overflow-hidden rounded-xl border border-border bg-surface">
@@ -139,7 +140,7 @@ function StaticCategory({ model, category, comparison }: { model: ReportModel; c
           <summary className="mb-2 flex cursor-pointer list-none items-center gap-2 text-[12.5px] font-medium text-muted">
             <ChevronIcon size={12} className="transition-transform group-open/status:rotate-90" />
             {statusLabel(status, category.id)}
-            <span className="num font-mono text-faint">{audits.length}</span>
+            <span className="num text-faint">{audits.length}</span>
           </summary>
           <ul className="overflow-hidden rounded-xl border border-border bg-surface">
             {audits.map((audit) => (
@@ -159,16 +160,16 @@ function StaticRow({ model, audit, comparison, rank }: { model: ReportModel; aud
     <li id={rank === undefined ? `audit-${audit.key}` : undefined} className="border-b border-border last:border-b-0">
       <details className="group/row">
         <summary className="flex cursor-pointer list-none items-center gap-3 px-4 py-2.5">
-          {rank !== undefined && <span className="num w-5 shrink-0 text-right font-mono text-[12px] text-faint">{rank}</span>}
+          {rank !== undefined && <span className="num w-5 shrink-0 text-right text-[12px] text-faint">{rank}</span>}
           <StatusIcon status={audit.status} />
           <span className="flex min-w-0 flex-1 items-center gap-2">
             <span className="truncate">{audit.title}</span>
             {rank !== undefined && (
-              <span className="hidden shrink-0 rounded-[5px] border border-border px-1.5 py-px text-[11px] text-muted sm:inline">{CATEGORY_SHORT_TITLES[audit.category]}</span>
+              <span className="hidden shrink-0 rounded-[5px] border border-border px-1.5 py-px text-[11px] text-muted sm:inline">{CATEGORY_TITLES[audit.category]}</span>
             )}
           </span>
           {change && <ChangeBadge kind={change.kind} />}
-          {audit.displayValue && <span className="num hidden max-w-56 shrink-0 truncate font-mono text-[12px] text-muted md:inline">{audit.displayValue}</span>}
+          {audit.displayValue && <span className="num hidden max-w-56 shrink-0 truncate text-[12px] text-muted md:inline">{audit.displayValue}</span>}
           <span className="w-12 shrink-0 text-right">
             <PointsLabel audit={audit} />
           </span>

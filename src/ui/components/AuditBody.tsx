@@ -73,12 +73,12 @@ export function AuditBody({ audit, change, actions }: { audit: AuditItem; change
       )}
       <div className="flex flex-wrap items-center gap-2">
         {actions}
-        <span className="ml-auto flex flex-wrap items-center gap-2 font-mono text-[11.5px] text-faint">
-          {audit.group && <span className="font-sans">{audit.group}</span>}
+        <span className="ml-auto flex flex-wrap items-center gap-2 text-[11.5px] text-faint">
+          {audit.group && <span>{audit.group}</span>}
           {audit.category === 'agentic' && audit.weight !== undefined && audit.earned !== undefined && (
             <span className="num">{audit.status === 'locked' || audit.status === 'na' ? `weight ${audit.weight}` : `${audit.earned} of ${audit.weight}`}</span>
           )}
-          <span>{audit.id}</span>
+          <span className="font-mono">{audit.id}</span>
         </span>
       </div>
     </div>
@@ -99,7 +99,7 @@ export function PointsLabel({ audit }: { audit: AuditItem }) {
   if (audit.status !== 'fail' && audit.status !== 'partial') return null;
   if (audit.points > 0) {
     return (
-      <span className="num font-mono text-[12px] font-medium text-good" title={`Fixing this adds up to ${audit.points} points to the score`}>
+      <span className="num text-[12px] font-medium text-good" title={`Fixing this adds up to ${audit.points} points to the score`}>
         +{audit.points}
       </span>
     );
@@ -107,7 +107,7 @@ export function PointsLabel({ audit }: { audit: AuditItem }) {
   if (audit.impact) {
     return (
       <span
-        className="num font-mono text-[12px] text-muted"
+        className="num text-[12px] text-muted"
         title={`Estimated at up to ${audit.impact} Performance points, through the metrics this improves. Estimates overlap, so they are not added up.`}
       >
         ≈+{audit.impact}

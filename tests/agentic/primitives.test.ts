@@ -100,7 +100,7 @@ describe('sha256Hex', () => {
     }
   });
 
-  it('contentHash is the first 16 hex characters over normalised whitespace', () => {
+  it('contentHash is the first 16 hex characters over normalized whitespace', () => {
     expect(contentHash('a  b\r\n\n\n\nc ')).toBe(sha256Hex('a b\n\nc').slice(0, 16));
     expect(normalizeForHash('a\t\tb')).toBe('a b');
     expect(contentHash('x')).toHaveLength(16);
@@ -162,7 +162,7 @@ describe('sitemap helpers', () => {
     (_, i) => `<sitemap><loc>https://cdn.example.net/sitemaps/s${i}.xml?a=1&amp;b=2</loc></sitemap>`,
   ).join('')}</sitemapindex>`;
 
-  it('recognises an index', () => {
+  it('recognizes an index', () => {
     expect(isSitemapIndex(index)).toBe(true);
     expect(isSitemapIndex('<urlset></urlset>')).toBe(false);
   });

@@ -2,7 +2,7 @@ import { sha256Hex } from './sha256';
 
 /**
  * OpenGEO's content hash, which B14 compares with a twin's recorded `source_hash` /
- * `X-Markdown-Source-Hash`. Byte-for-byte the same algorithm: SHA-256 of the whitespace-normalised
+ * `X-Markdown-Source-Hash`. Byte-for-byte the same algorithm: SHA-256 of the whitespace-normalized
  * extracted markdown, hex, first 16 characters.
  */
 export function contentHash(input: string): string {

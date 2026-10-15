@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { CATEGORY_IDS, CATEGORY_SHORT_TITLES, CATEGORY_TITLES } from '../../shared/categories';
+import { CATEGORY_IDS, CATEGORY_TITLES } from '../../shared/categories';
 import type { RunSummary } from '../../shared/run';
 import { ScoreDelta } from '../components/Change';
 import { ScoreRing } from '../components/ScoreRing';
@@ -89,7 +89,7 @@ export function HistoryPage() {
           <section key={origin} className="mt-8 first:mt-0" aria-label={displayUrl(origin).host}>
             <h2 className="mb-2 flex items-baseline gap-2 text-[13px] font-medium">
               {displayUrl(origin).host}
-              <span className="num font-mono text-[12px] text-faint">{list.length}</span>
+              <span className="num text-[12px] text-faint">{list.length}</span>
             </h2>
             <ul className="overflow-hidden rounded-xl border border-border bg-surface">
               {list.map((run) => {
@@ -120,14 +120,14 @@ export function HistoryPage() {
                           const score = run.scores[id];
                           const earlier = before?.scores[id];
                           return (
-                            <span key={id} className="flex w-16 flex-col items-center" title={CATEGORY_TITLES[id]}>
-                              <span className="num font-mono text-[14px] font-medium" style={{ color: BAND_COLOR[band(score)] }}>
-                                {typeof score === 'number' ? score : '–'}
-                              </span>
-                              <span className="flex h-4 items-center gap-1 text-[10.5px] text-faint">
-                                {CATEGORY_SHORT_TITLES[id]}
+                            <span key={id} className="flex w-[4.75rem] flex-col items-center">
+                              <span className="flex h-5 items-baseline gap-1">
+                                <span className="num text-[14px] font-medium" style={{ color: BAND_COLOR[band(score)] }}>
+                                  {typeof score === 'number' ? score : '–'}
+                                </span>
                                 {typeof score === 'number' && typeof earlier === 'number' && score !== earlier && <ScoreDelta delta={score - earlier} className="text-[10.5px]" />}
                               </span>
+                              <span className="text-[10.5px] whitespace-nowrap text-faint">{CATEGORY_TITLES[id]}</span>
                             </span>
                           );
                         })}

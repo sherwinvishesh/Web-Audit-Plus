@@ -13,15 +13,6 @@ export const CATEGORY_TITLES: Readonly<Record<CategoryId, string>> = {
   agentic: 'Agentic',
 };
 
-/** For tight spaces (the side panel's ring labels); the full title goes in the tooltip. */
-export const CATEGORY_SHORT_TITLES: Readonly<Record<CategoryId, string>> = {
-  performance: 'Perf',
-  accessibility: 'A11y',
-  'best-practices': 'Practices',
-  seo: 'SEO',
-  agentic: 'Agentic',
-};
-
 export function isCategoryId(value: unknown): value is CategoryId {
   return typeof value === 'string' && (CATEGORY_IDS as readonly string[]).includes(value);
 }

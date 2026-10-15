@@ -20,7 +20,7 @@ export const WHY: Readonly<Record<string, string>> = {
   B7: 'One URL that answers in two formats must say so with Vary: Accept, or a CDN caches one format and serves it to everyone.',
   B8: 'The Link header is how an agent that fetched the HTML discovers the twin, without guessing the .md convention.',
   B9: 'Agents that ask for markdown in the Accept header should get it at the URL they requested, with no extra round trip.',
-  B10: 'Most AI crawlers send Accept: */*. Recognising them by User-Agent is the only way to serve them markdown without a redirect.',
+  B10: 'Most AI crawlers send Accept: */*. Recognizing them by User-Agent is the only way to serve them markdown without a redirect.',
   B11: 'A 406 for a format the site cannot produce tells a client the truth, instead of handing it a body it did not ask for.',
   B12: 'A version header lets agents detect which markdown-serving convention the site follows, and what they can rely on.',
   B13: 'Serving markdown to agents must never change what people get. A browser request that receives markdown or a redirect is a broken page.',

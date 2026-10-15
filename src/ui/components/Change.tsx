@@ -34,7 +34,7 @@ export function ScoreDelta({ delta, className = '' }: { delta: number | undefine
   const text = signed(delta);
   const color = text === '±0' ? 'var(--faint)' : delta > 0 ? 'var(--good)' : 'var(--bad)';
   return (
-    <span className={`num font-mono text-[12px] font-medium ${className}`} style={{ color }} title="Change since the compared run">
+    <span className={`num text-[12px] font-medium ${className}`} style={{ color }} title="Change since the compared run">
       {text}
     </span>
   );
@@ -45,7 +45,7 @@ export function MetricDelta({ change }: { change: MetricChange | undefined }) {
   if (!change) return null;
   const color = change.delta < 0 ? 'var(--good)' : 'var(--bad)';
   return (
-    <span className="num font-mono text-[11.5px] font-medium" style={{ color }} title={change.before ? `Was ${change.before}` : 'Change since the compared run'}>
+    <span className="num text-[11.5px] font-medium" style={{ color }} title={change.before ? `Was ${change.before}` : 'Change since the compared run'}>
       {metricDelta(change)}
     </span>
   );
