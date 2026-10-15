@@ -7,3 +7,7 @@ dist/
 coverage/
 web-ext.config.ts
 CHROME_WEB_STORE.md
+.env
+.env.*
+LAUNCH_REPORT.md
+LAUNCH_TEST.md

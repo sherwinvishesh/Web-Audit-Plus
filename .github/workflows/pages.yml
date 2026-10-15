@@ -18,8 +18,21 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  check:
+    name: Website tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npx vitest run tests/website
+
   deploy:
     name: Deploy website
+    needs: check
     runs-on: ubuntu-latest
     environment:
       name: github-pages
