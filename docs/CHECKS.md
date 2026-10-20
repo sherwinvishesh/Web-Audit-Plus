@@ -2,9 +2,10 @@
 
 The Agentic category scores how well a page serves AI agents: crawlers that build training sets,
 search agents that cite pages, and assistants that fetch a page because someone asked about it. It
-runs 22 deterministic checks, ported from OpenGEO's `opengeo test` (the author's other project,
-coming soon) with the same weights and thresholds. No language model is involved anywhere: the
-same responses always produce the same score.
+runs 22 deterministic checks, ported from `opengso test` in
+[OpenGSO](https://github.com/sherwinvishesh/OpenGSO), the author's Generative Search Optimization
+toolkit, with the same weights and thresholds. No language model is involved anywhere: the same
+responses always produce the same score.
 
 Seven of the checks are **scored**: they measure what AI agents need today, and the score is
 computed over them alone. The other fifteen are **suggestions**: the llms.txt, structured-data and
@@ -44,7 +45,7 @@ missing file it is.
 
 ## How the score is computed
 
-Every check carries a weight, OpenGEO's. The seven scored checks (A1, A3, A5, A6, A7, A8 and B13)
+Every check carries a weight, OpenGSO's. The seven scored checks (A1, A3, A5, A6, A7, A8 and B13)
 weigh 61 between them, and the score is computed over those alone. The fifteen suggestions weigh
 another 61; their weight only orders them in the report, heaviest first.
 
@@ -95,7 +96,7 @@ These are pinned by tests (`tests/agentic/score.test.ts`):
 
 - A site that does what the leading AI sites do (crawlable, fast, HTTPS, content in the HTML, no
   llms.txt, no JSON-LD, no twin) scores **100**, with A2, A4 and B1 open as suggestions and the
-  twelve twin checks waiting behind B1. OpenGEO scores the same site 80.
+  twelve twin checks waiting behind B1. OpenGSO scores the same site 80.
 - The same site serving a correct twin scores **100** with every suggestion adopted.
 - A scored check that fails is the only thing that moves the score below 100.
 - B1 is the only check with a double-digit weight.
@@ -129,7 +130,7 @@ These are pinned by tests (`tests/agentic/score.test.ts`):
 | B13 | 9 | scored | yes | The original HTML URL is still reachable and unaffected |
 | B14 | 4 | suggestion | yes | The served markdown still matches the live page (no drift or staleness) |
 
-"Required" is OpenGEO's label for the checks it treats as essential in its own grading; Web Audit+
+"Required" is OpenGSO's label for the checks it treats as essential in its own grading; Web Audit+
 keeps it for reference, and scores only the column before it.
 
 ### A. Discoverability

@@ -1,6 +1,6 @@
 /**
- * Known AI crawlers and their robots.txt tokens, ported from OpenGEO's `shared/bots.js` (the
- * community-maintained list behind `opengeo test`'s A1).
+ * Known AI crawlers and their robots.txt tokens, ported from OpenGSO's `shared/bots.js` (the
+ * community-maintained list behind `opengso test`'s A1).
  *
  * Two fields are different levers:
  *  - `uaPatterns`  matched against a request's User-Agent. Empty means robots.txt-only.

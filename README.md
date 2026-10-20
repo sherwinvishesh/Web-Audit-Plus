@@ -11,6 +11,7 @@ SEO** and **Agentic**, a fifth category for how well the page serves AI agents, 
 prompt for every failing audit that you can paste straight into your coding assistant.
 Nothing leaves your browser.
 
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/jabdhjkfchfepopdjpmmdjmbkgkoafao?label=Chrome%20Web%20Store&logo=googlechrome&logoColor=white&color=4285F4)](https://chromewebstore.google.com/detail/web-audit+/jabdhjkfchfepopdjpmmdjmbkgkoafao)
 [![CI](https://github.com/sherwinvishesh/Web-Audit-Plus/actions/workflows/ci.yml/badge.svg)](https://github.com/sherwinvishesh/Web-Audit-Plus/actions/workflows/ci.yml)
 [![Pages](https://github.com/sherwinvishesh/Web-Audit-Plus/actions/workflows/pages.yml/badge.svg)](https://github.com/sherwinvishesh/Web-Audit-Plus/actions/workflows/pages.yml)
 [![License: Apache-2.0](https://img.shields.io/badge/license-Apache--2.0-3d8bff)](LICENSE)
@@ -19,6 +20,7 @@ Nothing leaves your browser.
 [![Version 0.1.0](https://img.shields.io/badge/version-0.1.0-2fbf71)](package.json)
 [![Privacy](https://img.shields.io/badge/telemetry-none-2fbf71)](https://sherwinvishesh.github.io/Web-Audit-Plus/privacy/)
 
+**[Add to Chrome](https://chromewebstore.google.com/detail/web-audit+/jabdhjkfchfepopdjpmmdjmbkgkoafao)** ·
 **[Website](https://sherwinvishesh.github.io/Web-Audit-Plus/)** ·
 **[Documentation](https://sherwinvishesh.github.io/Web-Audit-Plus/docs/)** ·
 **[The 22 Agentic checks](docs/CHECKS.md)** ·
@@ -26,7 +28,7 @@ Nothing leaves your browser.
 **[Privacy policy](https://sherwinvishesh.github.io/Web-Audit-Plus/privacy/)** ·
 **[Contributing](CONTRIBUTING.md)**
 
-<img src="docs/screenshots/in-browser.png" width="960" alt="Web Audit+ open in Chrome's side panel next to neurips.cc: the page on the left, and on the right the Desktop and Mobile switch, the five category toggles, five score rings, the three best fixes with the score each is worth, and the suggestions that are not scored">
+<a href="https://chromewebstore.google.com/detail/web-audit+/jabdhjkfchfepopdjpmmdjmbkgkoafao"><img src="docs/screenshots/banner.png" width="960" alt="Web Audit+. Audit the page. Ship the fix. Five scores for the tab you are on, and a fix prompt for every failing audit. Beside the words, the side panel and the full report for neurips.cc: Performance 83, Accessibility 92, Best Practices 100, SEO 92 and Agentic 75"></a>
 
 </div>
 
@@ -86,7 +88,7 @@ backend to leak from. The extension talks to the site you audit and to nobody el
 <div align="center">
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/screenshots/report-light.png">
-  <img src="docs/screenshots/report-dark.png" width="960" alt="The Web Audit+ report: five score rings for Performance, Accessibility, Best Practices, SEO and Agentic, a compare bar, the All audits and Fix next tabs, search and filters, and the Performance metrics">
+  <img src="docs/screenshots/report-dark.png" width="960" alt="The Web Audit+ report for neurips.cc: an overall score of 88 and five score rings, Performance 83, Accessibility 92, Best Practices 100, SEO 92 and Agentic 75, each with its change since the previous run, a compare bar, the All audits and Fix next tabs, search and filters, and the Core Web Vitals">
 </picture>
 </div>
 
@@ -97,7 +99,7 @@ page (elements, URLs, measured values), says why it matters, and ends with the f
 section opens with the Core Web Vitals and a filmstrip of how the page rendered while it loaded.
 
 <div align="center">
-<img src="docs/screenshots/audit-open-dark.png" width="900" alt="An opened audit in the report: the filmstrip, a failed Network dependency tree audit with what was found, why it matters, how to fix it and a Copy fix prompt button">
+<img src="docs/screenshots/audit-open-dark.png" width="900" alt="An opened audit in the report for neurips.cc: the filmstrip of the page loading, then the failed Use efficient cache lifetimes audit with an estimated saving of 2,163 KiB, the uncached images, scripts and fonts it found, why it matters, how to fix it, and a Copy fix prompt button">
 </div>
 
 - **Search and filter.** Press `/` and type. Filter by status (needs work, failed, partial,
@@ -141,7 +143,7 @@ Every fix across all five categories, ranked by the points it adds to the score.
 The side panel shows the top three the moment a run finishes.
 
 <div align="center">
-<img src="docs/screenshots/fix-next-dark.png" width="900" alt="The Fix next tab: 15 fixes ranked by score gain, each with its category and the points it is worth, and a Copy all fixes button">
+<img src="docs/screenshots/fix-next-dark.png" width="900" alt="The Fix next tab for neurips.cc: 21 fixes ranked by score gain, led by a missing sitemap.xml worth 15 points and uncached static assets, each with its category and the points it is worth, and a Copy all fixes button">
 </div>
 
 ### Compare runs
@@ -165,9 +167,9 @@ a three-category run is never compared against a five-category one as if they we
 <div align="center">
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/screenshots/panel-light.png">
-  <img src="docs/screenshots/panel-dark.png" width="340" alt="The side panel after a run: the page being audited, the Desktop and Mobile switch, the five category toggles, a Run again button, five score rings, the top three fixes, Open full report and Copy fixes buttons, and the previous runs of the page beneath">
+  <img src="docs/screenshots/panel-dark.png" width="340" alt="The side panel after a run on neurips.cc: the page being audited, the Desktop and Mobile switch, the five category toggles, a Run again button, five score rings, the top three fixes, the suggestions that are not scored, Open full report and Copy fixes buttons, and the previous runs of the page beneath">
 </picture>
-<img src="docs/screenshots/panel-idle-dark.png" width="340" alt="The side panel before a run: the page being audited, the controls, a Run audit button, and the previous runs of this page with their scores, dates and devices, plus a link to the rest of the site's runs">
+<img src="docs/screenshots/panel-idle-dark.png" width="340" alt="The side panel before a run on neurips.cc: the page being audited, the controls, a Run audit button, and the four previous runs of this page on desktop and mobile with their scores, plus a link to the run on another page of the site">
 </div>
 
 Pick **Desktop** or **Mobile**, toggle the categories you want, press **Run audit**. The panel
@@ -206,9 +208,10 @@ Every score is out of 100 and is coloured the way lab tools colour them: green f
 ## The Agentic score, in depth
 
 The Agentic category scores how well a page serves AI agents. It runs **22 deterministic checks**,
-ported from OpenGEO's `opengeo test` with the same ids, weights and thresholds, and pinned to it by
-parity tests. OpenGEO is the author's other project, a command-line toolkit for serving AI agents,
-coming soon. No language model is involved anywhere: the same responses always produce the same
+ported from `opengso test` with the same ids, weights and thresholds, and pinned to it by parity
+tests. [OpenGSO](https://github.com/sherwinvishesh/OpenGSO) is the author's other project, a
+command-line toolkit for Generative Search Optimization: making a site easy for AI agents to find,
+read and cite. No language model is involved anywhere: the same responses always produce the same
 score.
 
 Seven of the checks are **scored**: they measure what AI agents need today, and the score is
@@ -258,7 +261,7 @@ missing file it is.
 score = round(100 × earned / applicable)
 ```
 
-Every check carries a weight, OpenGEO's. `applicable` is the sum of the weights of the scored
+Every check carries a weight, OpenGSO's. `applicable` is the sum of the weights of the scored
 checks that returned pass, partial or fail; a check that cannot apply, such as HTTPS on
 `localhost`, leaves the denominator instead of dragging the score down. Rounding happens once, at
 the end. The scored weights total 61 and the score is out of 100, so a weight is not a score point:
@@ -303,7 +306,7 @@ each shortfall is reported as its own suggestion.
 | **B13** | 9 | yes | yes | The original HTML URL is still reachable and unaffected |
 | **B14** | 4 | suggestion | yes | The served markdown still matches the live page (no drift or staleness) |
 
-"Required" is OpenGEO's own label for the checks it treats as essential; Web Audit+ keeps it for
+"Required" is OpenGSO's own label for the checks it treats as essential; Web Audit+ keeps it for
 reference and scores the column before it. [docs/CHECKS.md](docs/CHECKS.md) explains every verdict,
 every partial-credit rule and every fix prompt, and `tests/docs-sync.test.ts` makes sure that page
 never drifts from the registry.
@@ -319,15 +322,15 @@ never drifts from the registry.
 │  └─────────────┘           │  Agentic ── fetch() from the worker ───▶│─┼──▶ the site
 │                            │     │       (no page CSP, no cookies)   │ │     robots.txt
 │  ┌─────────────┐  IndexedDB│     │                                   │ │     llms.txt
-│  │ Report page │◀────────▶│  Audit engine ── chrome.debugger ──┐    │ │     sitemap.xml
-│  │ (React)     │           │  (bundled, keepNames)   CDP adapter │    │ │     page.md
-│  └─────────────┘           └─────────────────────────────────────┼────┘ │     page (3 ways)
-│                                                                  ▼      │
-│                                            ┌──────────────────────────┐ │
-│                                            │ Your tab, driven over CDP │ │
-│                                            │ emulation · throttling    │ │
-│                                            │ trace · DOM · a11y tree   │ │
-│                                            └──────────────────────────┘ │
+│  │ Report page │◀────────▶│  Audit engine ── chrome.debugger   ──┐   │ │     sitemap.xml
+│  │ (React)     │           │  (bundled, keepNames)   CDP adapter │   │ │     page.md
+│  └─────────────┘           └─────────────────────────────────────┼───┘ │     page (3 ways)
+│                                                                  ▼     │
+│                                            ┌─────────────────────────┐ │
+│                                            │ Your tab, driven by CDP │ │
+│                                            │ emulation · throttling  │ │
+│                                            │ trace · DOM · a11y tree │ │
+│                                            └─────────────────────────┘ │
 └────────────────────────────────────────────────────────────────────────┘
 ```
 
@@ -388,8 +391,19 @@ network.
 
 ## Install
 
-Web Audit+ needs **Google Chrome 125 or later**. A Chrome Web Store listing is on its way; until
-then, load it unpacked:
+Web Audit+ is free on the **[Chrome Web Store](https://chromewebstore.google.com/detail/web-audit+/jabdhjkfchfepopdjpmmdjmbkgkoafao)** and needs **Google Chrome 125 or
+later**.
+
+1. Open the [store listing](https://chromewebstore.google.com/detail/web-audit+/jabdhjkfchfepopdjpmmdjmbkgkoafao) and press **Add to Chrome**.
+2. Confirm the permissions Chrome lists. Each one is explained under
+   [Permissions, and why each one is there](#permissions-and-why-each-one-is-there).
+3. Pin Web Audit+ to the toolbar.
+
+Updates arrive through the store on their own.
+
+### Build from source
+
+To run your own build, or a change you are working on, load it unpacked:
 
 ```sh
 git clone https://github.com/sherwinvishesh/Web-Audit-Plus.git
@@ -506,7 +520,7 @@ the extension and drives it in a real headless Chrome.
 | Suite | What it pins |
 | --- | --- |
 | `tests/agentic` | Every check against synthetic evidence, the scoring arithmetic, sniffing, sitemap parsing, fidelity, frontmatter |
-| `tests/parity-checks`, `tests/parity-isolation` | Edge cases where the port must agree with `opengeo test`, and that each probe isolates one lever |
+| `tests/parity-checks`, `tests/parity-isolation` | Edge cases where the port must agree with `opengso test`, and that each probe isolates one lever |
 | `tests/engine` | The build plugin against the engine sources, the CDP adapter, the normaliser on a real engine result |
 | `tests/shared`, `tests/fix-prompt` | Run records, storage and its 200-run cap, the report model, compare, filters, and the fix prompt format |
 | `tests/background`, `tests/ui` | The run lifecycle with a fake `chrome`, and the React components |
@@ -533,12 +547,13 @@ manifest, and attaches the zip to a GitHub release.
 runs the website tests and publishes it to GitHub Pages on every push to `main` that touches it.
 Each page has a markdown twin (`index.md`, `docs.md`, `privacy.md`) that the Agentic checks read,
 plus `llms.txt`, `robots.txt` and a sitemap. The site is built to pass its own tests, and you can
-check: install the extension, open the site and press Run audit.
+check: [install the extension](https://chromewebstore.google.com/detail/web-audit+/jabdhjkfchfepopdjpmmdjmbkgkoafao), open the site and press Run audit.
 
 ## FAQ
 
 **Is Web Audit+ free?**
-Yes. It is open source under Apache-2.0, there is no account, no plan and no usage limit.
+Yes. It is open source under Apache-2.0, it is free on the [Chrome Web Store](https://chromewebstore.google.com/detail/web-audit+/jabdhjkfchfepopdjpmmdjmbkgkoafao), and there
+is no account, no plan and no usage limit.
 
 **Why does Chrome say that Web Audit+ started debugging this browser?**
 That bar is how Chrome tells you an extension is using the debugger. The audit engine needs it to
@@ -589,9 +604,10 @@ Chrome does not let extensions attach a debugger to them. The panel says so and 
 
 - The audit engine in `packages/engine` is derived from Apache-2.0 code by **Google LLC**. Its
   LICENSE and NOTICE are kept with it, and the original copyright headers stay on every file.
-- The Agentic checks are a port of the `test` command of **OpenGEO**, the author's other project,
-  coming soon, with the same ids, weights and thresholds. OpenGEO scores all 22; Web Audit+ scores
-  seven and reports the rest as suggestions.
+- The Agentic checks are a port of the `test` command of
+  **[OpenGSO](https://github.com/sherwinvishesh/OpenGSO)**, the author's Generative Search
+  Optimization toolkit, with the same ids, weights and thresholds. OpenGSO scores all 22;
+  Web Audit+ scores seven and reports the rest as suggestions.
 - Accessibility rules come from **axe-core** by Deque Systems.
 - The extension is built with **WXT**, **React**, **Tailwind CSS**, **TypeScript** and **Vitest**,
   and tested in Chrome through **puppeteer-core**.
@@ -608,6 +624,8 @@ used under the SIL Open Font License. axe-core is used under the Mozilla Public 
 
 <div align="center">
 <br>
+
+<img src="docs/screenshots/in-browser.png" width="960" alt="Web Audit+ open in Chrome's side panel next to neurips.cc: the page on the left, and on the right the Desktop and Mobile switch, the five category toggles, five score rings, the three best fixes with the score each is worth, and the suggestions that are not scored">
 
 Made by **[Sherwin Vishesh Jathanna](https://github.com/sherwinvishesh)**
 

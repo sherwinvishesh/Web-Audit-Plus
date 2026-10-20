@@ -6,7 +6,7 @@
 
 ## Why
 
-<!-- The problem it solves, or the behaviour it corrects. For an Agentic check, say whether this matches opengeo upstream. -->
+<!-- The problem it solves, or the behaviour it corrects. For an Agentic check, say whether this matches OpenGSO upstream. -->
 
 ## How I tested it
 

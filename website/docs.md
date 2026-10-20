@@ -2,7 +2,7 @@
 title: "Docs · Web Audit+"
 description: "Install Web Audit+, run an audit, work the report, copy fix prompts, export, and understand the 22 Agentic checks, the permissions and how to develop the extension."
 canonical: https://sherwinvishesh.github.io/Web-Audit-Plus/docs/
-last_updated: 2026-10-15
+last_updated: 2026-10-20
 ---
 
 # Everything Web Audit+ does, and how.
@@ -11,13 +11,23 @@ Documentation
 
 From installing the extension to the weight of every Agentic check. If a question is not answered here, open an issue on GitHub.
 
-Version 0.1.0 · Chrome 125 or later · Updated October 15, 2026
+Version 0.1.0 · Chrome 125 or later · Updated October 20, 2026
 
 On this page: Install · Run an audit · The report · Fix prompts · Exports · Keyboard · Agentic checks · Permissions · Troubleshooting · Develop · License
 
 ## Install
 
-Web Audit+ needs Google Chrome 125 or later. Until it is listed on the Chrome Web Store, it is loaded unpacked from a local build.
+Web Audit+ is free on the Chrome Web Store and needs Google Chrome 125 or later.
+
+1. Open [Web Audit+ on the Chrome Web Store](https://chromewebstore.google.com/detail/web-audit+/jabdhjkfchfepopdjpmmdjmbkgkoafao) and press **Add to Chrome**.
+2. Confirm the permissions Chrome lists. Each one is explained under [Permissions](#permissions).
+3. Pin Web Audit+ to the toolbar from the puzzle-piece menu.
+
+Updates arrive through the store on their own.
+
+### Build from source
+
+To run your own build, or a change you are working on, load it unpacked.
 
 1. Clone the repository and build it:
 
@@ -88,7 +98,7 @@ The Export menu in the report offers four formats. All of them are produced in y
 
 ## Agentic checks
 
-The Agentic category scores how well a page serves AI agents: crawlers that build training sets, search agents that cite pages, and assistants that fetch a page because someone asked about it. It runs 22 deterministic checks, ported from OpenGEO's `opengeo test` (the author's other project, coming soon) with the same weights and thresholds. No language model is involved anywhere: the same responses always produce the same score.
+The Agentic category scores how well a page serves AI agents: crawlers that build training sets, search agents that cite pages, and assistants that fetch a page because someone asked about it. It runs 22 deterministic checks, ported from `opengso test` in [OpenGSO](https://github.com/sherwinvishesh/OpenGSO), the author's Generative Search Optimization toolkit, with the same weights and thresholds. No language model is involved anywhere: the same responses always produce the same score.
 
 Seven of the checks are **scored**: they measure what AI agents need today, and the score is computed over them alone. The other fifteen are **suggestions**: llms.txt, structured data and the markdown-twin conventions. They are run, reported and given a fix like any other audit, but they never move the score, because the sites that serve AI agents best (openai.com and anthropic.com among them) have not adopted them either. A page that does what those sites do scores 100; the suggestions are what would set it apart.
 
@@ -111,7 +121,7 @@ A status code is never trusted on its own. A catch-all route that answers `/robo
 
 ### How the score is computed
 
-Every check carries a weight, OpenGEO's. The seven scored checks (A1, A3, A5, A6, A7, A8 and B13) weigh 61 between them and the score is out of 100, so a weight is not a score point: every "+N" the report shows has been converted into score points for this run. The fifteen suggestions weigh another 61; their weight only orders them in the report, heaviest first.
+Every check carries a weight, OpenGSO's. The seven scored checks (A1, A3, A5, A6, A7, A8 and B13) weigh 61 between them and the score is out of 100, so a weight is not a score point: every "+N" the report shows has been converted into score points for this run. The fifteen suggestions weigh another 61; their weight only orders them in the report, heaviest first.
 
 ```
 score = round(100 × earned / applicable)
@@ -134,7 +144,7 @@ Two calibration points are pinned by tests: a site that does what the leading AI
 
 ### The checks
 
-"Required" is OpenGEO's label for the checks it treats as essential; it is kept for reference. The score is computed over the Scored column.
+"Required" is OpenGSO's label for the checks it treats as essential; it is kept for reference. The score is computed over the Scored column.
 
 | Id | Weight | Scored | Required | Check |
 |---|---|---|---|---|

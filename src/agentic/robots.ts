@@ -1,5 +1,5 @@
 /**
- * Reading robots.txt the way a crawler does (RFC 9309), matching OpenGEO's reader: groups keyed by
+ * Reading robots.txt the way a crawler does (RFC 9309), matching OpenGSO's reader: groups keyed by
  * lower-cased User-agent token, consecutive User-agent lines share a group, a bot obeys its own
  * group if present and `*` otherwise, the longest matching rule wins, Allow wins a tie, `*` matches
  * any run and a trailing `$` anchors. An empty Disallow matches nothing.

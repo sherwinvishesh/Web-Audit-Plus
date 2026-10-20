@@ -2,7 +2,7 @@ import { codeSpan } from '../quote';
 import type { AgenticCheck, CheckDefinition, CheckResult, Evidence } from '../types';
 
 /**
- * Building blocks for check results, ported from OpenGEO's `test/checks.js`.
+ * Building blocks for check results, ported from OpenGSO's `test/checks.js`.
  *
  * Text conventions: `reason`, `detail` and `fix` are prose plus inline code spans. A value that came
  * from the audited site goes through `q()` (an inert single-line code span), never into a template

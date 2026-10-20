@@ -11,8 +11,9 @@ This product includes software developed by third parties:
   copyright headers stay on every file. The changes made for Web Audit+
   are described in docs/ENGINE.md.
 
-- The Agentic checks are a port of the `test` command of OpenGEO, with the
-  same ids, weights, thresholds and calibration.
+- The Agentic checks are a port of the `test` command of OpenGSO
+  (https://github.com/sherwinvishesh/OpenGSO), with the same ids, weights,
+  thresholds and calibration.
 
 - axe-core, Copyright Deque Systems, Inc., is used under the Mozilla Public
   License, Version 2.0.

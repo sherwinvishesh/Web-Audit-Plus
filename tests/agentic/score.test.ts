@@ -51,7 +51,7 @@ describe('the weight table', () => {
 describe('the scale, measured against known sites', () => {
   it('puts a site that does what the leading AI sites do at 100, with A2, A4 and B1 left as suggestions', () => {
     // openai.com and anthropic.com: crawlable, fast, HTTPS, content in the HTML, no llms.txt, no
-    // JSON-LD, no markdown twin. OpenGEO scores that 80; here it is the top of the scale.
+    // JSON-LD, no markdown twin. OpenGSO scores that 80; here it is the top of the scale.
     const score = scoreChecks(runChecks(unadoptedEvidence()));
     expect(score.value).toBe(100);
     expect(score.lost).toEqual([]);

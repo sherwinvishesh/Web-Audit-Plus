@@ -68,10 +68,10 @@ and say in the pull request what was wrong and how you know it is fixed.
 
 ### Changing an Agentic check
 
-The Agentic checks are a port of OpenGEO's `opengeo test` (the author's other project, coming
-soon), with the same ids, weights and thresholds, and the parity suites (`tests/parity-*.test.ts`)
-pin that. Seven checks are scored and
-fifteen are suggestions (`scored` on each definition); the split is pinned by
+The Agentic checks are a port of `opengso test` from [OpenGSO](https://github.com/sherwinvishesh/OpenGSO)
+(the author's other project), with the same ids, weights and thresholds, and the parity suites
+(`tests/parity-*.test.ts`) pin that. Seven checks are scored and fifteen are suggestions (`scored`
+on each definition); the split is pinned by
 `tests/agentic/score.test.ts`. A change to a check's behaviour must either match a change upstream
 or be argued on its own merits in the pull request. Whatever you change, keep these in step:
 

@@ -1,4 +1,4 @@
-/** sitemap.xml helpers, matching OpenGEO's discover module. */
+/** sitemap.xml helpers, matching OpenGSO's discover module. */
 
 /** A sitemap index can list thousands of children; this many are fetched. */
 export const MAX_CHILD_SITEMAPS = 10;

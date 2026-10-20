@@ -3,7 +3,7 @@ import { countWords } from './tokens';
 import type { Evidence, ProbeResponse } from './types';
 
 /**
- * HTML -> Markdown extraction, ported from OpenGEO's `generate/extract.js`.
+ * HTML -> Markdown extraction, ported from OpenGSO's `generate/extract.js`.
  *
  * A5 (is the content in the raw HTML?), B3 (is the twin a real copy?) and B14 (has the twin drifted?)
  * all compare against this. It reads the HTML as served, without running scripts, which is exactly

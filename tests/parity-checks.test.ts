@@ -10,7 +10,7 @@ import { liveExtract } from '../src/agentic/extract';
 import { GOOD_HTML, GOOD_TWIN, goodEvidence, probe, SPA_SHELL, unadoptedEvidence } from './helpers/evidence';
 
 /**
- * Edge cases pinned against OpenGEO's `opengeo test` behaviour: the cases where a naive port
+ * Edge cases pinned against OpenGSO's `opengso test` behaviour: the cases where a naive port
  * would score differently from the reference implementation.
  */
 
@@ -287,7 +287,7 @@ describe('B14 without a source hash', () => {
   });
 });
 
-describe('partial() clamping, as OpenGEO does it', () => {
+describe('partial() clamping, as OpenGSO does it', () => {
   it('never awards 0 or the full weight as a partial, and prices the fix from the clamped value', () => {
     const e = goodEvidence();
     const words = Array.from({ length: 16 }, (_, i) => `w${i}`).join(' ');
@@ -328,7 +328,7 @@ describe('the twin cascade', () => {
 });
 
 describe('the registry', () => {
-  it('carries the OpenGEO weights, required flags and kinds', () => {
+  it('carries the OpenGSO weights, required flags and kinds', () => {
     const table: Record<string, [number, boolean]> = {
       A1: [9, true], A2: [3, false], A3: [9, true], A4: [2, false], A5: [9, true], A6: [8, true], A7: [8, true], A8: [9, true],
       B1: [10, true], B2: [5, true], B3: [5, true], B4: [3, false], B5: [3, false], B6: [3, true], B7: [4, true], B8: [3, false],

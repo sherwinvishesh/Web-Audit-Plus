@@ -3,7 +3,7 @@ import type { Framework, FrameworkId } from './types';
 /**
  * Background for each Agentic check, for the fix prompt: what "fixed" looks like, written for a
  * coding agent with the site's repository open. A check's own `fix` names the cause it observed;
- * this describes the destination. Adapted from OpenGEO's prompt remedies with every reference to a
+ * this describes the destination. Adapted from OpenGSO's prompt remedies with every reference to a
  * specific tool removed, so the advice holds for any stack.
  *
  * `{twin}` is replaced with the twin's path.

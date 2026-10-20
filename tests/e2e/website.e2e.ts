@@ -1,5 +1,6 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { serveWebsite, type WebsiteServer } from '../helpers/website-server';
+import type { RunRecord } from '../../src/shared/run';
 import { canRun, launch, type Harness } from './chrome';
 
 /**
@@ -11,6 +12,18 @@ import { canRun, launch, type Harness } from './chrome';
 const STATIC_HOST_LIMITS = ['A8 na', 'B4 fail', 'B5 fail', 'B6 fail', 'B7 fail', 'B8 fail', 'B9 fail', 'B10 fail', 'B11 fail', 'B12 fail'];
 const PAGES = ['/', '/docs/', '/privacy/'];
 const ALL = ['performance', 'accessibility', 'best-practices', 'seo', 'agentic'] as const;
+
+/** Names the category in a failed score check and, if it has no score, says why: the run's error or the audits that did not score. */
+function scoreContext(record: RunRecord | undefined, category: keyof RunRecord['errors']): string {
+  const engine = record?.engine;
+  const unscored = (engine?.categories[category]?.auditRefs ?? [])
+    .filter((ref) => ref.weight > 0)
+    .flatMap((ref) => {
+      const audit = engine?.audits[ref.id];
+      return audit && audit.score === null ? [`${audit.id} (${audit.scoreDisplayMode})${audit.errorMessage ? `: ${audit.errorMessage}` : ''}`] : [];
+    });
+  return [category, record?.errors[category], ...unscored].filter(Boolean).join('; ');
+}
 
 describe.skipIf(!canRun)('the website, audited by the extension', () => {
   let harness: Harness;
@@ -28,14 +41,14 @@ describe.skipIf(!canRun)('the website, audited by the extension', () => {
     it(`scores ${path} as it promises`, async () => {
       const { tabId } = await harness.openTab(`${site.origin}${path}`);
       const state = await harness.run(tabId, { formFactor: 'mobile', categories: [...ALL] });
+      const record = await harness.record(state.runId);
       expect(state.error).toBeUndefined();
       expect(state.phase).toBe('done');
-      expect(state.scores.accessibility).toBe(100);
-      expect(state.scores['best-practices']).toBe(100);
-      expect(state.scores.seo).toBe(100);
-      expect(state.scores.performance).toBeGreaterThanOrEqual(90);
+      expect(state.scores.accessibility, scoreContext(record, 'accessibility')).toBe(100);
+      expect(state.scores['best-practices'], scoreContext(record, 'best-practices')).toBe(100);
+      expect(state.scores.seo, scoreContext(record, 'seo')).toBe(100);
+      expect(state.scores.performance, scoreContext(record, 'performance')).toBeGreaterThanOrEqual(90);
 
-      const record = await harness.record(state.runId);
       const notPassing = record?.agentic?.checks.filter((check) => check.status !== 'pass').map((check) => `${check.id} ${check.status}`);
       expect(notPassing).toEqual(STATIC_HOST_LIMITS);
     });

@@ -1,5 +1,5 @@
 /**
- * The markdown twin URL convention, matching OpenGEO: the page path with `.md` appended,
+ * The markdown twin URL convention, matching OpenGSO: the page path with `.md` appended,
  * `/resume` → `/resume.md`, `/` → `/index.md`. Query and fragment are dropped.
  */
 

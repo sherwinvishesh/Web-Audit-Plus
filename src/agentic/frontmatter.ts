@@ -1,5 +1,5 @@
 /**
- * Minimal YAML frontmatter reader, matching OpenGEO's: a flat map of strings, numbers, booleans
+ * Minimal YAML frontmatter reader, matching OpenGSO's: a flat map of strings, numbers, booleans
  * and string arrays. B14 reads `source_hash` and `last_updated` from it.
  */
 

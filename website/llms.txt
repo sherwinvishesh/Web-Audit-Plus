@@ -16,6 +16,10 @@ Web Audit+ runs the bundled audit engine on your own tab with simulated throttli
 - [Docs](https://sherwinvishesh.github.io/Web-Audit-Plus/docs.md)
 - [Privacy policy](https://sherwinvishesh.github.io/Web-Audit-Plus/privacy.md)
 
+## Install
+
+- [Web Audit+ on the Chrome Web Store](https://chromewebstore.google.com/detail/web-audit+/jabdhjkfchfepopdjpmmdjmbkgkoafao): free, Chrome 125 or later
+
 ## Source
 
 - [GitHub repository](https://github.com/sherwinvishesh/Web-Audit-Plus): source code, issues, releases

@@ -115,7 +115,7 @@ export interface CheckDefinition {
    * never enter the denominator, so a page that does what the leaders do scores 100.
    */
   scored: boolean;
-  /** OpenGEO's label; weight carries importance and `scored` says whether it counts. */
+  /** OpenGSO's label; weight carries importance and `scored` says whether it counts. */
   required: boolean;
   /** Maximum points. Among suggestions, the weight only orders them. */
   weight: number;

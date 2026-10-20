@@ -29,7 +29,7 @@
   "headline": "Web Audit+ documentation",
   "description": "Install Web Audit+, run an audit, work the report, copy fix prompts, export, and understand the 22 Agentic checks, the permissions and how to develop the extension.",
   "url": "https://sherwinvishesh.github.io/Web-Audit-Plus/docs/",
-  "dateModified": "2026-10-15",
+  "dateModified": "2026-10-20",
   "isPartOf": { "@type": "WebSite", "name": "Web Audit+", "url": "https://sherwinvishesh.github.io/Web-Audit-Plus/" },
   "about": { "@type": "SoftwareApplication", "name": "Web Audit+", "applicationCategory": "DeveloperApplication", "operatingSystem": "Chrome 125 or later" }
 }
@@ -55,7 +55,7 @@
         <li><a href="./" aria-current="page">Docs</a></li>
         <li><a href="../privacy/">Privacy</a></li>
         <li><a href="https://github.com/sherwinvishesh/Web-Audit-Plus">GitHub</a></li>
-        <li><a class="btn btn-primary" href="#install">Get the extension</a></li>
+        <li><a class="btn btn-primary" href="https://chromewebstore.google.com/detail/web-audit+/jabdhjkfchfepopdjpmmdjmbkgkoafao">Add to Chrome</a></li>
       </ul>
     </nav>
   </div>
@@ -67,7 +67,7 @@
       <p class="eyebrow">Documentation</p>
       <h1>Everything Web Audit+ does, and how.</h1>
       <p class="lede">From installing the extension to the weight of every Agentic check. If a question is not answered here, open an issue on GitHub.</p>
-      <p class="meta">Version 0.1.0 · Chrome 125 or later · Updated October 15, 2026</p>
+      <p class="meta">Version 0.1.0 · Chrome 125 or later · Updated October 20, 2026</p>
     </div>
 
     <div class="docs-layout">
@@ -90,7 +90,15 @@
 
       <div class="prose">
         <h2 id="install"><a class="anchor" href="#install">Install</a></h2>
-        <p>Web Audit+ needs Google Chrome 125 or later. Until it is listed on the Chrome Web Store, it is loaded unpacked from a local build.</p>
+        <p>Web Audit+ is free on the Chrome Web Store and needs Google Chrome 125 or later.</p>
+        <ol>
+          <li>Open <a href="https://chromewebstore.google.com/detail/web-audit+/jabdhjkfchfepopdjpmmdjmbkgkoafao">Web Audit+ on the Chrome Web Store</a> and press <strong>Add to Chrome</strong>.</li>
+          <li>Confirm the permissions Chrome lists. Each one is explained under <a href="#permissions">Permissions</a>.</li>
+          <li>Pin Web Audit+ to the toolbar from the puzzle-piece menu.</li>
+        </ol>
+        <p>Updates arrive through the store on their own.</p>
+        <h3>Build from source</h3>
+        <p>To run your own build, or a change you are working on, load it unpacked.</p>
         <ol>
           <li>Clone the repository and build it:
 <pre><code>git clone https://github.com/sherwinvishesh/Web-Audit-Plus.git
@@ -132,7 +140,7 @@ npm run build</code></pre></li>
         <h2 id="exports"><a class="anchor" href="#exports">Exports</a></h2>
         <p>The Export menu in the report offers four formats. All of them are produced in your browser.</p>
         <div class="table-wrap">
-        <table>
+        <table class="stack">
           <thead><tr><th>Format</th><th>What you get</th></tr></thead>
           <tbody>
             <tr><td>PDF</td><td>A print-ready document: a cover with every score and a screenshot of the page, the ranked fixes, a page for each category with every finding written out, and the fix prompt. Text is selectable, links work, headings are bookmarks, and the file is tagged for screen readers. It prints on A4 or Letter, whichever your locale uses.</td></tr>
@@ -158,42 +166,42 @@ npm run build</code></pre></li>
         </div>
 
         <h2 id="agentic"><a class="anchor" href="#agentic">Agentic checks</a></h2>
-        <p>The Agentic category scores how well a page serves AI agents: crawlers that build training sets, search agents that cite pages, and assistants that fetch a page because someone asked about it. It runs 22 deterministic checks, ported from OpenGEO's <code>opengeo test</code> (the author's other project, coming soon) with the same weights and thresholds. No language model is involved anywhere: the same responses always produce the same score.</p>
+        <p>The Agentic category scores how well a page serves AI agents: crawlers that build training sets, search agents that cite pages, and assistants that fetch a page because someone asked about it. It runs 22 deterministic checks, ported from <code>opengso test</code> in <a href="https://github.com/sherwinvishesh/OpenGSO">OpenGSO</a>, the author's Generative Search Optimization toolkit, with the same weights and thresholds. No language model is involved anywhere: the same responses always produce the same score.</p>
         <p>Seven of the checks are <strong>scored</strong>: they measure what AI agents need today, and the score is computed over them alone. The other fifteen are <strong>suggestions</strong>: llms.txt, structured data and the markdown-twin conventions. They are run, reported and given a fix like any other audit, but they never move the score, because the sites that serve AI agents best (openai.com and anthropic.com among them) have not adopted them either. A page that does what those sites do scores 100; the suggestions are what would set it apart.</p>
 
         <h3>What is fetched</h3>
         <p>Every request goes to the audited origin, with cookies omitted and the cache bypassed. The requests are sent by the extension's background worker rather than by the page, so the page's Content-Security-Policy cannot block them and the site sees an anonymous visitor, the way it sees an agent. Timings are measured from your browser.</p>
         <div class="table-wrap">
-        <table>
+        <table class="stack">
           <thead><tr><th>Probe</th><th>Request</th><th>Used by</th></tr></thead>
           <tbody>
-            <tr><td>html</td><td>the page, as a browser (Chrome User-Agent, HTML Accept)</td><td>A4, A5, A6, A7, A8, B7, B8, B13, B14</td></tr>
-            <tr><td>robots</td><td><code>/robots.txt</code></td><td>A1</td></tr>
-            <tr><td>llms</td><td><code>/llms.txt</code></td><td>A2</td></tr>
-            <tr><td>sitemap</td><td><code>/sitemap.xml</code>, plus up to 10 children of a sitemap index</td><td>A3</td></tr>
-            <tr><td>twin</td><td>the markdown twin: the page's <code>Link rel="alternate"</code> target if it is on the same origin, otherwise the page path plus <code>.md</code> (<code>/</code> becomes <code>/index.md</code>)</td><td>B1 to B7, B12, B14</td></tr>
-            <tr><td>acceptMarkdown</td><td>the page, <code>Accept: text/markdown</code>, Web Audit+'s own User-Agent</td><td>B9</td></tr>
-            <tr><td>botUa</td><td>the page, GPTBot's User-Agent, <code>Accept: */*</code></td><td>B10</td></tr>
-            <tr><td>notAcceptable</td><td>the page, <code>Accept: application/pdf</code></td><td>B11</td></tr>
+            <tr><td>html</td><td data-label="Request">the page, as a browser (Chrome User-Agent, HTML Accept)</td><td data-label="Used by">A4, A5, A6, A7, A8, B7, B8, B13, B14</td></tr>
+            <tr><td>robots</td><td data-label="Request"><code>/robots.txt</code></td><td data-label="Used by">A1</td></tr>
+            <tr><td>llms</td><td data-label="Request"><code>/llms.txt</code></td><td data-label="Used by">A2</td></tr>
+            <tr><td>sitemap</td><td data-label="Request"><code>/sitemap.xml</code>, plus up to 10 children of a sitemap index</td><td data-label="Used by">A3</td></tr>
+            <tr><td>twin</td><td data-label="Request">the markdown twin: the page's <code>Link rel="alternate"</code> target if it is on the same origin, otherwise the page path plus <code>.md</code> (<code>/</code> becomes <code>/index.md</code>)</td><td data-label="Used by">B1 to B7, B12, B14</td></tr>
+            <tr><td>acceptMarkdown</td><td data-label="Request">the page, <code>Accept: text/markdown</code>, Web Audit+'s own User-Agent</td><td data-label="Used by">B9</td></tr>
+            <tr><td>botUa</td><td data-label="Request">the page, GPTBot's User-Agent, <code>Accept: */*</code></td><td data-label="Used by">B10</td></tr>
+            <tr><td>notAcceptable</td><td data-label="Request">the page, <code>Accept: application/pdf</code></td><td data-label="Used by">B11</td></tr>
           </tbody>
         </table>
         </div>
         <p>A status code is never trusted on its own. A catch-all route that answers <code>/robots.txt</code> or <code>/resume.md</code> with its HTML shell and a 200 is detected by sniffing the body, and is scored as the missing file it is.</p>
 
         <h3>How the score is computed</h3>
-        <p>Every check carries a weight, OpenGEO's. The seven scored checks (A1, A3, A5, A6, A7, A8 and B13) weigh 61 between them and the score is out of 100, so a weight is not a score point: every "+N" the report shows has been converted into score points for this run. The fifteen suggestions weigh another 61; their weight only orders them in the report, heaviest first.</p>
+        <p>Every check carries a weight, OpenGSO's. The seven scored checks (A1, A3, A5, A6, A7, A8 and B13) weigh 61 between them and the score is out of 100, so a weight is not a score point: every "+N" the report shows has been converted into score points for this run. The fifteen suggestions weigh another 61; their weight only orders them in the report, heaviest first.</p>
 <pre><code>score = round(100 × earned / applicable)</code></pre>
         <p><code>applicable</code> is the sum of the weights of the scored checks that returned pass, partial or fail. Rounding happens once, at the end.</p>
         <div class="table-wrap">
-        <table>
+        <table class="stack">
           <thead><tr><th>Verdict</th><th>In the denominator</th><th>Earns</th></tr></thead>
           <tbody>
-            <tr><td>pass</td><td>yes</td><td>the full weight</td></tr>
-            <tr><td>partial</td><td>yes</td><td>part of the weight, named in the row</td></tr>
-            <tr><td>fail</td><td>yes</td><td>nothing</td></tr>
-            <tr><td>suggestion</td><td>no</td><td>nothing; it is reported with its evidence and a fix, like a failure</td></tr>
-            <tr><td>locked</td><td>no</td><td>nothing; it waits on the check it reads from</td></tr>
-            <tr><td>n/a</td><td>no</td><td>nothing, and there is nothing to fix</td></tr>
+            <tr><td>pass</td><td data-label="In the denominator">yes</td><td data-label="Earns">the full weight</td></tr>
+            <tr><td>partial</td><td data-label="In the denominator">yes</td><td data-label="Earns">part of the weight, named in the row</td></tr>
+            <tr><td>fail</td><td data-label="In the denominator">yes</td><td data-label="Earns">nothing</td></tr>
+            <tr><td>suggestion</td><td data-label="In the denominator">no</td><td data-label="Earns">nothing; it is reported with its evidence and a fix, like a failure</td></tr>
+            <tr><td>locked</td><td data-label="In the denominator">no</td><td data-label="Earns">nothing; it waits on the check it reads from</td></tr>
+            <tr><td>n/a</td><td data-label="In the denominator">no</td><td data-label="Earns">nothing, and there is nothing to fix</td></tr>
           </tbody>
         </table>
         </div>
@@ -201,7 +209,7 @@ npm run build</code></pre></li>
         <p>Two calibration points are pinned by tests: a site that does what the leading AI sites do (crawlable, fast, HTTPS, content in the HTML, no llms.txt, no JSON-LD, no twin) scores 100 with A2, A4 and B1 open as suggestions, and the same site serving a correct twin scores 100 with every suggestion adopted. Only a scored check moves the score below 100.</p>
 
         <h3>The checks</h3>
-        <p>"Required" is OpenGEO's label for the checks it treats as essential; it is kept for reference. The score is computed over the Scored column.</p>
+        <p>"Required" is OpenGSO's label for the checks it treats as essential; it is kept for reference. The score is computed over the Scored column.</p>
         <div class="table-wrap">
         <table class="checks-table">
           <thead><tr><th>Id</th><th>Weight</th><th>Scored</th><th>Required</th><th>Check</th></tr></thead>
@@ -236,7 +244,7 @@ npm run build</code></pre></li>
         <h2 id="permissions"><a class="anchor" href="#permissions">Permissions</a></h2>
         <p>Chrome asks for these when the extension is installed. Each one is there for a reason you can check in the source.</p>
         <div class="table-wrap">
-        <table>
+        <table class="stack">
           <thead><tr><th>Permission</th><th>Why</th></tr></thead>
           <tbody>
             <tr><td><code>debugger</code></td><td>The audit engine drives the tab over the Chrome DevTools Protocol. It loads the page with emulation and throttling, records a trace, and collects network, DOM and accessibility data. The Agentic probe that sends a crawler's User-Agent uses it too, on the extension's own worker, and the PDF export prints the report page through it.</td></tr>

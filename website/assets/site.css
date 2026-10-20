@@ -58,6 +58,8 @@
   --radius: 14px;
   --nav-h: 64px;
   --content: 1120px;
+  /* The side margin: 24px on a desktop, down to 16px on a 320px phone. */
+  --gutter: clamp(16px, 5vw, 24px);
 }
 
 *,
@@ -175,7 +177,7 @@ kbd {
   width: 100%;
   max-width: var(--content);
   margin: 0 auto;
-  padding: 0 24px;
+  padding: 0 var(--gutter);
 }
 
 .skip {
@@ -256,8 +258,11 @@ kbd {
   cursor: pointer;
 }
 @media (max-width: 860px) {
+  /* The menu's own box is empty here (the list is positioned below the bar), so the toggle is
+     moved after it to sit at the right edge. */
   .nav-toggle {
     display: inline-flex;
+    order: 1;
   }
   .nav-links {
     position: absolute;
@@ -267,19 +272,26 @@ kbd {
     display: none;
     flex-direction: column;
     align-items: stretch;
-    padding: 12px 16px 16px;
+    max-height: calc(100dvh - var(--nav-h));
+    overflow-y: auto;
+    padding: 8px var(--gutter) 20px;
     background: var(--bg);
     border-bottom: 1px solid var(--border);
+    box-shadow: 0 24px 48px -24px rgb(0 0 0 / 0.8);
   }
   .nav-links[data-open='true'] {
     display: flex;
   }
   .nav-links a {
+    display: flex;
     min-height: 48px;
+    font-size: 16px;
   }
-  .nav-links .btn {
+  .nav-links a.btn {
     justify-content: center;
-    margin-top: 8px;
+    margin-top: 12px;
+    min-height: 48px;
+    font-size: 15px;
   }
 }
 
@@ -367,6 +379,12 @@ kbd {
   height: 1px;
   background: var(--accent);
 }
+@media (max-width: 480px) {
+  .eyebrow {
+    font-size: 11.5px;
+    letter-spacing: 0.1em;
+  }
+}
 
 h1,
 h2,
@@ -402,7 +420,7 @@ h3 {
 .section-head {
   max-width: 760px;
 }
-.section-head p {
+.section-head p:not(.eyebrow) {
   margin: 18px 0 0;
   font-size: 17px;
   color: var(--muted);
@@ -504,6 +522,21 @@ section + section {
   border-radius: 50%;
   background: var(--good);
 }
+@media (max-width: 480px) {
+  .hero .wrap {
+    gap: 40px;
+  }
+  .hero-ctas {
+    margin-top: 28px;
+  }
+  .hero-ctas .btn {
+    flex: 1 1 auto;
+  }
+  .hero-facts {
+    gap: 8px 16px;
+    font-size: 12px;
+  }
+}
 
 /* ---------- Mock report ---------- */
 
@@ -571,8 +604,12 @@ section + section {
 .mock-scores > div + div {
   border-left: 1px solid var(--border);
 }
+.mock-scores .ring {
+  --size: 64px;
+}
 .mock-scores .label {
   font-size: 13px;
+  line-height: 1.3;
   color: var(--muted);
 }
 .mock-rows {
@@ -580,11 +617,14 @@ section + section {
 }
 .mock-row {
   display: grid;
-  grid-template-columns: 20px 1fr auto auto;
+  grid-template-columns: 20px minmax(0, 1fr) auto auto;
   align-items: center;
   gap: 14px;
   padding: 14px 18px;
   font-size: 14px;
+}
+.mock-row > span:nth-child(2) {
+  text-wrap: pretty;
 }
 .mock-row + .mock-row {
   border-top: 1px solid var(--border);
@@ -676,13 +716,81 @@ section + section {
     font-size: 11px;
   }
   .mock-row {
-    grid-template-columns: 20px 1fr auto;
+    grid-template-columns: 20px minmax(0, 1fr) auto;
   }
   .mock-row .cat {
     display: none;
   }
   .mock-bar .pill {
     display: none;
+  }
+}
+/* A phone: smaller rings, each finding's points under its text, and a tighter prompt. */
+@media (max-width: 480px) {
+  .mock {
+    border-radius: 16px;
+  }
+  .mock-bar {
+    padding: 10px 12px;
+  }
+  .mock-bar .dots {
+    display: none;
+  }
+  .mock-scores .ring {
+    --size: 52px;
+  }
+  .mock-row {
+    grid-template-columns: 20px minmax(0, 1fr);
+    align-items: start;
+    gap: 2px 12px;
+    padding: 12px 14px;
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+  .mock-row .ic {
+    margin-top: 1px;
+  }
+  .mock-row .gain {
+    grid-column: 2;
+    min-width: 0;
+    font-size: 12px;
+    text-align: left;
+  }
+  .mock-prompt {
+    margin: 0 12px 12px;
+  }
+  .mock-prompt .head {
+    flex-wrap: wrap;
+    gap: 6px 12px;
+    padding: 10px 12px;
+    font-size: 12px;
+  }
+  .mock-prompt pre {
+    padding: 12px;
+    font-size: 11.5px;
+  }
+}
+/* Five labels no longer fit across, so the rings sit three over two, as the report wraps them. */
+@media (max-width: 420px) {
+  .mock-scores {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    padding: 8px 0 10px;
+  }
+  .mock-scores > div {
+    grid-column: span 2;
+    padding: 10px 4px;
+  }
+  .mock-scores > div + div {
+    border-left: 0;
+  }
+  .mock-scores > div:nth-child(4) {
+    grid-column: 2 / span 2;
+  }
+  .mock-scores .ring {
+    --size: 56px;
+  }
+  .mock-scores .label {
+    font-size: 12px;
   }
 }
 
@@ -790,6 +898,18 @@ section + section {
     border-top: 1px solid var(--border);
   }
 }
+@media (max-width: 480px) {
+  .stats > div {
+    padding: 18px 16px;
+  }
+  .stats .big {
+    font-size: 30px;
+  }
+  .stats .what {
+    margin-top: 8px;
+    font-size: 13px;
+  }
+}
 
 /* ---------- Cards and grids ---------- */
 
@@ -862,6 +982,15 @@ section + section {
     grid-column: span 1;
   }
 }
+@media (max-width: 480px) {
+  .card {
+    padding: 22px 20px;
+  }
+  .card .demo pre {
+    padding: 14px;
+    font-size: 12px;
+  }
+}
 /* A wide card: icon, copy and action side by side. */
 .card-row {
   display: grid;
@@ -885,6 +1014,15 @@ section + section {
     justify-self: start;
   }
 }
+@media (max-width: 640px) {
+  .card-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 16px;
+  }
+  .card-row .btn {
+    grid-column: 1;
+  }
+}
 .card .demo {
   margin-top: 20px;
   border: 1px solid var(--border);
@@ -903,7 +1041,7 @@ section + section {
 }
 .demo-rows > div {
   display: grid;
-  grid-template-columns: var(--label, 24px) 1fr auto;
+  grid-template-columns: var(--label, 24px) minmax(0, 1fr) auto;
   gap: 12px;
   align-items: center;
   padding: 10px 14px;
@@ -986,6 +1124,15 @@ section + section {
   margin: 0;
   font-size: 14px;
 }
+@media (max-width: 640px) {
+  .cat-card {
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 4px 18px;
+  }
+  .cat-card .ring {
+    grid-row: span 2;
+  }
+}
 
 /* ---------- Agentic checks ---------- */
 
@@ -997,12 +1144,12 @@ section + section {
 }
 @media (max-width: 760px) {
   .checks {
-    grid-template-columns: 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
 }
 .check {
   display: grid;
-  grid-template-columns: 44px 1fr auto;
+  grid-template-columns: 44px minmax(0, 1fr) auto;
   align-items: center;
   gap: 14px;
   padding: 12px 14px;
@@ -1030,6 +1177,21 @@ section + section {
 }
 .check .w.sug {
   color: var(--accent);
+}
+/* A phone: the weight moves under the check, so the text keeps the width. */
+@media (max-width: 480px) {
+  .check {
+    grid-template-columns: 40px minmax(0, 1fr);
+    align-items: start;
+    gap: 2px 12px;
+    padding: 12px;
+  }
+  .check .id {
+    grid-row: span 2;
+  }
+  .check .w {
+    grid-column: 2;
+  }
 }
 .formula {
   position: relative;
@@ -1067,6 +1229,14 @@ section + section {
   color: var(--muted);
   font-size: 15px;
   max-width: 720px;
+}
+@media (max-width: 480px) {
+  .formula {
+    padding: 22px 20px;
+  }
+  .formula .eq {
+    font-size: 17px;
+  }
 }
 
 /* ---------- Steps ---------- */
@@ -1125,6 +1295,17 @@ section + section {
 .note strong {
   color: var(--text);
 }
+@media (max-width: 480px) {
+  .step {
+    padding: 22px 20px;
+  }
+  .step::before {
+    margin-bottom: 12px;
+  }
+  .note {
+    padding: 14px 16px;
+  }
+}
 
 /* ---------- Privacy bullets ---------- */
 
@@ -1158,6 +1339,11 @@ section + section {
   margin-top: 10px;
   font-size: 15px;
   color: var(--muted);
+}
+@media (max-width: 480px) {
+  .fact {
+    padding: 20px;
+  }
 }
 
 /* ---------- FAQ ---------- */
@@ -1201,6 +1387,15 @@ section + section {
   max-width: 760px;
   text-wrap: pretty;
 }
+@media (max-width: 480px) {
+  .faq summary {
+    padding: 18px 2px;
+    font-size: 16px;
+  }
+  .faq details p {
+    padding: 0 2px;
+  }
+}
 
 /* ---------- CTA band ---------- */
 
@@ -1225,7 +1420,7 @@ section + section {
   max-width: 18ch;
   margin: 0 auto;
 }
-.cta p {
+.cta p:not(.eyebrow) {
   margin: 16px auto 0;
   max-width: 560px;
   color: var(--muted);
@@ -1233,6 +1428,15 @@ section + section {
 }
 .cta .hero-ctas {
   justify-content: center;
+}
+@media (max-width: 480px) {
+  .cta .box {
+    padding: 48px 20px;
+    border-radius: 20px;
+  }
+  .cta p:not(.eyebrow) {
+    font-size: 16px;
+  }
 }
 
 /* ---------- Footer ---------- */
@@ -1251,6 +1455,10 @@ section + section {
 @media (max-width: 760px) {
   .footer .wrap {
     grid-template-columns: 1fr 1fr;
+    gap: 24px 32px;
+  }
+  .footer .wrap > div:first-child {
+    grid-column: 1 / -1;
   }
 }
 .footer h3 {
@@ -1374,6 +1582,28 @@ section + section {
     min-height: 48px;
   }
 }
+/* A phone: the contents become one row that scrolls sideways, edge to edge, instead of a block
+   of chips taller than the screen. */
+@media (max-width: 640px) {
+  .toc ol {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    margin: 0 calc(var(--gutter) * -1);
+    padding: 0 var(--gutter) 2px;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+  }
+  .toc ol::-webkit-scrollbar {
+    display: none;
+  }
+  .toc li {
+    flex: none;
+  }
+  .toc li a {
+    min-height: 44px;
+    white-space: nowrap;
+  }
+}
 
 .prose {
   font-size: 16.5px;
@@ -1438,6 +1668,10 @@ section + section {
 .prose td code {
   white-space: nowrap;
 }
+/* Key combinations such as "j / k" stay on one line. */
+.prose td:has(> kbd) {
+  white-space: nowrap;
+}
 .prose .table-wrap {
   overflow-x: auto;
   min-width: 0;
@@ -1460,6 +1694,41 @@ section + section {
   .prose th:last-child,
   .prose td:last-child {
     padding-right: 0;
+  }
+}
+/* Tables marked .stack read as a list on a phone: the first cell leads each row, and the other
+   cells follow under it with their column name from data-label. */
+@media (max-width: 560px) {
+  .prose table.stack thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .prose table.stack,
+  .prose table.stack tbody {
+    display: block;
+  }
+  .prose table.stack tr {
+    display: grid;
+    gap: 4px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .prose table.stack td {
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+  .prose table.stack td:first-child {
+    font-weight: 600;
+    color: var(--text);
+  }
+  .prose table.stack td[data-label]::before {
+    content: attr(data-label) ': ';
+    color: var(--muted);
   }
 }
 .prose .callout {
@@ -1525,6 +1794,12 @@ section + section {
 .policy-summary p + p {
   margin-top: 10px;
 }
+@media (max-width: 480px) {
+  .policy-summary {
+    padding: 20px;
+    font-size: 17px;
+  }
+}
 .anchor {
   color: inherit;
   text-decoration: none;
@@ -1546,9 +1821,13 @@ section + section {
     clip: rect(0 0 0 0);
     white-space: nowrap;
   }
+  .checks-table,
+  .checks-table tbody {
+    display: block;
+  }
   .checks-table tr {
-    display: grid;
-    grid-template-columns: max-content max-content max-content 1fr;
+    display: flex;
+    flex-wrap: wrap;
     gap: 6px 14px;
     padding: 12px 0;
     border-bottom: 1px solid var(--border);
@@ -1579,6 +1858,6 @@ section + section {
     content: 'required: ';
   }
   .checks-table td:nth-child(5) {
-    grid-column: 1 / -1;
+    flex-basis: 100%;
   }
 }

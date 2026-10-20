@@ -1,7 +1,7 @@
 import type { Framework, FrameworkId, HeaderMap } from './types';
 
 /**
- * Framework detection: fingerprint matching on the HTML and response headers, ported from OpenGEO's
+ * Framework detection: fingerprint matching on the HTML and response headers, ported from OpenGSO's
  * `shared/framework.js` and extended with the hosted builders a browser extension meets often.
  *
  * A courtesy, never a dependency: no check's result changes based on it, and every caller handles

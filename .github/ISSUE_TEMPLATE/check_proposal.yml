@@ -6,7 +6,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        The Agentic checks are deterministic: the same responses always give the same verdict, and no language model is involved. Read [docs/CHECKS.md](https://github.com/sherwinvishesh/Web-Audit-Plus/blob/main/docs/CHECKS.md) first for how weights, partial credit and "not applicable" work. Checks are kept in step with OpenGEO's `opengeo test`, so a change to an existing check should either match upstream or be argued on its own merits here.
+        The Agentic checks are deterministic: the same responses always give the same verdict, and no language model is involved. Read [docs/CHECKS.md](https://github.com/sherwinvishesh/Web-Audit-Plus/blob/main/docs/CHECKS.md) first for how weights, partial credit and "not applicable" work. Checks are kept in step with OpenGSO's `opengso test`, so a change to an existing check should either match upstream or be argued on its own merits here.
   - type: input
     id: name
     attributes:
@@ -38,7 +38,7 @@ body:
     id: required
     attributes:
       label: Required or recommended
-      description: OpenGEO's label. Required checks carry more weight. Recommended ones are nice to have.
+      description: OpenGSO's label. Required checks carry more weight. Recommended ones are nice to have.
       options:
         - Recommended
         - Required

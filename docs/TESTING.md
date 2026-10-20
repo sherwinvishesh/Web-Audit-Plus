@@ -42,7 +42,7 @@ npm run test:e2e    # builds, then drives the built extension in a real Chrome
 - **Fix prompts, manifest, docs**: the prompt templates (including that everything quoted from the
   site stays inside code spans), the permissions the manifest asks for, and that `docs/CHECKS.md`
   lists exactly the checks the code implements.
-- **Parity with `opengeo test`** (`tests/parity-checks.test.ts`): the edge cases where a port
+- **Parity with `opengso test`** (`tests/parity-checks.test.ts`): the edge cases where a port
   could drift from the original: `Vary` values, HTML served at `robots.txt` or `llms.txt`, sitemap
   indexes and their child cap, trailing-slash redirects against `.md` redirects, `Link` targets on
   another origin, robots longest-match with `*` and `$`, header name case and duplicates, HTTP to

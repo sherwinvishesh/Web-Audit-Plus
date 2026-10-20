@@ -3,9 +3,9 @@ import { countWords } from './tokens';
 
 /**
  * Fact fidelity: does a markdown twin still carry every number, date, price and percentage the
- * live page states? Ported from OpenGEO's `generate/fidelity.js`, which B14 uses to tell a cosmetic
+ * live page states? Ported from OpenGSO's `generate/fidelity.js`, which B14 uses to tell a cosmetic
  * edit from a twin that is now serving agents wrong information. Messages are reworded for the
- * twin-versus-page comparison (OpenGEO's talk about a model's rewrite).
+ * twin-versus-page comparison (OpenGSO's talk about a model's rewrite).
  *
  * What it does not check: names and other words, and which number sits next to which.
  */

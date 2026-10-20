@@ -1,7 +1,7 @@
 import type { CheckResult, FixStep, Score, Status } from "./types";
 
 /**
- * The 0-100 score, derived from OpenGEO's `test/score.js`, over the scored checks only.
+ * The 0-100 score, derived from OpenGSO's `test/score.js`, over the scored checks only.
  *
  * No letter grade. Three kinds of check stay outside the denominator, for different reasons: `na`
  * because the question does not apply here and never will (HSTS on localhost), `locked` because it

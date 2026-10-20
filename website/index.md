@@ -2,7 +2,7 @@
 title: "Web Audit+ · Audit the page. Ship the fix."
 description: "A free, open-source Chrome extension that scores any page on Performance, Accessibility, Best Practices, SEO and Agentic, and writes a fix prompt for every failing audit. Nothing leaves your browser."
 canonical: https://sherwinvishesh.github.io/Web-Audit-Plus/
-last_updated: 2026-10-15
+last_updated: 2026-10-17
 ---
 
 # Audit the page. Ship the fix.
@@ -11,10 +11,10 @@ Open-source Chrome extension
 
 Web Audit+ scores the tab you are on for Performance, Accessibility, Best Practices, SEO and a fifth category, Agentic, for how well the page serves AI agents. Every failing audit comes with a fix prompt written for your coding assistant. Nothing leaves your browser.
 
-- [Get the extension](https://sherwinvishesh.github.io/Web-Audit-Plus/docs/#install)
+- [Add to Chrome](https://chromewebstore.google.com/detail/web-audit+/jabdhjkfchfepopdjpmmdjmbkgkoafao)
 - [See what it does](#what-you-get)
 
-Free · No account · Runs locally · Chrome 125 or later
+Free on the Chrome Web Store · No account · Runs locally · Chrome 125 or later
 
 | | |
 |---|---|
@@ -216,5 +216,5 @@ Google Chrome 125 or later. The extension uses Chrome's side panel and debugger 
 
 Install the extension, come back to this page and press Run audit. This site was built to pass its own tests, and you can check.
 
-- [Install Web Audit+](https://sherwinvishesh.github.io/Web-Audit-Plus/docs/#install)
+- [Install Web Audit+](https://chromewebstore.google.com/detail/web-audit+/jabdhjkfchfepopdjpmmdjmbkgkoafao)
 - [Read the source](https://github.com/sherwinvishesh/Web-Audit-Plus)
